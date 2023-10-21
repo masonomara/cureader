@@ -25,7 +25,7 @@ export default function TabOneScreen() {
         data={rss}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return <ArticleCard {...item} />;
+          return <ArticleCard item={item} />;
         }}
       />
     </View>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   articleList: {
     paddingLeft: 24,
-    width: '100%',
+    width: "100%",
   },
   title: {
     fontSize: 20,

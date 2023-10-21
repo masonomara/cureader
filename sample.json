@@ -1,0 +1,24 @@
+{
+  "item": {
+    "authors": [],
+    "categories": [],
+    "content": "<div id=\"\" class=\"hds-media hds-module wp-block-image\"> ... </div>",
+    "description": "NASA’s Earth Polychromatic Imaging Camera aboard the Deep Space Climate Observatory (DSCOVR) captured the lunar shadow during the Oct. 14 annular solar eclipse. The sensor provides frequent global views of Earth from its position at Lagrange Point 1, a gravitationally stable point between the Sun and Earth about 1.5 million kilometers from Earth. DSCOVR is a ...",
+    "enclosures": [],
+    "id": "https://www.nasa.gov/?post_type=image-article&p=552085",
+    "itunes": {
+      "authors": [],
+      "block": null,
+      "duration": null,
+      "explicit": null,
+      "image": null,
+      "isClosedCaptioned": null,
+      "order": null,
+      "subtitle": null,
+      "summary": null
+    },
+    "links": [],
+    "published": "Thu, 19 Oct 2023 17:14:53 +0000",
+    "title": "The Moon Casts a Shadow"
+  }
+}

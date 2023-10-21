@@ -1,6 +1,7 @@
 import { StyleSheet, View, Text } from "react-native";
 
-export default function ArticleCard({ title, description }) {
+export default function ArticleCard({ item }) {
+  console.log({ item });
   return (
     <View style={styles.card}>
       <View style={styles.cardContent}>
@@ -9,11 +10,19 @@ export default function ArticleCard({ title, description }) {
         </View>
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
-            Publication Name
-            <Text style={styles.articleDate}> October 21st, 2023</Text>
+            Publication Name&nbsp;&nbsp;
+            <Text style={styles.articleDate}>
+              {new Date(item.published).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
           </Text>
-          <Text style={styles.title}>{title}</Text>
-          <Text numberOfLines={4} style={styles.description}>{description}</Text>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text numberOfLines={4} style={styles.description}>
+            {item.description}
+          </Text>
         </View>
       </View>
     </View>
