@@ -24,7 +24,18 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SerifRegular: require("../assets/fonts/SourceSerifPro/source-serif-pro.regular.ttf"),
+    SerifSemiBold: require("../assets/fonts/SourceSerifPro/source-serif-pro.semibold.ttf"),
+    SerifBold: require("../assets/fonts/SourceSerifPro/source-serif-pro.bold.ttf"),
+    InterThin: require("../assets/fonts/Inter/Inter-Thin.ttf"),
+    InterExtraLight: require("../assets/fonts/Inter/Inter-ExtraLight.ttf"),
+    InterLight: require("../assets/fonts/Inter/Inter-Light.ttf"),
+    InterRegular: require("../assets/fonts/Inter/Inter-Regular.ttf"),
+    InterMedium: require("../assets/fonts/Inter/Inter-Medium.ttf"),
+    InterSemiBold: require("../assets/fonts/Inter/Inter-SemiBold.ttf"),
+    InterBold: require("../assets/fonts/Inter/Inter-Bold.ttf"),
+    InterExtraBold: require("../assets/fonts/Inter/Inter-ExtraBold.ttf"),
+    InterBlack: require("../assets/fonts/Inter/Inter-Black.ttf"),
     ...FontAwesome.font,
   });
 
