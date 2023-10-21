@@ -25,7 +25,7 @@ export default function TabOneScreen() {
         data={rss}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return <ArticleCard item={item} />;
+          return <ArticleCard item={item} publication={"NASA"} />;
         }}
       />
     </View>

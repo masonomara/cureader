@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "curator-ts",
-    "slug": "curator-ts",
+    "name": "curator-js",
+    "slug": "curator-js",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
