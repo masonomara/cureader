@@ -1,7 +1,24 @@
 import { StyleSheet, View, Text } from "react-native";
 
-export default function ArticleCard({ item }) {
-  console.log({ item });
+function formatPublicationDate(published) {
+  const publicationDate = new Date(published);
+  const now = new Date();
+
+  const timeDifference = now - publicationDate;
+  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
+
+  if (hoursAgo < 24) {
+    return `${hoursAgo}h`;
+  } else {
+    return publicationDate.toLocaleDateString("en-US", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+}
+
+export default function ArticleCard({ publication, item }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardContent}>
@@ -10,13 +27,9 @@ export default function ArticleCard({ item }) {
         </View>
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
-            Publication Name&nbsp;&nbsp;
+            {publication}&nbsp;&nbsp;
             <Text style={styles.articleDate}>
-              {new Date(item.published).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {formatPublicationDate(item.published)}
             </Text>
           </Text>
           <Text style={styles.title}>{item.title}</Text>
@@ -119,7 +132,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.045,
     fontSize: 15,
     lineHeight: 23.75,
-    color: "#181818",
+    color: "#3A3A3A",
     marginBottom: 7,
     // borderWidth: 1,
     // borderColor: 'green',
