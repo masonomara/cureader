@@ -37,7 +37,7 @@ function formatPublicationDate(published) {
 export default function ArticleCard({ publication, image, channelUrl, item }) {
   const [result, setResult] = useState(null);
 
-  console.log("channelUrl:", channelUrl)
+  console.log("channelUrl:", channelUrl);
 
   const _handlePressButtonAsync = async () => {
     let result = await WebBrowser.openBrowserAsync(item.links[0].url);
