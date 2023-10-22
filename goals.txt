@@ -1,0 +1,13 @@
+PO
+[ ] view multiple feeds
+[X] open up story in-app
+[ ] view saved channels
+[ ] unsubscribe from saved channel
+[ ] add new saved channel
+[ ] bookmark an article
+[ ] un-bookmark an article
+[ ] sign in and sign out
+[ ] share an article
+
+P1
+[ ] make sure dark mode and light mode work
