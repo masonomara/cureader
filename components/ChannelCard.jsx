@@ -34,7 +34,7 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item }) {
+export default function ChannelCard({ publication, item }) {
   const [result, setResult] = useState(null);
 
   const _handlePressButtonAsync = async () => {
@@ -51,17 +51,16 @@ export default function ArticleCard({ publication, item }) {
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;
-            
+            {/* 
             <Text style={styles.articleDate}>
               {formatPublicationDate(item.published)}
             </Text>
-
+  */}
           </Text>
-          <Text style={styles.title}>{item.title ? item.title : ""}</Text>
+          <Text style={styles.title}>{item.title}</Text>
           <Text numberOfLines={4} style={styles.description}>
-            {item.content}
+            {item.description}
           </Text>
-           
         </View>
       </View>
       <View style={styles.cardControls}>
