@@ -36,6 +36,8 @@ export default function TabOneScreen() {
               ...item,
               publicationDate: new Date(item.published),
               channel: parsedRss.title, // Include the channel title in the item
+              image: parsedRss.image,
+              channelUrl: parsedRss.links[0].url
             }))
           );
         } catch (error) {
@@ -62,7 +64,7 @@ export default function TabOneScreen() {
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return <ArticleCard item={item} publication={item.channel} />;
+          return <ArticleCard item={item} publication={item.channel} image={item.image} channelUrl={item.channelUrl} />;
         }}
       />
     </View>

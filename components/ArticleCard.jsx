@@ -34,8 +34,10 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item }) {
+export default function ArticleCard({ publication, image, channelUrl, item }) {
   const [result, setResult] = useState(null);
+
+  console.log("channelUrl:", channelUrl)
 
   const _handlePressButtonAsync = async () => {
     let result = await WebBrowser.openBrowserAsync(item.links[0].url);
@@ -46,22 +48,21 @@ export default function ArticleCard({ publication, item }) {
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
       <View style={styles.cardContent}>
         <View style={styles.iconWrapper}>
-          <View style={styles.icon} />
+          <View style={styles.icon}>
+            <Image source={`${image.url}`} style={styles.icon} />
+          </View>
         </View>
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;
-            
             <Text style={styles.articleDate}>
               {formatPublicationDate(item.published)}
             </Text>
-
           </Text>
           <Text style={styles.title}>{item.title ? item.title : ""}</Text>
           <Text numberOfLines={4} style={styles.description}>
-            {item.content}
+            {item.description.replace(/<[^>]*>/g, "")}
           </Text>
-           
         </View>
       </View>
       <View style={styles.cardControls}>
