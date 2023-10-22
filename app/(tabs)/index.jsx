@@ -8,7 +8,7 @@ export default function TabOneScreen() {
   const [rss, setRss] = useState([]);
 
   useEffect(() => {
-    fetch("http://www.nasa.gov/rss/dyn/breaking_news.rss")
+    fetch("https://feeds.megaphone.fm/newheights")
       .then((response) => response.text())
       .then((responseData) => rssParser.parse(responseData))
       .then((parsedRss) => {
