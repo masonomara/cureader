@@ -14,32 +14,22 @@ export default function TabOneScreen() {
 
   // redirect based on if user exists
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.replace("/(tabs)");
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
       } else {
-        console.log("no user");
-      }
-    });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        router.replace("/(tabs)");
-      } else {
-        console.log("no user");
-        router.replace("/(auth)/login");
+        Alert.alert("Error Accessing User");
       }
     });
   }, []);
 
-
-
   const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const {error} = await supabase.auth.signOut();
     if (error) {
       Alert.alert("Error Signing Out User", error.message);
     }
-  };
+  }
+
 
   // parse feeds
   useEffect(() => {
