@@ -17,8 +17,6 @@ export default function TabOneScreen() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user);
-      } else {
-        Alert.alert("Error Accessing User");
       }
     });
   }, []);
