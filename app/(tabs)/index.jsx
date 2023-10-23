@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
+import { router } from "expo-router";
+import { supabase } from "../../lib/supabase-client";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
@@ -7,7 +9,39 @@ import ArticleCard from "../../components/ArticleCard";
 export default function TabOneScreen() {
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
+  const [user, setUser] = useState(null);
 
+
+  // redirect based on if user exists
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace("/(tabs)");
+      } else {
+        console.log("no user");
+      }
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.replace("/(tabs)");
+      } else {
+        console.log("no user");
+        router.replace("/(auth)/login");
+      }
+    });
+  }, []);
+
+
+
+  const doLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert("Error Signing Out User", error.message);
+    }
+  };
+
+  // parse feeds
   useEffect(() => {
     const feedUrls = [
       "https://feeds.megaphone.fm/newheights",
@@ -37,7 +71,7 @@ export default function TabOneScreen() {
               publicationDate: new Date(item.published),
               channel: parsedRss.title, // Include the channel title in the item
               image: parsedRss.image,
-              channelUrl: parsedRss.links[0].url
+              channelUrl: parsedRss.links[0].url,
             }))
           );
         } catch (error) {
@@ -59,12 +93,25 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={{ padding: 16 }}>
+        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
+        <TouchableOpacity onPress={doLogout}>
+          <Text>Log out</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return <ArticleCard item={item} publication={item.channel} image={item.image} channelUrl={item.channelUrl} />;
+          return (
+            <ArticleCard
+              item={item}
+              publication={item.channel}
+              image={item.image}
+              channelUrl={item.channelUrl}
+            />
+          );
         }}
       />
     </View>

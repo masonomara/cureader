@@ -28,7 +28,7 @@ export default function TabOneScreen() {
 
 
           allParsedFeeds.push(parsedRss);
-          console.log("success:", allParsedFeeds)
+          // console.log("success:", allParsedFeeds)
         } catch (error) {
           console.error(error);
         }
