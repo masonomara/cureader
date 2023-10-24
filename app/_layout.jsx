@@ -11,7 +11,6 @@ import React, { useEffect } from "react";
 import { supabase } from "../lib/supabase-client.js";
 import { useColorScheme } from "react-native";
 
-
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -82,26 +81,21 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: false, title: "Index" }}
+        />
 
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen
-            name="index"
-            options={{ headerShown: false, title: "Index" }}
-          />
-
-          <Stack.Screen
-            name="(auth)"
-            options={{ title: "Log In", headerBackVisible: false }}
-          />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="addChannel"
-            options={{ presentation: "modal", title: "Add Channel" }}
-          />
-        </Stack>
-      </ThemeProvider>
-
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen
+          name="addChannel"
+          options={{ presentation: "modal", title: "Add Channel" }}
+        />
+      </Stack>
+    </ThemeProvider>
   );
 }

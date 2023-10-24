@@ -1,8 +1,8 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Link, Tabs } from "expo-router";
+import { Pressable, useColorScheme } from "react-native";
 
-import Colors from '../../constants/Colors';
+import Colors from "../../constants/Colors";
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -17,12 +17,16 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme || 'light'].tint,
-      }}>
+        tabBarActiveTintColor: Colors[colorScheme || "light"].tint,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          headerStyle: {
+            shadowColor: 'transparent', // Remove shadow on iOS
+          },
+          title: "Home",
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
             <Link href="/addChannel" asChild>
@@ -43,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: 'Profile',
+          title: "Profile",
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
