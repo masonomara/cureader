@@ -82,22 +82,23 @@ function RootLayoutNav() {
 
   useEffect(() => {
     // Check if there's an active session when the app initially loads
-    
+    /*
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         // If there's no session, navigate to the login screen
         router.replace("(login)");
       }
     });
-    
+    */
 
     // Listen for changes in the authentication state
     supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
+      if (session) {
         // If a session is present, navigate to the main screen
-        router.replace("(login)");
-      } else {
         router.replace("(home)");
+      } else {
+        // If a session is not present, navigate to the login screen
+        router.replace("(login)");
       }
     });
   }, []);
