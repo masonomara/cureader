@@ -24,7 +24,7 @@ export default function AuthLayout() {
       }}
     >
       <Tabs.Screen
-        name="signin"
+        name="index"
         options={{
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
