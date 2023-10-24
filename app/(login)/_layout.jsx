@@ -11,7 +11,7 @@ export default function AuthLayout() {
         tabBarActiveTintColor: Colors[colorScheme || "light"].tint,
       }}
     >
-      <Stack.Screen name="index" />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="signup" />
     </Stack>
   );

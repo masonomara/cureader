@@ -18,7 +18,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "(home)",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -80,16 +80,34 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    // Check if there's an active session when the app initially loads
+    
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        // If there's no session, navigate to the login screen
+        router.replace("(login)");
+      }
+    });
+    
+
+    // Listen for changes in the authentication state
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        // If a session is present, navigate to the main screen
+        router.replace("(login)");
+      } else {
+        router.replace("(home)");
+      }
+    });
+  }, []);
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen
-          name="index"
-          options={{ headerShown: false, title: "Index" }}
-        />
+        <Stack.Screen name="(home)" options={{ headerShown: false }} />
+        <Stack.Screen name="(login)" options={{ headerShown: false }} />
 
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="addChannel"

@@ -23,7 +23,7 @@ export default function TabOneScreen() {
 
   const doLogout = async () => {
     const {error} = await supabase.auth.signOut();
-    router.replace("(auth)");
+    router.replace("(login)");
     if (error) {
       Alert.alert("Error Signing Out User", error.message);
     }
