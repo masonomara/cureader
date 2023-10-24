@@ -11,7 +11,7 @@ export default function IndexPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         // If there's no session, navigate to the login screen
-        router.replace("(auth)/login");
+        router.replace("(auth)");
       }
     });
 
@@ -22,7 +22,7 @@ export default function IndexPage() {
         router.replace("(tabs)");
       } else {
         // If there's no session, navigate to the login screen
-        router.replace("(auth)/login");
+        router.replace("(auth)");
       }
     });
   }, []);
