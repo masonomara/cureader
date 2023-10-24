@@ -11,11 +11,14 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Pressable,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 import { supabase } from "../../lib/supabase-client";
 import { Stack } from "expo-router";
 import { Touchable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+
 
 export default function Auth() {
   const [name, setName] = useState("");
@@ -49,18 +52,17 @@ export default function Auth() {
   }
 
   return (
-    <SafeAreaView style={styles.safeAreaView}>
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior="padding"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
-      >
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Text style={styles.title}>Welcome!</Text>
-            <Text style={styles.subtitle}>Please sign in to continue</Text>
+    <SafeAreaView
+      style={styles.safeAreaView}
+    >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
-            {/*
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome!</Text>
+          <Text style={styles.subtitle}>Please sign in to continue</Text>
+
+          {/*
             <TextInput
               style={styles.input}
               label="Name"
@@ -71,49 +73,49 @@ export default function Auth() {
               autoCorrect={false}
             />
               */}
-            <Text style={styles.label}>Your email address</Text>
+          <Text style={styles.label}>Your email address</Text>
+          <TextInput
+            style={styles.input}
+            label="Email"
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            placeholder="email"
+            autoCapitalize={"none"}
+            autoCorrect={false}
+          />
+          <Text style={styles.label}>Your password</Text>
+          <View style={styles.input}>
             <TextInput
-              style={styles.input}
-              label="Email"
-              onChangeText={(text) => setEmail(text)}
-              value={email}
-              placeholder="email"
+              style={styles.inputText}
+              label="Password"
+              onChangeText={(text) => setPassword(text)}
+              value={password}
+              secureTextEntry={securePasswordEntry}
+              placeholder="password"
               autoCapitalize={"none"}
               autoCorrect={false}
             />
-            <Text style={styles.label}>Your password</Text>
-            <View style={styles.input}>
-              <TextInput
-                style={styles.inputText}
-                label="Password"
-                onChangeText={(text) => setPassword(text)}
-                value={password}
-                secureTextEntry={securePasswordEntry}
-                placeholder="password"
-                autoCapitalize={"none"}
-                autoCorrect={false}
+            <Pressable
+              style={styles.inputButton}
+              onPress={() => setSecurePasswordEntry(!securePasswordEntry)}
+            >
+              <FontAwesome
+                name={securePasswordEntry ? "eye-slash" : "eye"}
+                size={24}
+                color="rgba(24,24,24,.6)"
               />
-              <Pressable
-                style={styles.inputButton}
-                onPress={() => setSecurePasswordEntry(!securePasswordEntry)}
-              >
-                <FontAwesome
-                  name={securePasswordEntry ? "eye-slash" : "eye"}
-                  size={24}
-                  color="rgba(24,24,24,.6)"
-                />
-              </Pressable>
-            </View>
+            </Pressable>
           </View>
-          <TouchableOpacity
-            title="Sign in"
-            disabled={loading}
-            style={styles.button}
-            onPress={() => signInWithEmail()}
-          >
-            <Text style={styles.buttonText}>Sign in</Text>
-          </TouchableOpacity>
-          {/*
+        </View>
+        <TouchableOpacity
+          title="Sign in"
+          disabled={loading}
+          style={styles.button}
+          onPress={() => signInWithEmail()}
+        >
+          <Text style={styles.buttonText}>Sign in</Text>
+        </TouchableOpacity>
+        {/*
           <Button
             title="Sign up"
             disabled={loading}
@@ -122,8 +124,8 @@ export default function Auth() {
             <Text>Sign up</Text>
           </Button>
   */}
-        </View>
-      </KeyboardAvoidingView>
+      </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
@@ -137,16 +139,17 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidingView: {
     // borderWidth: 3,
-    // borderColor: "#00ff00",
+    // borderColor: "blue",
     flex: 1,
-    padding: 24,
   },
   container: {
     flex: 1,
     // borderWidth: 3,
-    // borderColor: "#00f",
+    backgroundColor: "#fff",
+    // borderColor: "orange",
     alignItems: "center",
     justifyContent: "space-between",
+    padding: 24,
   },
   content: {
     width: "100%",
@@ -204,7 +207,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     alignItems: "center",
     justifyContent: "center",
-        // borderWidth: 3,
+    // borderWidth: 3,
     // borderColor: "#00f",
   },
   button: {
@@ -216,8 +219,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 8,
-    position: 'absolute',
-    bottom: 0,
   },
   buttonText: {
     color: "white",
