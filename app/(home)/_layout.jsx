@@ -21,7 +21,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="login"
+        name="index"
         options={{
           headerStyle: {
             shadowColor: 'transparent', // Remove shadow on iOS
