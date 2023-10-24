@@ -15,6 +15,7 @@ import * as WebBrowser from "expo-web-browser";
 import Dots20 from "./icons/20/Dots20";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
+import Colors from "../constants/Colors";
 
 function formatPublicationDate(published) {
   const publicationDate = new Date(published);
@@ -68,16 +69,16 @@ export default function ArticleCard({ publication, image, channelUrl, item }) {
       <View style={styles.cardControls}>
         <View style={styles.cardButtons}>
           <TouchableOpacity style={styles.buttonWrapper}>
-            <BookmarkOutline20 style={styles.buttonImage} color={"#666666"} />
+            <BookmarkOutline20 style={styles.buttonImage} color={Colors.light.buttonActive} />
             <Text style={styles.buttonText}>Bookmark</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonWrapper}>
-            <Share20 style={styles.buttonImage} color={"#666666"} />
+            <Share20 style={styles.buttonImage} color={Colors.light.buttonActive} />
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.buttonWrapper}>
-          <Dots20 style={styles.buttonImage} color={"#666666"} />
+          <Dots20 style={styles.buttonImage} color={Colors.light.buttonActive} />
         </TouchableOpacity>
       </View>
     </Pressable>
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     paddingRight: 16,
     paddingBottom: 8,
-    borderColor: "#E5E5E5",
+    borderColor: `${Colors.light.border}`,
     alignItems: "flex-start",
     flexDirection: "column",
     width: "100%",
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
     height: 24,
     width: 24,
     borderRadius: 100,
-    backgroundColor: "#FF3E39",
+    backgroundColor: `${Colors.light.colorPrimary}`,
   },
   cardContentWrapper: {
     display: "flex",
@@ -138,13 +139,13 @@ const styles = StyleSheet.create({
     lineHeight: 16.25,
     letterSpacing: -0.039,
     fontSize: 13,
-    color: "#181818",
+    color: `${Colors.light.textHigh}`,
     marginBottom: 10,
     // borderWidth: 1,
     // borderColor: 'green',
   },
   articleDate: {
-    color: "#5D5D5D",
+    color: `${Colors.light.textLow}`,
     fontFamily: "InterRegular",
   },
   title: {
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.209,
     fontSize: 19,
     lineHeight: 23.75,
-    color: "#181818",
+    color: `${Colors.light.textHigh}`,
     marginBottom: 5,
     // borderWidth: 1,
     // borderColor: 'green',
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     fontSize: 15,
     lineHeight: 22.5,
-    color: "#3A3A3A",
+    color: `${Colors.light.textMedium}`,
     marginBottom: 16,
     // borderWidth: 1,
     // borderColor: 'green',
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
     // borderColor: "yellow",
   },
   buttonText: {
-    color: "#666666",
+    color: `${Colors.light.buttonActive}`,
     fontFamily: "InterRegular",
     letterSpacing: -0.036,
     lineHeight: 16,

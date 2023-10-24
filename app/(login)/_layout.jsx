@@ -1,6 +1,14 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs, Link, usePathname } from "expo-router";
-import { useColorScheme, Image, Pressable, Text } from "react-native";
+import { Tabs, Link, usePathname, router } from "expo-router";
+import {
+  useColorScheme,
+  Image,
+  Pressable,
+  Text,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+} from "react-native";
 
 import Colors from "../../constants/Colors";
 
@@ -13,6 +21,14 @@ function TabBarIcon(props) {
 
 export default function AuthLayout() {
   const colorScheme = useColorScheme();
+
+  const goToLogIn = () => {
+    router.push("(login)");
+  };
+
+  const goToSignUp = () => {
+    router.push("(login)/signup");
+  };
 
   return (
     <Tabs
@@ -43,9 +59,12 @@ export default function AuthLayout() {
             />
           ),
           headerRight: () => (
-            <Link href="/(login)/signup">
-              <Text>Sign up</Text>
-            </Link>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.replace("(login)/signup")}
+            >
+              <Text style={styles.headerButtonText}>Sign up</Text>
+            </TouchableOpacity>
           ),
           headerTitleStyle: { flex: 1, textAlign: "center" },
         }}
@@ -70,9 +89,12 @@ export default function AuthLayout() {
             />
           ),
           headerRight: () => (
-            <Link href="/(login)">
-              <Text>Log in</Text>
-            </Link>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.replace("(login)")}
+            >
+              <Text style={styles.headerButtonText}>Log in</Text>
+            </TouchableOpacity>
           ),
           headerTitleStyle: { flex: 1, textAlign: "center" },
         }}
@@ -80,3 +102,33 @@ export default function AuthLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  headerButton: {
+    height: 44,
+    width: 80,
+    flexDirection: "row",
+    padding: 0,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginRight: 16,
+    textAlign: "right",
+    color: `${Colors.light.buttonActive}`,
+    // borderWidth: 1,
+    // borderColor: 'red',
+    lineHeight: 44,
+    letterSpacing: -0.051,
+    fontWeight: "500",
+    fontFamily: "InterMedium",
+    fontSize: 17,
+  },
+  headerButtonText: {
+    letterSpacing: -0.051,
+    fontWeight: "500",
+    fontFamily: "InterMedium",
+    fontSize: 17,
+    color: `${Colors.light.buttonActive}`,
+    flexDirection: "row",
+    flexWrap: "nowrap",
+  },
+});

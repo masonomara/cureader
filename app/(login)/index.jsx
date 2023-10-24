@@ -18,6 +18,7 @@ import { supabase } from "../../lib/supabase-client";
 import { Stack } from "expo-router";
 import { Touchable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Colors from '../../constants/Colors';
 
 export default function Auth() {
   const [name, setName] = useState("");
@@ -97,7 +98,7 @@ export default function Auth() {
                 <FontAwesome
                   name={securePasswordEntry ? "eye-slash" : "eye"}
                   size={24}
-                  color="rgba(24,24,24,.6)"
+                  color={Colors.light.buttonActive}
                 />
               </Pressable>
             </View>
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
     // borderWidth: 3,
     // borderColor: "#ff0000",
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: `${Colors.light.background}`,
   },
   keyboardAvoidingView: {
     // borderWidth: 3,
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // borderWidth: 3,
-    backgroundColor: "#fff",
+    backgroundColor: `${Colors.light.background}`,
     // borderColor: "orange",
     alignItems: "center",
     justifyContent: "space-between",
@@ -153,15 +154,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: "#181818",
+    color: `${Colors.light.textHigh}`,
     fontFamily: "NotoSerifMedium",
     fontSize: 29,
     lineHeight: 29,
     marginBottom: 6,
+    marginTop: 6,
   },
   subtitle: {
     fontFamily: "InterMedium",
-    color: "#181818",
+    color: `${Colors.light.textHigh}`,
     letterSpacing: -0.209,
     fontSize: 19,
     lineHeight: 19,
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     lineHeight: 16.25,
     letterSpacing: -0.039,
     fontSize: 13,
-    color: "#181818",
+    color: `${Colors.light.textHigh}`,
     marginBottom: 5,
   },
   input: {
@@ -187,13 +189,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 1,
     flexDirection: "row",
-    borderColor: "#e5e5e5",
-    backgroundColor: "rgba(24,24,24,0.01)",
+    borderColor: `${Colors.light.border}`,
+    backgroundColor: `${Colors.light.surfaceOne}`,
     alignContent: "center",
     justifyContent: "space-between",
+    letterSpacing: -0.051,
+    fontWeight: "400",
+    fontFamily: "InterRegular",
+    fontSize: 17,
+    color: `${Colors.light.textHigh}`
   },
   inputText: {
     flex: 1,
+    letterSpacing: -0.051,
+    fontWeight: "400",
+    fontFamily: "InterRegular",
+    fontSize: 17,
+    color: `${Colors.light.textHigh}`
     // borderWidth: 3,
     // borderColor: "#00f",
   },
@@ -209,14 +221,14 @@ const styles = StyleSheet.create({
     height: 48,
     width: "100%",
     flexDirection: "row",
-    backgroundColor: "#FF3E39",
+    backgroundColor: `${Colors.light.colorPrimary}`,
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 8,
   },
   buttonText: {
-    color: "white",
+    color: `${Colors.light.background}`,
     fontFamily: "InterBold",
     fontWeight: "700",
     fontSize: 15,
