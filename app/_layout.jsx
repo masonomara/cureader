@@ -66,7 +66,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -79,6 +78,39 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+
+  // Check if there's an active session when the app initially loads
+  /*
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        // If there's no session, navigate to the login screen
+        router.replace("(login)");
+      }
+    });
+    */
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        SplashScreen.hideAsync();
+      }
+
+      // Listen for changes in the authentication state
+      else
+        supabase.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            // If a session is present, navigate to the main screen
+            router.replace("(home)");
+            SplashScreen.hideAsync();
+          } else {
+            // If a session is not present, navigate to the login screen
+            setTimeout(() => {
+              SplashScreen.hideAsync();
+            }, 500);
+          }
+        });
+    });
+  }, []);
 
   useEffect(() => {
     // Check if there's an active session when the app initially loads
