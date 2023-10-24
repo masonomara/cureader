@@ -29,6 +29,9 @@ export default function AuthLayout() {
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
           },
+          tabBarStyle: {
+            display: "none",
+          },
           href: null,
           tabBarButton: null,
           title: "Sign In",
