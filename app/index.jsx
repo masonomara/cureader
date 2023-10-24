@@ -20,9 +20,6 @@ export default function IndexPage() {
       if (session) {
         // If a session is present, navigate to the main screen
         router.replace("(tabs)");
-      } else {
-        // If there's no session, navigate to the login screen
-        router.replace("(auth)");
       }
     });
   }, []);
