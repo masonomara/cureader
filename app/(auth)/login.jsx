@@ -1,16 +1,33 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, TextInput, View, Button, Text } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  TextInput,
+  View,
+  Button,
+  Text,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { supabase } from "../../lib/supabase-client";
 import { Stack } from "expo-router";
+import { Touchable } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Auth() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
   async function signInWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
+      name: name,
       email: email,
       password: password,
     });
@@ -22,6 +39,7 @@ export default function Auth() {
   async function signUpWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signUp({
+      name: name,
       email: email,
       password: password,
     });
@@ -31,37 +49,71 @@ export default function Auth() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: true, title: "LOGGGIN" }} />
-        <View style={[styles.verticallySpaced, styles.mt20]}>
-          <TextInput
-            label="Email"
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            placeholder="email@address.com"
-            autoCapitalize={"none"}
-          />
-        </View>
-        <View style={styles.verticallySpaced}>
-          <TextInput
-            label="Password"
-            onChangeText={(text) => setPassword(text)}
-            value={password}
-            secureTextEntry={true}
-            placeholder="Password"
-            autoCapitalize={"none"}
-          />
-        </View>
-        <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Button
+    <SafeAreaView style={styles.safeAreaView}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior="padding"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+      >
+        <View style={styles.container}>
+          <View style={styles.content}>
+            <Text style={styles.title}>Welcome!</Text>
+            <Text style={styles.subtitle}>Please sign in to continue</Text>
+
+            {/*
+            <TextInput
+              style={styles.input}
+              label="Name"
+              onChangeText={(text) => setName(text)}
+              value={name}
+              placeholder="Your name"
+              autoCapitalize={"none"}
+              autoCorrect={false}
+            />
+              */}
+            <Text style={styles.label}>Your email address</Text>
+            <TextInput
+              style={styles.input}
+              label="Email"
+              onChangeText={(text) => setEmail(text)}
+              value={email}
+              placeholder="email"
+              autoCapitalize={"none"}
+              autoCorrect={false}
+            />
+            <Text style={styles.label}>Your password</Text>
+            <View style={styles.input}>
+              <TextInput
+                style={styles.inputText}
+                label="Password"
+                onChangeText={(text) => setPassword(text)}
+                value={password}
+                secureTextEntry={securePasswordEntry}
+                placeholder="password"
+                autoCapitalize={"none"}
+                autoCorrect={false}
+              />
+              <Pressable
+                style={styles.inputButton}
+                onPress={() => setSecurePasswordEntry(!securePasswordEntry)}
+              >
+                <FontAwesome
+                  name={securePasswordEntry ? "eye-slash" : "eye"}
+                  size={24}
+                  color="rgba(24,24,24,.6)"
+                />
+              </Pressable>
+            </View>
+          </View>
+          <TouchableOpacity
             title="Sign in"
             disabled={loading}
+            style={styles.button}
             onPress={() => signInWithEmail()}
           >
-            <Text>Sign in</Text>
-          </Button>
-        </View>
-        <View style={styles.verticallySpaced}>
+            <Text style={styles.buttonText}>Sign in</Text>
+          </TouchableOpacity>
+          {/*
           <Button
             title="Sign up"
             disabled={loading}
@@ -69,22 +121,108 @@ export default function Auth() {
           >
             <Text>Sign up</Text>
           </Button>
+  */}
         </View>
-    </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaView: {
+    // borderWidth: 3,
+    // borderColor: "#ff0000",
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  keyboardAvoidingView: {
+    // borderWidth: 3,
+    // borderColor: "#00ff00",
+    flex: 1,
+    padding: 24,
+  },
   container: {
-    marginTop: 40,
-    padding: 12,
+    flex: 1,
+    // borderWidth: 3,
+    // borderColor: "#00f",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: "stretch",
+  content: {
+    width: "100%",
+    // borderWidth: 3,
+    // borderColor: "#f00",
+    alignItems: "center",
   },
-  mt20: {
-    marginTop: 20,
+  title: {
+    color: "#181818",
+    fontFamily: "NotoSerifMedium",
+    fontSize: 29,
+    lineHeight: 29,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontFamily: "InterMedium",
+    color: "#181818",
+    letterSpacing: -0.209,
+    fontSize: 19,
+    lineHeight: 19,
+    marginBottom: 40,
+  },
+  label: {
+    width: "100%",
+    alignItems: "flex-start",
+    flexWrap: "wrap",
+    fontFamily: "InterMedium",
+    fontWeight: "500",
+    lineHeight: 16.25,
+    letterSpacing: -0.039,
+    fontSize: 13,
+    color: "#181818",
+    marginBottom: 5,
+  },
+  input: {
+    width: "100%",
+    borderRadius: 20,
+    height: 56,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    flexDirection: "row",
+    borderColor: "#e5e5e5",
+    backgroundColor: "rgba(24,24,24,0.01)",
+    alignContent: "center",
+    justifyContent: "space-between",
+  },
+  inputText: {
+    flex: 1,
+    // borderWidth: 3,
+    // borderColor: "#00f",
+  },
+  inputButton: {
+    width: 34,
+    marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
+        // borderWidth: 3,
+    // borderColor: "#00f",
+  },
+  button: {
+    height: 48,
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "#FF3E39",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    position: 'absolute',
+    bottom: 0,
+  },
+  buttonText: {
+    color: "white",
+    fontFamily: "InterBold",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

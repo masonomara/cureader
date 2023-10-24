@@ -87,6 +87,12 @@ export default function TabOneScreen() {
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
+      <View style={{ padding: 16, borderTopWidth: 1, borderColor: 'black' }}>
+        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
+        <TouchableOpacity onPress={doLogout}>
+          <Text>Log out</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}

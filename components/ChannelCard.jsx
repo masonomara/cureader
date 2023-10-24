@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     height: 24,
     width: 24,
     borderRadius: 100,
-    backgroundColor: "#ED4C4B",
+    backgroundColor: "#FF3E39",
   },
   cardContentWrapper: {
     display: "flex",
