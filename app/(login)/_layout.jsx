@@ -1,6 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs, usePathname } from "expo-router";
-import { useColorScheme } from "react-native";
+import { useColorScheme, Image } from "react-native";
 
 import Colors from "../../constants/Colors";
 
@@ -34,7 +34,15 @@ export default function AuthLayout() {
           },
           href: null,
           tabBarButton: null,
-          title: "Sign In",
+          title: "Log In",
+          headerTitle: (props) => ( // App Logo
+          <Image
+            style={{ width: 200, height: 36 }}
+            source={require('../../assets/images/pin.png')}
+            resizeMode='contain'
+          />
+        ),
+        headerTitleStyle: { flex: 1, textAlign: 'center' },
         }}
       />
       <Tabs.Screen
@@ -46,6 +54,14 @@ export default function AuthLayout() {
           href: null,
           tabBarButton: null,
           title: "Sign up",
+          headerTitle: (props) => ( // App Logo
+          <Image
+            style={{ width: 200, height: 36 }}
+            source={require('../../assets/images/pin.png')}
+            resizeMode='contain'
+          />
+        ),
+        headerTitleStyle: { flex: 1, textAlign: 'center' },
         }}
       />
     </Tabs>

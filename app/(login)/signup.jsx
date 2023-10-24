@@ -55,7 +55,7 @@ export default function Auth() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.content}>
-            <Text style={styles.title}>Welcome!</Text>
+            <Text style={styles.title}>Create an account</Text>
             <Text style={styles.subtitle}>Please sign in to continue</Text>
 
             {/*
@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
     fontSize: 29,
     lineHeight: 29,
     marginBottom: 8,
-    marginTop: 8,
   },
   subtitle: {
     fontFamily: "InterMedium",

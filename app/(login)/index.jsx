@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
     fontSize: 29,
     lineHeight: 29,
     marginBottom: 8,
-    marginTop: 8,
   },
   subtitle: {
     fontFamily: "InterMedium",
