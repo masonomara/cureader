@@ -26,18 +26,6 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  async function signInWithEmail() {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      name: name,
-      email: email,
-      password: password,
-    });
-
-    if (error) Alert.alert("Sign In Error", error.message);
-    setLoading(false);
-  }
-
   async function signUpWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signUp({
@@ -56,19 +44,19 @@ export default function Auth() {
         <View style={styles.container}>
           <View style={styles.content}>
             <Text style={styles.title}>Create an account</Text>
-            <Text style={styles.subtitle}>Please sign in to continue</Text>
-
-            {/*
+            <Text style={styles.subtitle}>
+              Please enter the following information
+            </Text>
+            <Text style={styles.label}>Your name</Text>
             <TextInput
               style={styles.input}
               label="Name"
-              onChangeText={(text) => setName(text)}
+              onChangeText={(name) => setName(name)}
               value={name}
-              placeholder="Your name"
+              placeholder="name"
               autoCapitalize={"none"}
               autoCorrect={false}
             />
-              */}
             <Text style={styles.label}>Your email address</Text>
             <TextInput
               style={styles.input}
@@ -104,22 +92,13 @@ export default function Auth() {
             </View>
           </View>
           <TouchableOpacity
-            title="Sign in"
-            disabled={loading}
-            style={styles.button}
-            onPress={() => signInWithEmail()}
-          >
-            <Text style={styles.buttonText}>Sign in</Text>
-          </TouchableOpacity>
-          {/*
-          <Button
             title="Sign up"
             disabled={loading}
+            style={styles.button}
             onPress={() => signUpWithEmail()}
           >
-            <Text>Sign up</Text>
-          </Button>
-  */}
+            <Text style={styles.buttonText}>Sign up</Text>
+          </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -158,7 +137,7 @@ const styles = StyleSheet.create({
     fontFamily: "NotoSerifMedium",
     fontSize: 29,
     lineHeight: 29,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
     fontFamily: "InterMedium",
@@ -166,7 +145,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.209,
     fontSize: 19,
     lineHeight: 19,
-    marginBottom: 40,
+    marginBottom: 38,
+    textAlign: 'center',
   },
   label: {
     width: "100%",

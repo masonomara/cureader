@@ -29,12 +29,11 @@ export default function Auth() {
   async function signInWithEmail() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      name: name,
       email: email,
       password: password,
     });
 
-    if (error) Alert.alert("Sign In Error", error.message);
+    if (error) Alert.alert("Log In Error", error.message);
     setLoading(false);
   }
 
@@ -56,7 +55,7 @@ export default function Auth() {
         <View style={styles.container}>
           <View style={styles.content}>
             <Text style={styles.title}>Welcome!</Text>
-            <Text style={styles.subtitle}>Please sign in to continue</Text>
+            <Text style={styles.subtitle}>Please log in to continue</Text>
 
             {/*
             <TextInput
@@ -104,12 +103,12 @@ export default function Auth() {
             </View>
           </View>
           <TouchableOpacity
-            title="Sign in"
+            title="Log in"
             disabled={loading}
             style={styles.button}
             onPress={() => signInWithEmail()}
           >
-            <Text style={styles.buttonText}>Sign in</Text>
+            <Text style={styles.buttonText}>Log in</Text>
           </TouchableOpacity>
           {/*
           <Button
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
     fontFamily: "NotoSerifMedium",
     fontSize: 29,
     lineHeight: 29,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
     fontFamily: "InterMedium",
@@ -166,7 +165,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.209,
     fontSize: 19,
     lineHeight: 19,
-    marginBottom: 40,
+    marginBottom: 38,
   },
   label: {
     width: "100%",
