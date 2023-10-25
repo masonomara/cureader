@@ -17,7 +17,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme || "light"].tint,
+        tabBarActiveTintColor: Colors[colorScheme || "light"].tabIconSelected,
+        tabBarInactiveTintColor: Colors[colorScheme || "light"].tabIconDefault,
       }}
     >
       <Tabs.Screen
@@ -25,6 +26,7 @@ export default function TabLayout() {
         options={{
           headerStyle: {
             shadowColor: 'transparent', // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
           },
           title: "Home",
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
@@ -35,7 +37,7 @@ export default function TabLayout() {
                   <FontAwesome
                     name="plus"
                     size={25}
-                    color={Colors.light.colorPrimary}
+                    color={Colors[colorScheme || "light"].colorPrimary}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
@@ -48,6 +50,10 @@ export default function TabLayout() {
         name="two"
         options={{
           title: "Profile",
+          headerStyle: {
+            shadowColor: 'transparent', // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />

@@ -1,43 +1,169 @@
 import React, { useState } from "react";
 import {
   Alert,
-  StyleSheet,
   TextInput,
   View,
-  Button,
   Text,
   SafeAreaView,
-  StatusBar,
-  KeyboardAvoidingView,
   TouchableOpacity,
   Pressable,
   TouchableWithoutFeedback,
   Keyboard,
+  useColorScheme,
 } from "react-native";
 import { supabase } from "../../lib/supabase-client";
-import { Stack } from "expo-router";
-import { Touchable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Colors from '../../constants/Colors';
+import Colors from "../../constants/Colors";
 
 export default function Auth() {
-  const [name, setName] = useState("");
+  const colorScheme = useColorScheme();
+  const [displayname, setDisplayname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  async function signUpWithEmail() {
+  async function signUpWithEmail(displayname) {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      name: name,
+    const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
 
-    if (error) Alert.alert("Sign Up Error", error.message);
+    if (data && data.user) {
+      const { error: insertError } = await supabase
+        .from("profiles")
+        .insert([
+          {
+            id: data.user.id,
+            email: data.user.email,
+            displayname: displayname
+          },
+        ]);
+  
+      if (insertError) {
+        console.error(
+          "Error inserting user into 'users' table:",
+          insertError
+        );
+       }
+  
+     }
+
+    if (error) {
+      Alert.alert("Sign Up Error", error.message);
+    }
     setLoading(false);
   }
+
+  const styles = {
+    safeAreaView: {
+      // borderWidth: 3,
+      // borderColor: "#ff0000",
+      flex: 1,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    keyboardAvoidingView: {
+      // borderWidth: 3,
+      // borderColor: "blue",
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      // borderWidth: 3,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      // borderColor: "orange",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 24,
+    },
+    content: {
+      width: "100%",
+      // borderWidth: 3,
+      // borderColor: "#f00",
+      alignItems: "center",
+    },
+    title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "NotoSerifMedium",
+      fontSize: 29,
+      lineHeight: 29,
+      marginBottom: 6,
+      marginTop: 6,
+    },
+    subtitle: {
+      fontFamily: "InterMedium",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      letterSpacing: -0.209,
+      fontSize: 19,
+      lineHeight: 19,
+      marginBottom: 38,
+    },
+    label: {
+      width: "100%",
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      lineHeight: 16.25,
+      letterSpacing: -0.039,
+      fontSize: 13,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      marginBottom: 5,
+    },
+    input: {
+      width: "100%",
+      borderRadius: 20,
+      height: 56,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      flexDirection: "row",
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+      alignContent: "center",
+      justifyContent: "space-between",
+      letterSpacing: -0.051,
+      fontWeight: "400",
+      fontFamily: "InterRegular",
+      fontSize: 17,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+    },
+    inputText: {
+      flex: 1,
+      letterSpacing: -0.051,
+      fontWeight: "400",
+      fontFamily: "InterRegular",
+      fontSize: 17,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      // borderWidth: 3,
+      // borderColor: "#00f",
+    },
+    inputButton: {
+      width: 34,
+      marginLeft: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      // borderWidth: 3,
+      // borderColor: "#00f",
+    },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 15,
+    },
+  };
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
@@ -48,14 +174,14 @@ export default function Auth() {
             <Text style={styles.subtitle}>
               Please enter the following information
             </Text>
-            <Text style={styles.label}>Your name</Text>
+            <Text style={styles.label}>Your display name</Text>
             <TextInput
               style={styles.input}
-              label="Name"
-              onChangeText={(name) => setName(name)}
-              value={name}
-              placeholder="name"
-              autoCapitalize={"none"}
+              label="Display Name"
+              onChangeText={(displayname) => setDisplayname(displayname)}
+              value={displayname}
+              placeholder="display name"
+              // autoCapitalize={"none"}
               autoCorrect={false}
             />
             <Text style={styles.label}>Your email address</Text>
@@ -87,7 +213,7 @@ export default function Auth() {
                 <FontAwesome
                   name={securePasswordEntry ? "eye-slash" : "eye"}
                   size={24}
-                  color={Colors.light.buttonActive}
+                  color={Colors[colorScheme || "light"].buttonActive}
                 />
               </Pressable>
             </View>
@@ -105,112 +231,3 @@ export default function Auth() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeAreaView: {
-    // borderWidth: 3,
-    // borderColor: "#ff0000",
-    flex: 1,
-    backgroundColor: `${Colors.light.background}`,
-  },
-  keyboardAvoidingView: {
-    // borderWidth: 3,
-    // borderColor: "blue",
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    // borderWidth: 3,
-    backgroundColor: `${Colors.light.background}`,
-    // borderColor: "orange",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 24,
-  },
-  content: {
-    width: "100%",
-    // borderWidth: 3,
-    // borderColor: "#f00",
-    alignItems: "center",
-  },
-  title: {
-    color: `${Colors.light.textHigh}`,
-    fontFamily: "NotoSerifMedium",
-    fontSize: 29,
-    lineHeight: 29,
-    marginBottom: 6,
-    marginTop: 6,
-  },
-  subtitle: {
-    fontFamily: "InterMedium",
-    color: `${Colors.light.textHigh}`,
-    letterSpacing: -0.209,
-    fontSize: 19,
-    lineHeight: 19,
-    marginBottom: 38,
-  },
-  label: {
-    width: "100%",
-    alignItems: "flex-start",
-    flexWrap: "wrap",
-    fontFamily: "InterMedium",
-    fontWeight: "500",
-    lineHeight: 16.25,
-    letterSpacing: -0.039,
-    fontSize: 13,
-    color: `${Colors.light.textHigh}`,
-    marginBottom: 5,
-  },
-  input: {
-    width: "100%",
-    borderRadius: 20,
-    height: 56,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    flexDirection: "row",
-    borderColor: `${Colors.light.border}`,
-    backgroundColor: `${Colors.light.surfaceOne}`,
-    alignContent: "center",
-    justifyContent: "space-between",
-    letterSpacing: -0.051,
-    fontWeight: "400",
-    fontFamily: "InterRegular",
-    fontSize: 17,
-    color: `${Colors.light.textHigh}`
-  },
-  inputText: {
-    flex: 1,
-    letterSpacing: -0.051,
-    fontWeight: "400",
-    fontFamily: "InterRegular",
-    fontSize: 17,
-    color: `${Colors.light.textHigh}`
-    // borderWidth: 3,
-    // borderColor: "#00f",
-  },
-  inputButton: {
-    width: 34,
-    marginLeft: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    // borderWidth: 3,
-    // borderColor: "#00f",
-  },
-  button: {
-    height: 48,
-    width: "100%",
-    flexDirection: "row",
-    backgroundColor: `${Colors.light.colorPrimary}`,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 8,
-  },
-  buttonText: {
-    color: `${Colors.light.background}`,
-    fontFamily: "InterBold",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-});

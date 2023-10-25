@@ -1,39 +1,45 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs, Link, usePathname, router } from "expo-router";
-import {
-  useColorScheme,
-  Image,
-  Pressable,
-  Text,
-  StyleSheet,
-  Button,
-  TouchableOpacity,
-} from "react-native";
+import { Tabs, usePathname, router } from "expo-router";
+import { useColorScheme, Image, Text, TouchableOpacity } from "react-native";
 
 import Colors from "../../constants/Colors";
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
-function TabBarIcon(props) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
 
 export default function AuthLayout() {
   const colorScheme = useColorScheme();
 
-  const goToLogIn = () => {
-    router.push("(login)");
-  };
-
-  const goToSignUp = () => {
-    router.push("(login)/signup");
+  const styles = {
+    headerButton: {
+      height: 44,
+      width: 80,
+      flexDirection: "row",
+      padding: 0,
+      alignItems: "center",
+      justifyContent: "flex-end",
+      marginRight: 16,
+      textAlign: "right",
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
+      // borderWidth: 1,
+      // borderColor: 'red',
+      lineHeight: 44,
+      letterSpacing: -0.051,
+      fontWeight: "500",
+      fontFamily: "InterMedium",
+      fontSize: 17,
+    },
+    headerButtonText: {
+      letterSpacing: -0.051,
+      fontWeight: "500",
+      fontFamily: "InterMedium",
+      fontSize: 17,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
+      flexDirection: "row",
+      flexWrap: "nowrap",
+    },
   };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme || "light"].tint,
+        tabBarActiveTintColor: Colors[colorScheme || "light"].text,
         tabBarStyle: {
           display: usePathname() === "example" ? "none" : "flex",
         },
@@ -44,6 +50,7 @@ export default function AuthLayout() {
         options={{
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
           },
           tabBarStyle: {
             display: "none",
@@ -74,6 +81,7 @@ export default function AuthLayout() {
         options={{
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
           },
           tabBarStyle: {
             display: "none",
@@ -102,33 +110,3 @@ export default function AuthLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  headerButton: {
-    height: 44,
-    width: 80,
-    flexDirection: "row",
-    padding: 0,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    marginRight: 16,
-    textAlign: "right",
-    color: `${Colors.light.buttonActive}`,
-    // borderWidth: 1,
-    // borderColor: 'red',
-    lineHeight: 44,
-    letterSpacing: -0.051,
-    fontWeight: "500",
-    fontFamily: "InterMedium",
-    fontSize: 17,
-  },
-  headerButtonText: {
-    letterSpacing: -0.051,
-    fontWeight: "500",
-    fontFamily: "InterMedium",
-    fontSize: 17,
-    color: `${Colors.light.buttonActive}`,
-    flexDirection: "row",
-    flexWrap: "nowrap",
-  },
-});

@@ -1,14 +1,14 @@
-import { StyleSheet, FlatList } from "react-native";
-import { Text, View } from "../../components/Themed";
+import { FlatList, useColorScheme } from "react-native";
+import { View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import { useState, useEffect } from "react";
 import ChannelCard from "../../components/ChannelCard";
 
 export default function TabOneScreen() {
+  const colorScheme = useColorScheme();
   const [rssFeeds, setRssFeeds] = useState([]);
 
   useEffect(() => {
-
     const feedUrls = [
       "https://feeds.megaphone.fm/newheights",
       "https://podcastfeeds.nbcnews.com/RPWEjhKq",
@@ -18,14 +18,12 @@ export default function TabOneScreen() {
     const fetchAndParseFeeds = async () => {
       const allParsedFeeds = [];
       for (const url of feedUrls) {
-
         try {
           const response = await fetch(url);
 
           const responseData = await response.text();
 
           const parsedRss = await rssParser.parse(responseData);
-
 
           allParsedFeeds.push(parsedRss);
           // console.log("success:", allParsedFeeds)
@@ -39,6 +37,28 @@ export default function TabOneScreen() {
     fetchAndParseFeeds();
   }, []);
 
+  const styles = {
+    container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    articleList: {
+      paddingLeft: 24,
+      width: "100%",
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: "black",
+    },
+    separator: {
+      marginVertical: 30,
+      height: 1,
+      width: "80%",
+    },
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -51,25 +71,3 @@ export default function TabOneScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  articleList: {
-    paddingLeft: 24,
-    width: "100%",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "black",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});

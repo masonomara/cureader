@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
+import {
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  useColorScheme,
+} from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../lib/supabase-client";
 import { Text, View } from "../../components/Themed";
@@ -7,10 +12,10 @@ import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 
 export default function TabOneScreen() {
+  const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
-
 
   // redirect based on if user exists
   useEffect(() => {
@@ -22,13 +27,12 @@ export default function TabOneScreen() {
   }, []);
 
   const doLogout = async () => {
-    const {error} = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
     router.replace("(login)");
     if (error) {
       Alert.alert("Error Signing Out User", error.message);
     }
-  }
-
+  };
 
   // parse feeds
   useEffect(() => {
@@ -80,16 +84,22 @@ export default function TabOneScreen() {
     fetchAndParseFeeds();
   }, []);
 
+  const styles = {
+    container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    articleList: {
+      paddingLeft: 24,
+      width: "100%",
+    },
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ padding: 16 }}>
-        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={{ padding: 16, borderTopWidth: 1, borderColor: 'black' }}>
-        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
+        <Text>{JSON.stringify(user, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
@@ -112,15 +122,3 @@ export default function TabOneScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  articleList: {
-    paddingLeft: 24,
-    width: "100%",
-  },
-});

@@ -41,7 +41,7 @@ export default function EditScreenInfo({ path }) {
           style={styles.helpLink}
           href="https://docs.expo.io/get-started/create-a-new-app/#opening-the-app-on-your-phonetablet"
         >
-          <Text style={styles.helpLinkText} lightColor={Colors.light.tint}>
+          <Text style={styles.helpLinkText} lightColor={Colors[colorScheme || "light"].tint}>
             Tap here if your app doesn't automatically update after making
             changes
           </Text>

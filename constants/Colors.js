@@ -1,37 +1,38 @@
 const tintColorLight = "#FF3E39";
-const tintColorDark = "#fff";
 
 export default {
   light: {
-    text: "#000",
-    background: "#fff",
+    text: "#181818",
+    background: "#FFFFFF",
     tint: tintColorLight,
-    tabIconDefault: "#ccc",
-    tabIconSelected: tintColorLight,
+    tabIconDefault: "#BDBDBD",
+    tabIconSelected: "#181818",
     textHigh: "#181818",
     textMedium: "#363636",
     textLow: "#747474",
     textPlaceholder: "#A3A3A3",
     buttonActive: "#595959",
-    buttonMuted: "#9C9C9C",
+    buttonMuted: "#BDBDBD",
     colorPrimary: "#FF3E39",
+    colorOn: "#FFFFFF",
     border: "#E5E5E5",
     surfaceOne: '#FCFCFC',
   },
   dark: {
-    text: "#000",
-    background: "#fff",
+    text: "#FFFFFF",
+    background: "#181818",
     tint: tintColorLight,
-    tabIconDefault: "#ccc",
-    tabIconSelected: tintColorLight,
+    tabIconDefault: "#4F4F4F",
+    tabIconSelected: "#FFFFFF",
+    textHigh: "#FFFFFF",
+    textMedium: "#E1E1E1",
+    textLow: "#A3A3A3",
+    textPlaceholder: "#747474",
+    buttonActive: "#A3A3A3",
+    buttonMuted: "#4F4F4F",
+    colorPrimary: "#FF3E39",
+    colorOn: "#FFFFFF",
+    border: "#2B2B2B",
+    surfaceOne: '#1B1B1B',
   },
-  /*
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
-  */
 };

@@ -79,16 +79,6 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
-  // Check if there's an active session when the app initially loads
-  /*
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        // If there's no session, navigate to the login screen
-        router.replace("(login)");
-      }
-    });
-    */
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -113,16 +103,6 @@ function RootLayoutNav() {
   }, []);
 
   useEffect(() => {
-    // Check if there's an active session when the app initially loads
-    /*
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        // If there's no session, navigate to the login screen
-        router.replace("(login)");
-      }
-    });
-    */
-
     // Listen for changes in the authentication state
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {

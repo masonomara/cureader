@@ -10,4 +10,6 @@ PO
 [ ] share an article
 
 P1
-[ ] make sure dark mode and light mode work
+[X] make sure dark mode and light mode work
+[ ] create reset password with supabase
+[ ] create email verification on sign up
