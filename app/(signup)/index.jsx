@@ -11,7 +11,7 @@ import {
   Keyboard,
   useColorScheme,
 } from "react-native";
-import { supabase } from "../../lib/supabase-client";
+import { supabase } from "../../config/initSupabase";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
 

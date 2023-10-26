@@ -8,7 +8,7 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
-import { supabase } from "../lib/supabase-client.js";
+import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
 
 export {

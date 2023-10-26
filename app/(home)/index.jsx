@@ -6,7 +6,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { router } from "expo-router";
-import { supabase } from "../../lib/supabase-client";
+import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
