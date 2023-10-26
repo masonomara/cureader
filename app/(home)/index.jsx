@@ -97,6 +97,9 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
+      <View>
+        <TouchableOpacity onPress={(doLogout)}><Text>Log out</Text></TouchableOpacity>
+      </View>
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
