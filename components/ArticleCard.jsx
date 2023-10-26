@@ -197,7 +197,7 @@ export default function ArticleCard({ publication, item, image, user }) {
           <View style={styles.icon}></View>
         </View>
           */}
-        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
+        {/* <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text> */}
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;
