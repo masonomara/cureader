@@ -98,7 +98,10 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <View>
-        <TouchableOpacity onPress={(doLogout)}><Text>Log out</Text></TouchableOpacity>
+        <Text numberOfLines={20}>{JSON.stringify(user, null, 2)}</Text>
+        <TouchableOpacity onPress={doLogout}>
+          <Text>Log out</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         data={rssItems}
@@ -111,6 +114,7 @@ export default function TabOneScreen() {
               publication={item.channel}
               image={item.image}
               channelUrl={item.channelUrl}
+              user={user}
             />
           );
         }}

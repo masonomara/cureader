@@ -32,7 +32,7 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item, image }) {
+export default function ArticleCard({ publication, item, image, user }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
@@ -197,6 +197,7 @@ export default function ArticleCard({ publication, item, image }) {
           <View style={styles.icon}></View>
         </View>
           */}
+        <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text>
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;

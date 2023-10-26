@@ -5,11 +5,12 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
+import { AuthProvider, useAuth } from "../provider/AuthProvider.jsx";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,36 +27,12 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SerifRegular: require("../assets/fonts/SourceSerifPro/source-serif-pro.regular.ttf"),
-    SerifSemiBold: require("../assets/fonts/SourceSerifPro/source-serif-pro.semibold.ttf"),
-    SerifBold: require("../assets/fonts/SourceSerifPro/source-serif-pro.bold.ttf"),
-    InterThin: require("../assets/fonts/Inter/Inter-Thin.ttf"),
-    InterExtraLight: require("../assets/fonts/Inter/Inter-ExtraLight.ttf"),
-    InterLight: require("../assets/fonts/Inter/Inter-Light.ttf"),
     InterRegular: require("../assets/fonts/Inter/Inter-Regular.ttf"),
     InterMedium: require("../assets/fonts/Inter/Inter-Medium.ttf"),
     InterSemiBold: require("../assets/fonts/Inter/Inter-SemiBold.ttf"),
     InterBold: require("../assets/fonts/Inter/Inter-Bold.ttf"),
-    InterExtraBold: require("../assets/fonts/Inter/Inter-ExtraBold.ttf"),
-    InterBlack: require("../assets/fonts/Inter/Inter-Black.ttf"),
-    BitterThin: require("../assets/fonts/Bitter/Bitter-Thin.ttf"),
-    BitterExtraLight: require("../assets/fonts/Bitter/Bitter-ExtraLight.ttf"),
-    BitterLight: require("../assets/fonts/Bitter/Bitter-Light.ttf"),
-    BitterRegular: require("../assets/fonts/Bitter/Bitter-Regular.ttf"),
-    BitterMedium: require("../assets/fonts/Bitter/Bitter-Medium.ttf"),
-    BitterSemiBold: require("../assets/fonts/Bitter/Bitter-SemiBold.ttf"),
-    BitterBold: require("../assets/fonts/Bitter/Bitter-Bold.ttf"),
-    BitterExtraBold: require("../assets/fonts/Bitter/Bitter-ExtraBold.ttf"),
-    BitterBlack: require("../assets/fonts/Bitter/Bitter-Black.ttf"),
-    NotoSerifThin: require("../assets/fonts/NotoSerif/NotoSerif-Thin.ttf"),
-    NotoSerifExtraLight: require("../assets/fonts/NotoSerif/NotoSerif-ExtraLight.ttf"),
-    NotoSerifLight: require("../assets/fonts/NotoSerif/NotoSerif-Light.ttf"),
     NotoSerifRegular: require("../assets/fonts/NotoSerif/NotoSerif-Regular.ttf"),
     NotoSerifMedium: require("../assets/fonts/NotoSerif/NotoSerif-Medium.ttf"),
-    NotoSerifSemiBold: require("../assets/fonts/NotoSerif/NotoSerif-SemiBold.ttf"),
-    NotoSerifBold: require("../assets/fonts/NotoSerif/NotoSerif-Bold.ttf"),
-    NotoSerifExtraBold: require("../assets/fonts/NotoSerif/NotoSerif-ExtraBold.ttf"),
-    NotoSerifBlack: require("../assets/fonts/NotoSerif/NotoSerif-Black.ttf"),
     ...FontAwesome.font,
   });
 
@@ -64,11 +41,14 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
+  // Remove spash screen on font load
   useEffect(() => {
     if (loaded) {
+      SplashScreen.hideAsync();
     }
   }, [loaded]);
 
+  // Error catcher
   if (!loaded) {
     return null;
   }
@@ -79,7 +59,25 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  {/*
+
+  const { session, initialized } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
   useEffect(() => {
+    if (!initialized) return;
+    const inHomeGroup = segments[0] === "(home)";
+    if (session && !inHomeGroup) {
+      router.replace("(home)");
+    } else if (!session && inHomeGroup) {
+      router.replace("(login)");
+    }
+  }, [session, initialized]);
+
+*/}
+
+useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         SplashScreen.hideAsync();
@@ -115,18 +113,22 @@ function RootLayoutNav() {
     });
   }, []);
 
+
+
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(home)" options={{ headerShown: false }} />
-        <Stack.Screen name="(login)" options={{ headerShown: false }} />
-        <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        <Stack.Screen
-          name="addChannel"
-          options={{ presentation: "modal", title: "Add Channel" }}
-        />
-      </Stack>
-    </ThemeProvider>
+    // <AuthProvider>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(home)" options={{ headerShown: false }} />
+          <Stack.Screen name="(login)" options={{ headerShown: false }} />
+          <Stack.Screen name="(signup)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="addChannel"
+            options={{ presentation: "modal", title: "Add Channel" }}
+          />
+        </Stack>
+      </ThemeProvider>
+    // </AuthProvider>
   );
 }
