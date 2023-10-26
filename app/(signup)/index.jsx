@@ -31,7 +31,6 @@ export default function Auth() {
       options: {
         data: {
           displayName: displayName,
-          age: 27,
         },
       },
     });
