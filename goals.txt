@@ -1,15 +1,19 @@
 PO
-[ ] view multiple feeds
+[ ] view user's multiple feeds
 [X] open up story in-app
-[ ] view saved channels
+[ ] view user's saved channels
 [ ] unsubscribe from saved channel
 [ ] add new saved channel
 [ ] bookmark an article
 [ ] un-bookmark an article
 [ ] sign in and sign out
 [ ] share an article
+[ ] show article image
 
 P1
 [X] make sure dark mode and light mode work
 [ ] create reset password with supabase
 [ ] create email verification on sign up
+
+P2
+[ ] show user location and weather on login

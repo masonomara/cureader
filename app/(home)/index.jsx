@@ -91,19 +91,12 @@ export default function TabOneScreen() {
       justifyContent: "center",
     },
     articleList: {
-      paddingLeft: 24,
       width: "100%",
     },
   };
 
   return (
     <View style={styles.container}>
-      <View style={{ padding: 16 }}>
-        <Text>{JSON.stringify(user, null, 2)}</Text>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View>
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}

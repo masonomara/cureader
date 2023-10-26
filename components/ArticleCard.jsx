@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   Pressable,
   useColorScheme,
+  Image,
 } from "react-native";
 
 import React, { useState } from "react";
@@ -31,7 +32,7 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item }) {
+export default function ArticleCard({ publication, item, image }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
@@ -42,10 +43,12 @@ export default function ArticleCard({ publication, item }) {
 
   const styles = {
     card: {
+      borderTopWidth: 1,
       borderBottomWidth: 1,
-      paddingLeft: 8,
+      marginBottom: -1,
       paddingTop: 28,
-      paddingRight: 16,
+      paddingLeft: 24,
+      paddingRight: 24,
       paddingBottom: 8,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -59,8 +62,6 @@ export default function ArticleCard({ publication, item }) {
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
-      // borderWidth: 1,
-      // borderColor: "blue",
     },
     iconWrapper: {
       display: "flex",
@@ -79,9 +80,7 @@ export default function ArticleCard({ publication, item }) {
       flexDirection: "column",
       alignItems: "flex-start",
       flex: 1,
-      paddingRight: 16,
-      // borderWidth: 1,
-      // borderColor: 'red',
+      // paddingRight: 16,
     },
     publicationWrapper: {
       display: "flex",
@@ -89,19 +88,23 @@ export default function ArticleCard({ publication, item }) {
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
+      marginBottom: 6,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
-      lineHeight: 16.25,
-      letterSpacing: -0.039,
-      fontSize: 13,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      marginBottom: 10,
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
       // borderWidth: 1,
       // borderColor: 'green',
     },
     articleDate: {
       color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterRegular",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     title: {
       display: "flex",
@@ -109,15 +112,13 @@ export default function ArticleCard({ publication, item }) {
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      fontFamily: "InterBold",
-      fontWeight: "500",
-      letterSpacing: -0.209,
-      fontSize: 17,
-      lineHeight: 23.75,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
       marginBottom: 5,
-      // borderWidth: 1,
-      // borderColor: 'green',
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     description: {
       display: "flex",
@@ -125,30 +126,23 @@ export default function ArticleCard({ publication, item }) {
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      fontFamily: "BitterRegular",
-      fontWeight: "500",
-      letterSpacing: 0,
-      fontSize: 15,
-      lineHeight: 22.5,
+      marginBottom: 24,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      marginBottom: 16,
-      // borderWidth: 1,
-      // borderColor: 'green',
+      fontFamily: "NotoSerifRegular",
+      fontWeight: "400",
+      fontSize: 15,
+      lineHeight: 25,
+      letterSpacing: -0.225,
     },
     cardControls: {
-      // borderWidth: 1,
-      // borderColor: "green",
       display: "flex",
       alignItems: "flex-start",
       gap: "28px",
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
-      paddingLeft: 40,
     },
     cardButtons: {
-      // borderWidth: 1,
-      // borderColor: "red",
       display: "flex",
       alignItems: "flex-start",
       gap: "28px",
@@ -157,8 +151,6 @@ export default function ArticleCard({ publication, item }) {
       flex: 1,
     },
     buttonWrapper: {
-      // borderWidth: 1,
-      // borderColor: "blue",
       height: 44,
       minWidth: 44,
       alignItems: "center",
@@ -166,25 +158,45 @@ export default function ArticleCard({ publication, item }) {
       flexDirection: "row",
       gap: 5,
     },
-    buttonImage: {
-      // borderWidth: 1,
-      // borderColor: "yellow",
-    },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterRegular",
-      letterSpacing: -0.036,
-      lineHeight: 16,
+      fontWeight: "400",
       fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.065,
     },
   };
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
+      {item.image.url && (
+        <View
+          style={{
+            aspectRatio: "4/3",
+            width: "100%",
+            borderRadius: 12,
+            overflow: "hidden",
+            marginBottom: 12,
+          }}
+        >
+          <Image
+            style={{
+              flex: 1,
+              width: "100%",
+              height: "100%",
+            }}
+            source={{ uri: item.image.url }}
+          />
+        </View>
+      )}
+
       <View style={styles.cardContent}>
+        {/*
         <View style={styles.iconWrapper}>
           <View style={styles.icon}></View>
         </View>
+          */}
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;

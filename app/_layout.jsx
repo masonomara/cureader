@@ -120,7 +120,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
         <Stack.Screen name="(login)" options={{ headerShown: false }} />
-
+        <Stack.Screen name="(signup)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="addChannel"

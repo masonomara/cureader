@@ -56,7 +56,7 @@ export default function AuthLayout() {
           },
           href: null,
           tabBarButton: null,
-          title: "Log In",
+          title: "Sign up",
           headerTitle: () => (
             <Image
               style={{ width: 200, height: 36 }}
@@ -67,9 +67,9 @@ export default function AuthLayout() {
           headerRight: () => (
             <TouchableOpacity
               style={styles.headerButton}
-              onPress={() => router.replace("(signup)")}
+              onPress={() => router.replace("(login)")}
             >
-              <Text style={styles.headerButtonText}>Sign up</Text>
+              <Text style={styles.headerButtonText}>Log in</Text>
             </TouchableOpacity>
           ),
           headerTitleStyle: { flex: 1, textAlign: "center" },

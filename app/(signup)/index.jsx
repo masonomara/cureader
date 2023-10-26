@@ -17,38 +17,24 @@ import Colors from "../../constants/Colors";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
-  const [displayname, setDisplayname] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  async function signUpWithEmail(displayname) {
+  async function signUpWithEmail() {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          displayName: displayName,
+          age: 27,
+        },
+      },
     });
-
-    if (data && data.user) {
-      const { error: insertError } = await supabase
-        .from("profiles")
-        .insert([
-          {
-            id: data.user.id,
-            email: data.user.email,
-            displayname: displayname
-          },
-        ]);
-  
-      if (insertError) {
-        console.error(
-          "Error inserting user into 'users' table:",
-          insertError
-        );
-       }
-  
-     }
 
     if (error) {
       Alert.alert("Sign Up Error", error.message);
@@ -56,60 +42,56 @@ export default function Auth() {
     setLoading(false);
   }
 
-  const styles = {
+const styles = {
     safeAreaView: {
-      // borderWidth: 3,
-      // borderColor: "#ff0000",
       flex: 1,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     keyboardAvoidingView: {
-      // borderWidth: 3,
-      // borderColor: "blue",
       flex: 1,
     },
     container: {
       flex: 1,
-      // borderWidth: 3,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      // borderColor: "orange",
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
     },
     content: {
       width: "100%",
-      // borderWidth: 3,
-      // borderColor: "#f00",
       alignItems: "center",
     },
     title: {
+      marginBottom: 4,
+      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
+      fontFamily: 'NotoSerifMedium',
+      fontWeight: '500',
       fontSize: 29,
-      lineHeight: 29,
-      marginBottom: 6,
-      marginTop: 6,
+      lineHeight: 35,
+      letterSpacing: -0.217,
     },
     subtitle: {
-      fontFamily: "InterMedium",
+      marginBottom: 35,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      letterSpacing: -0.209,
+      fontFamily: 'InterMedium',
+      textAlign: 'center',
+      fontWeight: '700',
       fontSize: 19,
-      lineHeight: 19,
-      marginBottom: 38,
+      lineHeight: 24,
+      letterSpacing: -0.19,
     },
     label: {
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      lineHeight: 16.25,
-      letterSpacing: -0.039,
-      fontSize: 13,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
       marginBottom: 5,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: 'InterMedium',
+      fontWeight: '500',
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
     },
     input: {
       width: "100%",
@@ -123,29 +105,27 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       alignContent: "center",
       justifyContent: "space-between",
-      letterSpacing: -0.051,
-      fontWeight: "400",
-      fontFamily: "InterRegular",
-      fontSize: 17,
       color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: 'InterRegular',
+      fontWeight: '500',
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0,
     },
     inputText: {
       flex: 1,
-      letterSpacing: -0.051,
-      fontWeight: "400",
-      fontFamily: "InterRegular",
-      fontSize: 17,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      // borderWidth: 3,
-      // borderColor: "#00f",
+      fontFamily: 'InterRegular',
+      fontWeight: '500',
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0,
     },
     inputButton: {
       width: 34,
       marginLeft: 8,
       alignItems: "center",
       justifyContent: "center",
-      // borderWidth: 3,
-      // borderColor: "#00f",
     },
     button: {
       height: 48,
@@ -159,9 +139,11 @@ export default function Auth() {
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 15,
+      fontFamily: 'InterBold',
+      fontWeight: '700',
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
   };
 
@@ -178,8 +160,8 @@ export default function Auth() {
             <TextInput
               style={styles.input}
               label="Display Name"
-              onChangeText={(displayname) => setDisplayname(displayname)}
-              value={displayname}
+              onChangeText={(displayName) => setDisplayName(displayName)}
+              value={displayName}
               placeholder="display name"
               // autoCapitalize={"none"}
               autoCorrect={false}
