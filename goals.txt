@@ -13,6 +13,8 @@ PO
 P1
 [X] make sure dark mode and light mode work
 [ ] create reset password with supabase
+[ ] reformat article cards
+[ ] reformat channel cards
 [ ] create email verification on sign up
 
 P2
