@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-
-
 import {
   FlatList,
   TouchableOpacity,
@@ -15,7 +12,6 @@ import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
-import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
 
 export default function TabOneScreen() {
@@ -25,13 +21,16 @@ export default function TabOneScreen() {
   const [user, setUser] = useState(null);
 
   const [channelUrl, setChannelUrl] = useState("");
-  const [channelTitleWait, setChannelTitleWait] = useState(null);
+  const [channelTitleWait, setChannelTitleWait] = useState(false);
   const [channelUrlError, setChannelUrlError] = useState(null);
   const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
 
   // Add a state to track the current input value
   const [currentInput, setCurrentInput] = useState("");
 
+  const showErrorAlert = (message) => {
+    Alert.alert("Error", message);
+  };
 
   useEffect(() => {
     // Create a timer to delay the API request
@@ -44,6 +43,9 @@ export default function TabOneScreen() {
               setTimeout(() => reject(new Error("Request Timeout")), 10000) // Timeout after 10 seconds
           ),
         ]);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
         setChannelTitle(parsedRss.title);
@@ -52,7 +54,6 @@ export default function TabOneScreen() {
       } catch (error) {
         console.log(error);
         setChannelTitle(null);
-
         setChannelTitleWait(false);
       }
     }, 150); // Adjust the delay as needed (e.g., 1000ms)
@@ -71,19 +72,23 @@ export default function TabOneScreen() {
   // Submit channel url to Supabase
   const handleSubmitUrl = async (e) => {
     e.preventDefault();
-  
+
     if (!channelUrl) {
-      setChannelUrlError("Please fill in the field correctly");
+      showErrorAlert("Please fill in the field correctly");
       return;
     }
-  
+
     try {
       // Fetch the channel title
       const response = await fetch(channelUrl);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
       const responseData = await response.text();
       const parsedRss = await rssParser.parse(responseData);
       const fetchedChannelTitle = parsedRss.title;
-  
+
       // Insert both channelUrl and channelTitle into the Supabase table
       const { data, error } = await supabase
         .from("channels")
@@ -96,9 +101,9 @@ export default function TabOneScreen() {
 
       if (error) {
         console.log("Channel Url error:", error);
-        setChannelUrlError("Error uploading channel data");
+        showErrorAlert("Error uploading channel data. Please try again.");
       }
-  
+
       if (data) {
         console.log("Channel Url data:", data);
         setChannelUrlError(null);
@@ -108,9 +113,13 @@ export default function TabOneScreen() {
         setChannelTitleWait(false);
       }
     } catch (error) {
-      console.error("Error fetching channel title:", error);
-      Alert.alert("Error fetching channel title:", error);
-      setChannelUrlError("Error fetching channel title");
+      console.error("Error fetching or uploading channel data:", error);
+
+      if (error instanceof TypeError) {
+        showErrorAlert("Network error. Please check your internet connection.");
+      } else {
+        showErrorAlert("Error fetching or uploading channel data. Please try again.");
+      }
     }
   };
 
@@ -128,7 +137,7 @@ export default function TabOneScreen() {
     const { error } = await supabase.auth.signOut();
     router.replace("(login)");
     if (error) {
-      Alert.alert("Error Signing Out User", error.message);
+      showErrorAlert("Error signing out: " + error.message);
     }
   };
 
@@ -148,6 +157,9 @@ export default function TabOneScreen() {
       const parseAndSort = async (url) => {
         try {
           const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
           const responseData = await response.text();
           const parsedRss = await rssParser.parse(responseData);
 
@@ -167,6 +179,7 @@ export default function TabOneScreen() {
           );
         } catch (error) {
           console.error(error);
+          showErrorAlert("Error fetching RSS feeds. Please try again.");
         }
       };
 
@@ -181,6 +194,7 @@ export default function TabOneScreen() {
 
     fetchAndParseFeeds();
   }, []);
+
 
   const styles = {
     container: {
