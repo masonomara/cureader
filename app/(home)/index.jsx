@@ -5,7 +5,7 @@ import {
   Alert,
   useColorScheme,
   TextInput,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
@@ -18,17 +18,19 @@ import Colors from "../../constants/Colors";
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelUrlError, setChannelUrlError] = useState(null);
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
-  const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
-  const [channelTitleWait, setChannelTitleWait] = useState(null)
 
-  const handleChangeText = async (channelUrl) => {
-    setChannelUrl(channelUrl);
+
+  const [channelUrlText, setChannelUrlText] = useState("");
+  const [channelUrlError, setChannelUrlError] = useState(null);
+  const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
+  const [channelTitleWait, setChannelTitleWait] = useState(null);
+
+  const handleChangeChannelUrlText = async (channelUrlText) => {
+    setChannelUrlText(channelUrlText);
     try {
-      const response = await fetch(channelUrl);
+      const response = await fetch(channelUrlText);
       const responseData = await response.text();
       const parsedRss = await rssParser.parse(responseData);
       setChannelTitle(parsedRss.title); // Update the channel title state
@@ -50,7 +52,17 @@ export default function TabOneScreen() {
       return;
     }
 
-    console.log(channelUrl);
+    const { data, error } = await supabase
+      .from("channels")
+      .insert([{ channelUrl }]);
+    if (error) {
+      console.log("Channel Url error:", error);
+      setChannelUrlError("Please fill in the field corectly");
+    }
+    if (data) {
+      console.log("Channel Url data:", data);
+      setChannelUrlError(null);
+    }
   };
 
   // redirect based on if user exists
@@ -157,6 +169,34 @@ export default function TabOneScreen() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonDisabled: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].buttonMuted}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
   };
 
   return (
@@ -169,29 +209,30 @@ export default function TabOneScreen() {
       </View>
       <TextInput
         style={styles.input}
-        label="ChannelUrl"
-        onChangeText={handleChangeText}
-        value={channelUrl}
-        placeholder="channel url"
+        label="Channel Url Text"
+        onChangeText={handleChangeChannelUrlText}
+        value={channelUrlText}
+        placeholder="channel url text"
         autoCapitalize={"none"}
         autoCorrect={false}
       />
 
-{
-  !channelTitleWait ? (
-    <>
-      <Text>Channel Url title: {channelTitle}</Text>
-      <TouchableOpacity onPress={handleSubmitUrl} disabled={!channelTitle}>
-        <Text>Submit</Text>
-      </TouchableOpacity>
-    </>
-  ) : (
-    <ActivityIndicator color={`${Colors[colorScheme || "light"].buttonActive}`}/>
-  )
-}
-
-
-
+      {!channelTitleWait ? (
+        <>
+          <Text>Channel Url title: {channelTitle}</Text>
+          <TouchableOpacity
+            onPress={handleSubmitUrl}
+            disabled={channelTitle}
+            style={!channelUrlError ? styles.button : styles.buttonDisabled}
+          >
+            <Text style={styles.buttonText}>Submit</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <ActivityIndicator
+          color={`${Colors[colorScheme || "light"].buttonActive}`}
+        />
+      )}
 
       <FlatList
         data={rssItems}
