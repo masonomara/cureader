@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+
+
+
 import {
   FlatList,
   TouchableOpacity,
@@ -21,51 +24,97 @@ export default function TabOneScreen() {
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
 
-
-  const [channelUrlText, setChannelUrlText] = useState("");
+  const [channelUrl, setChannelUrl] = useState("");
+  const [channelTitleWait, setChannelTitleWait] = useState(null);
   const [channelUrlError, setChannelUrlError] = useState(null);
   const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
-  const [channelTitleWait, setChannelTitleWait] = useState(null);
 
-  const handleChangeChannelUrlText = async (channelUrlText) => {
-    setChannelUrlText(channelUrlText);
-    try {
-      const response = await fetch(channelUrlText);
-      const responseData = await response.text();
-      const parsedRss = await rssParser.parse(responseData);
-      setChannelTitle(parsedRss.title); // Update the channel title state
-    } catch (error) {
-      setChannelTitleWait(true); // Set channelTitleWait to true to indicate loading
-      setTimeout(() => {
-        setChannelTitleWait(false); // Set channelTitleWait to false after a delay
-        console.error(error);
-        setChannelTitle("Error fetching title"); // Set an error message after an error
-      }, 750); // 500 milliseconds (0.5 seconds)
-    }
+  // Add a state to track the current input value
+  const [currentInput, setCurrentInput] = useState("");
+
+
+  useEffect(() => {
+    // Create a timer to delay the API request
+    const delayTimer = setTimeout(async () => {
+      try {
+        const response = await Promise.race([
+          fetch(currentInput), // Your fetch request
+          new Promise(
+            (_, reject) =>
+              setTimeout(() => reject(new Error("Request Timeout")), 10000) // Timeout after 10 seconds
+          ),
+        ]);
+        const responseData = await response.text();
+        const parsedRss = await rssParser.parse(responseData);
+        setChannelTitle(parsedRss.title);
+
+        setChannelTitleWait(false);
+      } catch (error) {
+        console.log(error);
+        setChannelTitle(null);
+
+        setChannelTitleWait(false);
+      }
+    }, 150); // Adjust the delay as needed (e.g., 1000ms)
+
+    // Clear the timer if the input changes again before the delay
+    return () => clearTimeout(delayTimer);
+  }, [currentInput]);
+
+  // Modify the handleChangechannelUrl function
+  const handleChangechannelUrl = (channelUrl) => {
+    setChannelTitleWait(true);
+    setChannelUrl(channelUrl);
+    setCurrentInput(channelUrl); // Update the current input state
   };
 
+  // Submit channel url to Supabase
   const handleSubmitUrl = async (e) => {
     e.preventDefault();
-
+  
     if (!channelUrl) {
-      setChannelUrlError("Please fill in the field corectly");
+      setChannelUrlError("Please fill in the field correctly");
       return;
     }
+  
+    try {
+      // Fetch the channel title
+      const response = await fetch(channelUrl);
+      const responseData = await response.text();
+      const parsedRss = await rssParser.parse(responseData);
+      const fetchedChannelTitle = parsedRss.title;
+  
+      // Insert both channelUrl and channelTitle into the Supabase table
+      const { data, error } = await supabase
+        .from("channels")
+        .upsert([
+          {
+            channelUrl: channelUrl,
+            channelTitle: fetchedChannelTitle,
+          },
+        ]);
 
-    const { data, error } = await supabase
-      .from("channels")
-      .insert([{ channelUrl }]);
-    if (error) {
-      console.log("Channel Url error:", error);
-      setChannelUrlError("Please fill in the field corectly");
-    }
-    if (data) {
-      console.log("Channel Url data:", data);
-      setChannelUrlError(null);
+      if (error) {
+        console.log("Channel Url error:", error);
+        setChannelUrlError("Error uploading channel data");
+      }
+  
+      if (data) {
+        console.log("Channel Url data:", data);
+        setChannelUrlError(null);
+        setChannelUrl("");
+        setCurrentInput("");
+        setChannelTitle(null);
+        setChannelTitleWait(false);
+      }
+    } catch (error) {
+      console.error("Error fetching channel title:", error);
+      Alert.alert("Error fetching channel title:", error);
+      setChannelUrlError("Error fetching channel title");
     }
   };
 
-  // redirect based on if user exists
+  // Redirect based on if user exists
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -74,6 +123,7 @@ export default function TabOneScreen() {
     });
   }, []);
 
+  // Logout user
   const doLogout = async () => {
     const { error } = await supabase.auth.signOut();
     router.replace("(login)");
@@ -82,7 +132,7 @@ export default function TabOneScreen() {
     }
   };
 
-  // parse feeds
+  // Parse feeds
   useEffect(() => {
     const feedUrls = [
       "https://feeds.megaphone.fm/newheights",
@@ -210,8 +260,8 @@ export default function TabOneScreen() {
       <TextInput
         style={styles.input}
         label="Channel Url Text"
-        onChangeText={handleChangeChannelUrlText}
-        value={channelUrlText}
+        onChangeText={handleChangechannelUrl}
+        value={channelUrl}
         placeholder="channel url text"
         autoCapitalize={"none"}
         autoCorrect={false}
@@ -219,21 +269,26 @@ export default function TabOneScreen() {
 
       {!channelTitleWait ? (
         <>
-          <Text>Channel Url title: {channelTitle}</Text>
-          <TouchableOpacity
-            onPress={handleSubmitUrl}
-            disabled={channelTitle}
-            style={!channelUrlError ? styles.button : styles.buttonDisabled}
-          >
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
+          {channelTitle ? (
+            <Text>{channelTitle}</Text>
+          ) : channelUrl ? (
+            <Text>Channel not found</Text>
+          ) : (
+            <></>
+          )}
         </>
       ) : (
         <ActivityIndicator
           color={`${Colors[colorScheme || "light"].buttonActive}`}
         />
       )}
-
+      <TouchableOpacity
+        onPress={handleSubmitUrl}
+        disabled={!channelTitle} // Disable when channelTitle is falsy
+        style={channelTitle ? styles.button : styles.buttonDisabled} // Apply styles conditionally
+      >
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
