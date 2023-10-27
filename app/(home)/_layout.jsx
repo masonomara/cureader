@@ -1,4 +1,4 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Feather from "@expo/vector-icons/Feather";
 import { Link, Tabs } from "expo-router";
 import { Pressable, useColorScheme } from "react-native";
 
@@ -8,7 +8,7 @@ import Colors from "../../constants/Colors";
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
  */
 function TabBarIcon(props) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -25,7 +25,7 @@ export default function TabLayout() {
         name="index"
         options={{
           headerStyle: {
-            shadowColor: 'transparent', // Remove shadow on iOS
+            shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
           },
           title: "Home",
@@ -34,7 +34,7 @@ export default function TabLayout() {
             <Link href="/addChannel" asChild>
               <Pressable>
                 {({ pressed }) => (
-                  <FontAwesome
+                  <Feather
                     name="plus"
                     size={25}
                     color={Colors[colorScheme || "light"].colorPrimary}
@@ -47,11 +47,48 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="explore"
+        options={{
+          title: "Explore",
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="search" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="channels"
+        options={{
+          title: 'null',
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          tabBarIcon: ({ color }) => <TabBarIcon name="rss" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookmarks"
+        options={{
+          title: "Bookmarks",
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="bookmark" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
         options={{
           title: "Profile",
           headerStyle: {
-            shadowColor: 'transparent', // Remove shadow on iOS
+            shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
           },
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,

@@ -5,7 +5,6 @@ import {
   Alert,
   useColorScheme,
   TextInput,
-  ActivityIndicator
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
@@ -18,40 +17,8 @@ import Colors from "../../constants/Colors";
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelUrlError, setChannelUrlError] = useState(null);
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
-  const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
-  const [channelTitleWait, setChannelTitleWait] = useState(null)
-
-  const handleChangeText = async (channelUrl) => {
-    setChannelUrl(channelUrl);
-    try {
-      const response = await fetch(channelUrl);
-      const responseData = await response.text();
-      const parsedRss = await rssParser.parse(responseData);
-      setChannelTitle(parsedRss.title); // Update the channel title state
-    } catch (error) {
-      setChannelTitleWait(true); // Set channelTitleWait to true to indicate loading
-      setTimeout(() => {
-        setChannelTitleWait(false); // Set channelTitleWait to false after a delay
-        console.error(error);
-        setChannelTitle("Error fetching title"); // Set an error message after an error
-      }, 750); // 500 milliseconds (0.5 seconds)
-    }
-  };
-
-  const handleSubmitUrl = async (e) => {
-    e.preventDefault();
-
-    if (!channelUrl) {
-      setChannelUrlError("Please fill in the field corectly");
-      return;
-    }
-
-    console.log(channelUrl);
-  };
 
   // redirect based on if user exists
   useEffect(() => {
@@ -169,30 +136,13 @@ export default function TabOneScreen() {
       </View>
       <TextInput
         style={styles.input}
-        label="ChannelUrl"
-        onChangeText={handleChangeText}
-        value={channelUrl}
-        placeholder="channel url"
+        label="Email"
+        // onChangeText={(text) => setEmail(text)}
+        // value={email}
+        placeholder="email"
         autoCapitalize={"none"}
         autoCorrect={false}
       />
-
-{
-  !channelTitleWait ? (
-    <>
-      <Text>Channel Url title: {channelTitle}</Text>
-      <TouchableOpacity onPress={handleSubmitUrl} disabled={!channelTitle}>
-        <Text>Submit</Text>
-      </TouchableOpacity>
-    </>
-  ) : (
-    <ActivityIndicator color={`${Colors[colorScheme || "light"].buttonActive}`}/>
-  )
-}
-
-
-
-
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
