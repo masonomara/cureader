@@ -72,23 +72,24 @@ export default function TabOneScreen() {
   // Submit channel url to Supabase
   const handleSubmitUrl = async (e) => {
     e.preventDefault();
-
+  
     if (!channelUrl) {
       showErrorAlert("Please fill in the field correctly");
       return;
     }
-
+  
     try {
       // Fetch the channel title
       const response = await fetch(channelUrl);
-
+  
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
+  
       const responseData = await response.text();
       const parsedRss = await rssParser.parse(responseData);
       const fetchedChannelTitle = parsedRss.title;
-
+  
       // Insert both channelUrl and channelTitle into the Supabase table
       const { data, error } = await supabase
         .from("channels")
@@ -98,14 +99,13 @@ export default function TabOneScreen() {
             channelTitle: fetchedChannelTitle,
           },
         ]);
-
+  
       if (error) {
         console.log("Channel Url error:", error);
         showErrorAlert("Error uploading channel data. Please try again.");
-      }
-
-      if (data) {
+      } else {
         console.log("Channel Url data:", data);
+        showErrorAlert("Success", "Channel data uploaded successfully.");
         setChannelUrlError(null);
         setChannelUrl("");
         setCurrentInput("");
@@ -114,14 +114,16 @@ export default function TabOneScreen() {
       }
     } catch (error) {
       console.error("Error fetching or uploading channel data:", error);
-
-      if (error instanceof TypeError) {
-        showErrorAlert("Network error. Please check your internet connection.");
+  
+      if (error.message.includes("suitable URL request handler found")) {
+        console.log("Ignoring the 'no suitable URL request handler found' error.");
+        // You can choose to display a friendly message to the user, or just ignore the error.
       } else {
         showErrorAlert("Error fetching or uploading channel data. Please try again.");
       }
     }
   };
+  
 
   // Redirect based on if user exists
   useEffect(() => {
