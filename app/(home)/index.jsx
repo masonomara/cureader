@@ -28,6 +28,15 @@ export default function TabOneScreen() {
   // Add a state to track the current input value
   const [currentInput, setCurrentInput] = useState("");
 
+  // Redirect based on if user exists
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
+
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
@@ -72,26 +81,26 @@ export default function TabOneScreen() {
   // Submit channel url to Supabase
   const handleSubmitUrl = async (e) => {
     e.preventDefault();
-  
+
     if (!channelUrl) {
       showErrorAlert("Please fill in the field correctly");
       return;
     }
-  
+
     try {
       // Fetch the channel title
       const response = await fetch(channelUrl);
-  
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-  
+
       const responseData = await response.text();
       const parsedRss = await rssParser.parse(responseData);
       const fetchedChannelTitle = parsedRss.title;
-  
+
       // Insert both channelUrl and channelTitle into the Supabase table
-      const { data, error } = await supabase
+      const { data: channelData, error: channelError } = await supabase
         .from("channels")
         .upsert([
           {
@@ -99,40 +108,100 @@ export default function TabOneScreen() {
             channelTitle: fetchedChannelTitle,
           },
         ]);
-  
-      if (error) {
-        console.log("Channel Url error:", error);
+
+      if (channelError) {
+        console.log("Channel Url error:", channelError);
         showErrorAlert("Error uploading channel data. Please try again.");
       } else {
-        console.log("Channel Url data:", data);
+        console.log("Channel Url data:", channelData);
+
+        {
+          /*
         showErrorAlert("Success", "Channel data uploaded successfully.");
         setChannelUrlError(null);
         setChannelUrl("");
         setCurrentInput("");
         setChannelTitle(null);
         setChannelTitleWait(false);
+      */
+        }
+
+        // const { user } = supabase.auth.session();
+
+        if (user) {
+          // Add the user to the list of subscribers for this channel
+          const { data: subscriberData, error: subscriberError } =
+            await supabase.from("channel_subscribers").upsert([
+              {
+                channel_id: channelData[0].id, // Assuming the id of the inserted channel is channelData[0].id
+                user_id: user.id,
+                channel_subscribers: supabase
+                  .from("channels")
+                  .select("channel_subscribers")
+                  .eq("channelUrl", channelUrl)
+                  .single()
+                  .then((res) => {
+                    // Get the current subscribers array, or initialize an empty array
+                    const currentSubscribers = res
+                      ? res.channel_subscribers
+                      : [];
+                    // Add the user ID to the subscribers array
+                    if (user) {
+                      currentSubscribers.push(user.id);
+                    }
+                    return currentSubscribers;
+                  }),
+              },
+            ]);
+
+          if (subscriberError) {
+            console.log("Subscriber error:", subscriberError);
+            showErrorAlert(
+              "Error subscribing to the channel. Please try again."
+            );
+          } else {
+            console.log("Subscriber data:", subscriberData);
+
+            // Add the channel URL to the list of subscribed channels for the user
+            const { data: profileData, error: profileError } = await supabase
+              .from("profiles")
+              .upsert([
+                {
+                  user_id: user.id,
+                  subscribed_channels: [channelUrl],
+                },
+              ]);
+
+            if (profileError) {
+              console.log("Profile error:", profileError);
+              showErrorAlert("Error updating user profile. Please try again.");
+            } else {
+              console.log("Profile data:", profileData);
+              showErrorAlert("Success", "Channel data uploaded successfully.");
+              setChannelUrlError(null);
+              setChannelUrl("");
+              setCurrentInput("");
+              setChannelTitle(null);
+              setChannelTitleWait(false);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching or uploading channel data:", error);
-  
+
       if (error.message.includes("suitable URL request handler found")) {
-        console.log("Ignoring the 'no suitable URL request handler found' error.");
-        // You can choose to display a friendly message to the user, or just ignore the error.
+        console.log(
+          "Ignoring the 'no suitable URL request handler found' error."
+        );
+        // Optionally display a user-friendly message to the user or take appropriate action.
       } else {
-        showErrorAlert("Error fetching or uploading channel data. Please try again.");
+        showErrorAlert(
+          "Error fetching or uploading channel data. Please try again."
+        );
       }
     }
   };
-  
-
-  // Redirect based on if user exists
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
 
   // Logout user
   const doLogout = async () => {
@@ -196,7 +265,6 @@ export default function TabOneScreen() {
 
     fetchAndParseFeeds();
   }, []);
-
 
   const styles = {
     container: {
@@ -278,7 +346,7 @@ export default function TabOneScreen() {
         label="Channel Url Text"
         onChangeText={handleChangechannelUrl}
         value={channelUrl}
-        placeholder="channel url text"
+        placeholder="https://"
         autoCapitalize={"none"}
         autoCorrect={false}
       />
