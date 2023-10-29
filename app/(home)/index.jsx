@@ -72,10 +72,24 @@ export default function TabOneScreen() {
   }, [currentInput]);
 
   // Modify the handleChangechannelUrl function
-  const handleChangechannelUrl = (channelUrl) => {
+  const handleChangechannelUrl = (channelUrl, channelUrlMod) => {
+    // Remove any leading/trailing white spaces
+    channelUrlMod = channelUrl.trim();
+    console.log(currentInput);
+    // Check if the input starts with "http://" or "https://"
+    if (channelUrl.startsWith("http://")) {
+      // Remove "http://" and prepend "https://"
+      channelUrlMod = "https://" + channelUrl.slice(7);
+      console.log(currentInput);
+    } else if (!channelUrl.startsWith("https://")) {
+      // If it doesn't start with "https://" or "http://", prepend "https://"
+      channelUrlMod = "https://" + channelUrl;
+      console.log(currentInput);
+    }
+
     setChannelTitleWait(true);
     setChannelUrl(channelUrl);
-    setCurrentInput(channelUrl); // Update the current input state
+    setCurrentInput(channelUrlMod); // Update the current input state
   };
 
   // Submit channel url to Supabase
