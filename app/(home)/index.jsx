@@ -29,9 +29,6 @@ export default function TabOneScreen() {
   const [channelTitleWait, setChannelTitleWait] = useState(false);
   const [channelUrlError, setChannelUrlError] = useState(null);
 
-  // State to track the current input value
-  const [currentInput, setCurrentInput] = useState("");
-
   // Fetch user information
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -45,12 +42,25 @@ export default function TabOneScreen() {
     Alert.alert("Error", message);
   };
 
-  // Handle API request for channel title
+  // Handle user input change
+  const handleUserInput = (userInput) => {
+    userInput = userInput.trim();
+    if (userInput.startsWith("http://")) {
+      moddedUserInput = "https://" + userInput.slice(7);
+    } else if (!userInput.startsWith("https://")) {
+      moddedUserInput = "https://" + userInput;
+    }
+    setChannelTitleWait(true);
+    setParserInput(moddedUserInput);
+    setUserInput(userInput);
+  };
+
+  // Handle API request for channel information
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
       try {
         const response = await Promise.race([
-          fetch(currentInput),
+          fetch(parserInput), //change: parserInput
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Request Timeout")), 10000)
           ),
@@ -61,6 +71,7 @@ export default function TabOneScreen() {
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
         setChannelTitle(parsedRss.title);
+        setChannelUrl(parsedRss.links[0].url);
         setChannelTitleWait(false);
       } catch (error) {
         console.log(error);
@@ -70,22 +81,7 @@ export default function TabOneScreen() {
     }, 150);
 
     return () => clearTimeout(delayTimer);
-  }, [currentInput]);
-
-
-  // Handle channel URL input change
-  const handleChangechannelUrl = (channelUrl) => {
-    channelUrl = channelUrl.trim();
-    if (channelUrl.startsWith("http://")) {
-      channelUrl = "https://" + channelUrl.slice(7);
-    } else if (!channelUrl.startsWith("https://")) {
-      channelUrl = "https://" + channelUrl;
-    }
-    setChannelTitleWait(true);
-    setChannelUrl(channelUrl);
-    setCurrentInput(channelUrl);
-  };
-
+  }, [parserInput]);
 
   // Submit channel URL to Supabase
   const handleSubmitUrl = async (e) => {
@@ -104,33 +100,73 @@ export default function TabOneScreen() {
         throw new Error("Network response was not ok");
       }
 
-      const responseData = await response.text();
-      const parsedRss = await rssParser.parse(responseData);
-      const fetchedChannelTitle = parsedRss.title;
+      // Check if the channel already exists
+      const { data: existingChannelData, error: existingChannelError } =
+        await supabase.from("channels").select().eq("channel_url", channelUrl);
 
-      // Insert both channelUrl and channelTitle into the Supabase table
-      const { data: channelData, error: channelError } = await supabase
-        .from("channels")
-        .upsert([
-          {
-            channelUrl: channelUrl,
-            channelTitle: fetchedChannelTitle,
-          },
-        ]);
-
-      if (channelError) {
-        console.log("Channel Url error:", channelError);
-        showErrorAlert("Error uploading channel data. Please try again.");
-      } else {
-        console.log("Channel Url data:", channelData);
-
-        showErrorAlert("Success", "Channel data uploaded successfully.");
-        setChannelUrlError(null);
-        setChannelUrl("");
-        setCurrentInput("");
-        setChannelTitle(null);
-        setChannelTitleWait(false);
+      if (existingChannelError) {
+        console.log("Channel Url error:", existingChannelError);
+        showErrorAlert("Error checking channel data. Please try again.");
+        return;
       }
+
+      if (existingChannelData.length > 0) {
+        // Channel exists, check if the user is already subscribed
+        const existingChannel = existingChannelData[0];
+        if (existingChannel.channel_subscribers.includes(user.id)) {
+          showErrorAlert("You are already subscribed to this channel.");
+        } else {
+          // User is not subscribed, add the user to the subscribers list
+          const newSubscribers = [
+            ...existingChannel.channel_subscribers,
+            user.id,
+          ];
+
+          // Update the channel with the new subscribers
+          const { data: updateData, error: updateError } = await supabase
+            .from("channels")
+            .upsert([
+              {
+                id: existingChannel.id,
+                channel_subscribers: newSubscribers,
+              },
+            ]);
+
+          if (updateError) {
+            console.log("Channel Update Error:", updateError);
+            showErrorAlert("Error updating channel data. Please try again.");
+          } else {
+            console.log("Channel Updated:", updateData);
+            showErrorAlert("Success", "You have subscribed to the channel.");
+          }
+        }
+      } else {
+        // Channel doesn't exist, create a new entry
+        const { data: channelData, error: channelError } = await supabase
+          .from("channels")
+          .upsert([
+            {
+              channel_url: channelUrl,
+              channel_title: channelTitle,
+              channel_subscribers: [user.id], // Include the user's ID in the subscribers array
+            },
+          ]);
+
+        if (channelError) {
+          console.log("Channel Url error:", channelError);
+          showErrorAlert("Error uploading channel data. Please try again.");
+        } else {
+          console.log("Channel Url data:", channelData);
+          showErrorAlert("Success", "Channel data uploaded successfully.");
+        }
+      }
+
+      setChannelUrl("");
+      setChannelTitle("");
+      setParserInput("");
+      setUserInput("");
+      setChannelTitleWait(false);
+      setChannelUrlError(null);
     } catch (error) {
       console.error("Error fetching or uploading channel data:", error);
 
@@ -210,6 +246,7 @@ export default function TabOneScreen() {
     fetchAndParseFeeds();
   }, []);
 
+  // Styles
   const styles = {
     container: {
       flex: 1,
@@ -291,9 +328,9 @@ export default function TabOneScreen() {
       <TextInput
         style={styles.input}
         label="Channel Url Text"
-        onChangeText={handleChangechannelUrl}
-        value={channelUrl}
-        placeholder="channel url text"
+        onChangeText={handleUserInput}
+        value={userInput}
+        placeholder="https://"
         autoCapitalize={"none"}
         autoCorrect={false}
       />
@@ -302,7 +339,10 @@ export default function TabOneScreen() {
       {!channelTitleWait ? (
         <>
           {channelTitle ? (
-            <Text>{channelTitle}</Text>
+            <>
+              <Text>{channelTitle}</Text>
+              <Text>{channelUrl}</Text>
+            </>
           ) : channelUrl ? (
             <Text>Channel not found</Text>
           ) : (
@@ -321,6 +361,11 @@ export default function TabOneScreen() {
       >
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
+
+      <Text>User Input: {userInput}</Text>
+      <Text>Parser Input: {parserInput}</Text>
+      <Text>Channel Url: {channelUrl}</Text>
+      <Text>Channel Title: {channelTitle}</Text>
 
       {/* List of articles */}
       <FlatList
