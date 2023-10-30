@@ -20,15 +20,19 @@ export default function TabOneScreen() {
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
 
+  // State for handling channel URL input
+  const [userInput, setUserInput] = useState("");
+  const [parserInput, setParserInput] = useState("");
   const [channelUrl, setChannelUrl] = useState("");
+  const [channelTitle, setChannelTitle] = useState("");
+
   const [channelTitleWait, setChannelTitleWait] = useState(false);
   const [channelUrlError, setChannelUrlError] = useState(null);
-  const [channelTitle, setChannelTitle] = useState(""); // State for the fetched title
 
-  // Add a state to track the current input value
+  // State to track the current input value
   const [currentInput, setCurrentInput] = useState("");
 
-  // Redirect based on if user exists
+  // Fetch user information
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -41,15 +45,14 @@ export default function TabOneScreen() {
     Alert.alert("Error", message);
   };
 
+  // Handle API request for channel title
   useEffect(() => {
-    // Create a timer to delay the API request
     const delayTimer = setTimeout(async () => {
       try {
         const response = await Promise.race([
-          fetch(currentInput), // Your fetch request
-          new Promise(
-            (_, reject) =>
-              setTimeout(() => reject(new Error("Request Timeout")), 10000) // Timeout after 10 seconds
+          fetch(currentInput),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Request Timeout")), 10000)
           ),
         ]);
         if (!response.ok) {
@@ -58,39 +61,33 @@ export default function TabOneScreen() {
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
         setChannelTitle(parsedRss.title);
-
         setChannelTitleWait(false);
       } catch (error) {
         console.log(error);
         setChannelTitle(null);
         setChannelTitleWait(false);
       }
-    }, 150); // Adjust the delay as needed (e.g., 1000ms)
+    }, 150);
 
-    // Clear the timer if the input changes again before the delay
     return () => clearTimeout(delayTimer);
   }, [currentInput]);
 
-  // Modify the handleChangechannelUrl function
-  const handleChangechannelUrl = (channelUrl) => {
-    // Remove any leading/trailing white spaces
-    channelUrl = channelUrl.trim();
 
-    // Check if the input starts with "http://" or "https://"
+  // Handle channel URL input change
+  const handleChangechannelUrl = (channelUrl) => {
+    channelUrl = channelUrl.trim();
     if (channelUrl.startsWith("http://")) {
-      // Remove "http://" and prepend "https://"
       channelUrl = "https://" + channelUrl.slice(7);
     } else if (!channelUrl.startsWith("https://")) {
-      // If it doesn't start with "https://" or "http://", prepend "https://"
       channelUrl = "https://" + channelUrl;
     }
-
     setChannelTitleWait(true);
     setChannelUrl(channelUrl);
-    setCurrentInput(channelUrl); // Update the current input state
+    setCurrentInput(channelUrl);
   };
 
-  // Submit channel url to Supabase
+
+  // Submit channel URL to Supabase
   const handleSubmitUrl = async (e) => {
     e.preventDefault();
 
@@ -282,12 +279,15 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
+      {/* User info and logout */}
       <View>
         <Text numberOfLines={20}>{JSON.stringify(user, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Input for channel URL */}
       <TextInput
         style={styles.input}
         label="Channel Url Text"
@@ -298,6 +298,7 @@ export default function TabOneScreen() {
         autoCorrect={false}
       />
 
+      {/* Channel title and submit button */}
       {!channelTitleWait ? (
         <>
           {channelTitle ? (
@@ -315,11 +316,13 @@ export default function TabOneScreen() {
       )}
       <TouchableOpacity
         onPress={handleSubmitUrl}
-        disabled={!channelTitle} // Disable when channelTitle is falsy
-        style={channelTitle ? styles.button : styles.buttonDisabled} // Apply styles conditionally
+        disabled={!channelTitle}
+        style={channelTitle ? styles.button : styles.buttonDisabled}
       >
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
+
+      {/* List of articles */}
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
