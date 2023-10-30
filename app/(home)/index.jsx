@@ -72,24 +72,22 @@ export default function TabOneScreen() {
   }, [currentInput]);
 
   // Modify the handleChangechannelUrl function
-  const handleChangechannelUrl = (channelUrl, channelUrlMod) => {
+  const handleChangechannelUrl = (channelUrl) => {
     // Remove any leading/trailing white spaces
-    channelUrlMod = channelUrl.trim();
-    console.log(currentInput);
+    channelUrl = channelUrl.trim();
+
     // Check if the input starts with "http://" or "https://"
     if (channelUrl.startsWith("http://")) {
       // Remove "http://" and prepend "https://"
-      channelUrlMod = "https://" + channelUrl.slice(7);
-      console.log(currentInput);
+      channelUrl = "https://" + channelUrl.slice(7);
     } else if (!channelUrl.startsWith("https://")) {
       // If it doesn't start with "https://" or "http://", prepend "https://"
-      channelUrlMod = "https://" + channelUrl;
-      console.log(currentInput);
+      channelUrl = "https://" + channelUrl;
     }
 
     setChannelTitleWait(true);
     setChannelUrl(channelUrl);
-    setCurrentInput(channelUrlMod); // Update the current input state
+    setCurrentInput(channelUrl); // Update the current input state
   };
 
   // Submit channel url to Supabase
@@ -129,77 +127,12 @@ export default function TabOneScreen() {
       } else {
         console.log("Channel Url data:", channelData);
 
-        {
-          /*
         showErrorAlert("Success", "Channel data uploaded successfully.");
         setChannelUrlError(null);
         setChannelUrl("");
         setCurrentInput("");
         setChannelTitle(null);
         setChannelTitleWait(false);
-      */
-        }
-
-        // const { user } = supabase.auth.session();
-
-        if (user) {
-          // Add the user to the list of subscribers for this channel
-          const { data: subscriberData, error: subscriberError } =
-            await supabase.from("channel_subscribers").upsert([
-              {
-                channel_id: channelData[0].id, // Assuming the id of the inserted channel is channelData[0].id
-                user_id: user.id,
-                channel_subscribers: supabase
-                  .from("channels")
-                  .select("channel_subscribers")
-                  .eq("channelUrl", channelUrl)
-                  .single()
-                  .then((res) => {
-                    // Get the current subscribers array, or initialize an empty array
-                    const currentSubscribers = res
-                      ? res.channel_subscribers
-                      : [];
-                    // Add the user ID to the subscribers array
-                    if (user) {
-                      currentSubscribers.push(user.id);
-                    }
-                    return currentSubscribers;
-                  }),
-              },
-            ]);
-
-          if (subscriberError) {
-            console.log("Subscriber error:", subscriberError);
-            showErrorAlert(
-              "Error subscribing to the channel. Please try again."
-            );
-          } else {
-            console.log("Subscriber data:", subscriberData);
-
-            // Add the channel URL to the list of subscribed channels for the user
-            const { data: profileData, error: profileError } = await supabase
-              .from("profiles")
-              .upsert([
-                {
-                  user_id: user.id,
-                  subscribed_channels: [channelUrl],
-                },
-              ]);
-
-            if (profileError) {
-              console.log("Profile error:", profileError);
-              showErrorAlert("Error updating user profile. Please try again.");
-            } else {
-              console.log("Profile data:", profileData);
-              showErrorAlert("Success", "Channel data uploaded successfully.");
-              setChannelUrlError(null);
-              setChannelUrl("");
-              setCurrentInput("");
-              setChannelTitle(null);
-              setChannelTitleWait(false);
-            }
-          }
-        }
       }
     } catch (error) {
       console.error("Error fetching or uploading channel data:", error);
@@ -360,7 +293,7 @@ export default function TabOneScreen() {
         label="Channel Url Text"
         onChangeText={handleChangechannelUrl}
         value={channelUrl}
-        placeholder="https://"
+        placeholder="channel url text"
         autoCapitalize={"none"}
         autoCorrect={false}
       />
