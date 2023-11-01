@@ -155,18 +155,19 @@ export default function TabOneScreen() {
           }
         }
       } else {
-        // Channel doesn't exist, create a new entry
+        // Create a new channel entry
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .upsert([
             {
               channel_url: channelUrl,
               channel_title: channelTitle,
-              channel_subscribers: [user.id], // Include the user's ID in the subscribers array
+              channel_subscribers: [user.id],
             },
           ])
           .select()
           .single();
+
         if (channelError) {
           console.log("CREATE A NEW CHANNEL Channel Url error:", channelError);
           showErrorAlert("Error uploading channel data. Please try again.");
@@ -175,31 +176,52 @@ export default function TabOneScreen() {
           showErrorAlert("Success", "Channel data uploaded successfully.");
 
           const channelId = channelData.id;
+          const channelUrl = channelData.channel_url;
 
-          // Update the user profile with the new subscription
-          const { data: profileData, error: profileError } = await supabase
-            .from("profiles")
-            .upsert([
-              {
-                id: user.id,
-                channel_subscriptions: [channelId], // Correct the column name
-              },
-            ]);
+          // Fetch the user's existing channel subscriptions
+          const { data: userProfileData, error: userProfileError } =
+            await supabase
+              .from("profiles")
+              .select("channel_subscriptions")
+              .eq("id", user.id);
 
-          if (profileError) {
-            console.log(
-              "ADD SUBSCRIPTION TO USER PROFILE error:",
-              profileError
-            );
+          if (userProfileError) {
+            console.log("FETCH USER PROFILE DATA error:", userProfileError);
             showErrorAlert(
-              "Error adding subscription to profile, please try again"
+              "Error fetching user profile data. Please try again."
             );
           } else {
-            console.log("ADD SUBSCRIPTION TO USER PROFILE data:", profileData);
-            showErrorAlert(
-              "Success",
-              "Profile subscription successfully updated"
-            );
+            const existingSubscriptions =
+              userProfileData[0].channel_subscriptions || [];
+
+            // Create a new subscription object with channelId and channelUrl
+            const newSubscription = { channelId, channelUrl };
+
+            // Add the new subscription to the existing subscriptions
+            const newSubscriptions = [
+              ...existingSubscriptions,
+              newSubscription,
+            ];
+
+            // Update the user profile with the updated subscriptions
+            const { data: updatedProfileData, error: updatedProfileError } =
+              await supabase.from("profiles").upsert([
+                {
+                  id: user.id,
+                  channel_subscriptions: newSubscriptions,
+                },
+              ]);
+
+            if (updatedProfileError) {
+              console.log("UPDATE USER PROFILE error:", updatedProfileError);
+              showErrorAlert("Error updating user profile. Please try again.");
+            } else {
+              console.log("UPDATE USER PROFILE data:", updatedProfileData);
+              showErrorAlert(
+                "Success",
+                "Profile subscription successfully updated"
+              );
+            }
           }
         }
       }
