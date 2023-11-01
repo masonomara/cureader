@@ -123,18 +123,14 @@ export default function TabOneScreen() {
       }
 
       if (existingChannelData.length > 0) {
-        // Channel exists, check if the user is already subscribed
         const existingChannel = existingChannelData[0];
         if (existingChannel.channel_subscribers.includes(user.id)) {
           showErrorAlert("You are already subscribed to this channel.");
         } else {
-          // User is not subscribed, add the user to the subscribers list
           const newSubscribers = [
             ...existingChannel.channel_subscribers,
             user.id,
           ];
-
-          // Update the channel with the new subscribers
           const { data: updateData, error: updateError } = await supabase
             .from("channels")
             .upsert([
@@ -181,13 +177,30 @@ export default function TabOneScreen() {
           const channelId = channelData.id;
 
           // Update the user profile with the new subscription
-          const { data: subscribedChannelData, error: subscribedChannelError } =
-            await supabase.from("profiles").upsert([
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .upsert([
               {
                 id: user.id,
-                channel_subscribtions: [channelId],
+                channel_subscriptions: [channelId], // Correct the column name
               },
             ]);
+
+          if (profileError) {
+            console.log(
+              "ADD SUBSCRIPTION TO USER PROFILE error:",
+              profileError
+            );
+            showErrorAlert(
+              "Error adding subscription to profile, please try again"
+            );
+          } else {
+            console.log("ADD SUBSCRIPTION TO USER PROFILE data:", profileData);
+            showErrorAlert(
+              "Success",
+              "Profile subscription successfully updated"
+            );
+          }
         }
       }
 
