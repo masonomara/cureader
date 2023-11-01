@@ -45,11 +45,20 @@ export default function TabOneScreen() {
   // Handle user input change
   const handleUserInput = (userInput) => {
     userInput = userInput.trim();
-    if (userInput.startsWith("http://")) {
+    let moddedUserInput = "";
+
+    if (
+      userInput === "" ||
+      userInput.startsWith("https://") ||
+      userInput.startsWith("http://")
+    ) {
+      moddedUserInput = userInput;
+    } else if (userInput.startsWith("http://")) {
       moddedUserInput = "https://" + userInput.slice(7);
     } else if (!userInput.startsWith("https://")) {
       moddedUserInput = "https://" + userInput;
     }
+
     setChannelTitleWait(true);
     setParserInput(moddedUserInput);
     setUserInput(userInput);
