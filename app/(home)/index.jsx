@@ -114,7 +114,10 @@ export default function TabOneScreen() {
         await supabase.from("channels").select().eq("channel_url", channelUrl);
 
       if (existingChannelError) {
-        console.log("Channel Url error:", existingChannelError);
+        console.log(
+          "CHECK IF ERROR ALREADY EXISTS channel Url error:",
+          existingChannelError
+        );
         showErrorAlert("Error checking channel data. Please try again.");
         return;
       }
@@ -142,10 +145,16 @@ export default function TabOneScreen() {
             ]);
 
           if (updateError) {
-            console.log("Channel Update Error:", updateError);
+            console.log(
+              "UPDATE THE CHANNEL WITH NEW SUBSCRIBERS Channel Update Error:",
+              updateError
+            );
             showErrorAlert("Error updating channel data. Please try again.");
           } else {
-            console.log("Channel Updated:", updateData);
+            console.log(
+              "UPDATE THE CHANNEL WITH NEW SUBSCRIBERS Channel Updated:",
+              updateData
+            );
             showErrorAlert("Success", "You have subscribed to the channel.");
           }
         }
@@ -159,14 +168,26 @@ export default function TabOneScreen() {
               channel_title: channelTitle,
               channel_subscribers: [user.id], // Include the user's ID in the subscribers array
             },
-          ]);
-
+          ])
+          .select()
+          .single();
         if (channelError) {
-          console.log("Channel Url error:", channelError);
+          console.log("CREATE A NEW CHANNEL Channel Url error:", channelError);
           showErrorAlert("Error uploading channel data. Please try again.");
         } else {
-          console.log("Channel Url data:", channelData);
+          console.log("CREATE A NEW CHANNEL Channel Url data:", channelData);
           showErrorAlert("Success", "Channel data uploaded successfully.");
+
+          const channelId = channelData.id;
+
+          // Update the user profile with the new subscription
+          const { data: subscribedChannelData, error: subscribedChannelError } =
+            await supabase.from("profiles").upsert([
+              {
+                id: user.id,
+                channel_subscribtions: [channelId],
+              },
+            ]);
         }
       }
 
