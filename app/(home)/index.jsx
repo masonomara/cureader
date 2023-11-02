@@ -257,6 +257,33 @@ export default function TabOneScreen() {
     }
   };
 
+  // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
+  const getChannelSubscriptions = async () => {
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("channel_subscriptions")
+        .eq("id", user.id);
+
+      if (profileError) {
+        console.error("Error fetching user profile data:", profileError);
+      } else {
+        const channelSubscriptions = profileData[0].channel_subscriptions;
+        const channelUrls = channelSubscriptions.map(
+          (subscription) => subscription.channelUrl
+        );
+
+        console.log("User's channelUrls:", channelUrls);
+        return channelUrls;
+      }
+    } catch (error) {
+      console.error("Error fetching user profile data:", error);
+    }
+  };
+
+  // Call the function to get the user's channelUrls
+  getChannelSubscriptions();
+
   // Parse feeds
   useEffect(() => {
     const feedUrls = [
