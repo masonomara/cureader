@@ -330,7 +330,7 @@ export default function TabOneScreen() {
     };
 
     fetchAndParseFeeds();
-  }, []);
+  }, [user]);
 
   // Styles
   const styles = {
