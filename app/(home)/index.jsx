@@ -282,20 +282,9 @@ export default function TabOneScreen() {
     }
   };
 
-  // Call the function to get the user's channelUrls
 
   // Parse feeds
   useEffect(() => {
-    /*
-    const feedUrls = [
-      "https://feeds.megaphone.fm/newheights",
-      "https://feeds.megaphone.fm/ne",
-      "http://www.nasa.gov/rss/dyn/breaking_news.rss",
-      "https://podcastfeeds.nbcnews.com/RPWEjhKq",
-      // Add more RSS feed URLs here
-    ];
-    */
-
     const fetchAndParseFeeds = async () => {
       const feedUrls = await getChannelSubscriptions();
 
