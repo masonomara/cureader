@@ -59,7 +59,8 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
-  {/*
+  {
+    /*
 
   const { session, initialized } = useAuth();
   const segments = useSegments();
@@ -75,9 +76,10 @@ function RootLayoutNav() {
     }
   }, [session, initialized]);
 
-*/}
+*/
+  }
 
-useEffect(() => {
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         SplashScreen.hideAsync();
@@ -113,22 +115,20 @@ useEffect(() => {
     });
   }, []);
 
-
-
   return (
     // <AuthProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(home)" options={{ headerShown: false }} />
-          <Stack.Screen name="(login)" options={{ headerShown: false }} />
-          <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="addChannel"
-            options={{ presentation: "modal", title: "Add Channel" }}
-          />
-        </Stack>
-      </ThemeProvider>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(home)" options={{ headerShown: false }} />
+        <Stack.Screen name="(login)" options={{ headerShown: false }} />
+        <Stack.Screen name="(signup)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen
+          name="addChannel"
+          options={{ presentation: "modal", title: "Add Channel" }}
+        />
+      </Stack>
+    </ThemeProvider>
     // </AuthProvider>
   );
 }

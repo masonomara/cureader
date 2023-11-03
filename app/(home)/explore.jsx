@@ -27,8 +27,6 @@ export default function TabOneScreen() {
     });
   }, []);
 
-
-
   const styles = {
     container: {
       flex: 1,
@@ -70,6 +68,7 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
+      {/*
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}
@@ -80,6 +79,7 @@ export default function TabOneScreen() {
           );
         }}
       />
+      */}
     </View>
   );
 }
