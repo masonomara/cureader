@@ -75,12 +75,13 @@ export default function TabOneScreen() {
           ),
         ]);
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error("API Request - Network response was not ok");
         }
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
+
         setChannelTitle(parsedRss.title);
-        setChannelUrl(parsedRss.links[0].url);
+        setChannelUrl(parserInput);
         setChannelTitleWait(false);
       } catch (error) {
         console.log(error);
@@ -282,18 +283,22 @@ export default function TabOneScreen() {
   };
 
   // Call the function to get the user's channelUrls
-  getChannelSubscriptions();
 
   // Parse feeds
   useEffect(() => {
+    /*
     const feedUrls = [
       "https://feeds.megaphone.fm/newheights",
+      "https://feeds.megaphone.fm/ne",
       "http://www.nasa.gov/rss/dyn/breaking_news.rss",
       "https://podcastfeeds.nbcnews.com/RPWEjhKq",
       // Add more RSS feed URLs here
     ];
+    */
 
     const fetchAndParseFeeds = async () => {
+      const feedUrls = await getChannelSubscriptions();
+
       const allChannels = [];
       const allItems = [];
 
