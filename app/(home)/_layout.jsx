@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="channels"
         options={{
-          title: 'null',
+          title: 'Channels',
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
