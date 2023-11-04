@@ -42,10 +42,30 @@ export default function TabOneScreen() {
   }, []);
 
   const styles = {
-    container: {},
-    channelList: {
+    container: {
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      flexDirection: "column",
+      width: "100%",
+    },
+    randomChannelList: {
       gap: 12,
       paddingHorizontal: 16,
+      marginBottom: 24,
+    },
+    popularChannelList: {
+      paddingHorizontal: 16,
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+      width: "100%",
+    },
+    inputWrapper: {
+      flex: 1,
+      padding: 16,
+      width: "100%",
     },
     input: {
       flex: 1,
@@ -74,21 +94,46 @@ export default function TabOneScreen() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    titleWrapper: {
+      marginTop: 0,
+      flex: 1,
+      padding: 16,
+      paddingBottom: 16,
+      width: "100%",
+      marginTop: 8,
+    },
+    title: {
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 22,
+      lineHeight: 28,
+      letterSpacing: -0.22,
+    },
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <TextInput
-        style={styles.input}
-        label="Channel Url Text"
-        // onChangeText={handleUserInput}
-        // value={userInput}
-        placeholder="Search for channel placeholder"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-      />
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.input}
+          label="Channel Url Text"
+          // onChangeText={handleUserInput}
+          // value={userInput}
+          placeholder="Search for channel placeholder"
+          autoCapitalize={"none"}
+          autoCorrect={false}
+        />
+      </View>
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Random Channels</Text>
+      </View>
+
       {popularChannels && popularChannels.length > 0 ? (
-        <ScrollView horizontal contentContainerStyle={styles.channelList}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.randomChannelList}
+        >
           {popularChannels.map((item) => (
             <ChannelCardFeatured key={item.id} item={item} />
           ))}
@@ -96,8 +141,12 @@ export default function TabOneScreen() {
       ) : (
         <Text>Loading...</Text> // You can display a loading message here
       )}
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Popular Channels</Text>
+      </View>
+
       {popularChannels && popularChannels.length > 0 ? (
-        <View contentContainerStyle={styles.channelList}>
+        <View style={styles.popularChannelList}>
           {popularChannels.map((item) => (
             <ChannelCard key={item.id} item={item} />
           ))}
