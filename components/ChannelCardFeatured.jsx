@@ -12,7 +12,7 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
-export default function ChannelCard({ item }) {
+export default function ChannelCardFeatured({ item }) {
   const colorScheme = useColorScheme();
   const styles = {
     card: {
