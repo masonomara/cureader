@@ -17,26 +17,21 @@ export default function ChannelCard({ item }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderWidth: 1,
+      borderTopWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "flex-start",
-      flexDirection: "column",
+      alignItems: "center",
+      flexDirection: "row",
       display: "flex",
-      width: CARD_WIDTH,
-      borderRadius: 12,
-      overflow: "hidden",
+      flex: 1,
       gap: 0,
-      borderWidth: 1,
-      borderColor: "red",
+      paddingVertical: 6,
     },
     cardContent: {
       display: "flex",
       alignItems: "flex-start",
       flexDirection: "column",
-      width: "100%",
+      flex: 1,
       padding: 12,
-      borderWidth: 1,
-      borderColor: "blue",
     },
     title: {
       display: "flex",
@@ -50,15 +45,11 @@ export default function ChannelCard({ item }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      borderWidth: 1,
-      borderColor: "yellow",
     },
     cardControls: {
       marginTop: 6,
       flexDirection: "row",
       gap: 12,
-      borderWidth: 1,
-      borderColor: "green",
     },
     description: {
       flex: 1,
@@ -91,22 +82,20 @@ export default function ChannelCard({ item }) {
       {item ? (
         <View
           style={{
-            aspectRatio: "5/3",
-            width: "100%",
+            height: 74,
+            width: 74,
             overflow: "hidden",
             backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-            borderTopEndRadius: 12,
-            borderTopStartRadius: 12,
+            borderRadius: 17,
           }}
         ></View>
       ) : (
         <View
           style={{
-            aspectRatio: "5/3",
-            width: "100%",
+            aspectRatio: "1/1",
+            width: 74,
             overflow: "hidden",
-            borderTopEndRadius: 12,
-            borderTopStartRadius: 12,
+            borderRadius: 17,
           }}
         >
           <Image
@@ -120,7 +109,9 @@ export default function ChannelCard({ item }) {
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.channel_title}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {item.channel_title}
+        </Text>
         <View style={styles.cardControls}>
           <Text numberOfLines={2} style={styles.description}>
             Nut

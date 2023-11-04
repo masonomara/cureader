@@ -153,16 +153,23 @@ const FONT = {
   },
   tabBarTitle: {
     fontFamily: "InterSemiBold",
-    fontWeight: "700",
+    fontWeight: "600",
     fontSize: 10,
     lineHeight: 12,
     letterSpacing: -0.1,
   },
   displaySubtitle: {
     fontFamily: "InterMedium",
-    fontWeight: "700",
+    fontWeight: "500",
     fontSize: 19,
     lineHeight: 24,
     letterSpacing: -0.19,
+  },
+  sectionTitle: {
+    fontFamily: "InterBold",
+    fontWeight: "700",
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.22,
   },
 };

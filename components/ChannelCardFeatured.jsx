@@ -12,8 +12,10 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
+
 export default function ChannelCardFeatured({ item }) {
   const colorScheme = useColorScheme();
+  console.log("ITEM:", item)
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -26,8 +28,6 @@ export default function ChannelCardFeatured({ item }) {
       borderRadius: 12,
       overflow: "hidden",
       gap: 0,
-      borderWidth: 1,
-      borderColor: "red",
     },
     cardContent: {
       display: "flex",
@@ -35,8 +35,6 @@ export default function ChannelCardFeatured({ item }) {
       flexDirection: "column",
       width: "100%",
       padding: 12,
-      borderWidth: 1,
-      borderColor: "blue",
     },
     title: {
       display: "flex",
@@ -50,15 +48,11 @@ export default function ChannelCardFeatured({ item }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      borderWidth: 1,
-      borderColor: "yellow",
     },
     cardControls: {
       marginTop: 6,
       flexDirection: "row",
       gap: 12,
-      borderWidth: 1,
-      borderColor: "green",
     },
     description: {
       flex: 1,
@@ -120,10 +114,10 @@ export default function ChannelCardFeatured({ item }) {
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.channel_title}</Text>
+        <Text style={styles.title}  numberOfLines={1} >{item.channel_title}</Text>
         <View style={styles.cardControls}>
           <Text numberOfLines={2} style={styles.description}>
-            Nut
+            {item.description}
           </Text>
           <TouchableOpacity style={styles.subscribeButton}>
             <Text style={styles.subscribeButtonText}>Subscribe</Text>
