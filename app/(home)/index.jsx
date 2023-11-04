@@ -25,6 +25,8 @@ export default function TabOneScreen() {
   const [parserInput, setParserInput] = useState("");
   const [channelUrl, setChannelUrl] = useState("");
   const [channelTitle, setChannelTitle] = useState("");
+  const [channelDescription, setChannelDescription] = useState("");
+  const [channelImageUrl, setChannelImageUrl] = useState("");
 
   const [channelTitleWait, setChannelTitleWait] = useState(false);
   const [channelUrlError, setChannelUrlError] = useState(null);
@@ -79,14 +81,17 @@ export default function TabOneScreen() {
         }
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
-
         setChannelTitle(parsedRss.title);
         setChannelUrl(parserInput);
+        setChannelDescription(parsedRss.description);
+        setChannelImageUrl(parsedRss.image.url);
         setChannelTitleWait(false);
       } catch (error) {
         console.log(error);
         setChannelTitle(null);
         setChannelTitleWait(false);
+        setChannelDescription(null);
+        setChannelImageUrl(null);
       }
     }, 150);
 
@@ -164,6 +169,8 @@ export default function TabOneScreen() {
               channel_url: channelUrl,
               channel_title: channelTitle,
               channel_subscribers: [user.id],
+              channel_image_url: channelImageUrl,
+              channel_description: channelDescription,
             },
           ])
           .select()
@@ -229,6 +236,8 @@ export default function TabOneScreen() {
 
       setChannelUrl("");
       setChannelTitle("");
+      setChannelDescription("");
+      setChannelImageUrl("");
       setParserInput("");
       setUserInput("");
       setChannelTitleWait(false);
@@ -274,14 +283,13 @@ export default function TabOneScreen() {
           (subscription) => subscription.channelUrl
         );
 
-        console.log("User's channelUrls:", channelUrls);
+        console.log("USER'S CHANNELURLS:", channelUrls);
         return channelUrls;
       }
     } catch (error) {
       console.error("Error fetching user profile data:", error);
     }
   };
-
 
   // Parse feeds
   useEffect(() => {
@@ -452,6 +460,8 @@ export default function TabOneScreen() {
       <Text>Parser Input: {parserInput}</Text>
       <Text>Channel Url: {channelUrl}</Text>
       <Text>Channel Title: {channelTitle}</Text>
+      <Text numberOfLines={1}>Channel Description: {channelDescription}</Text>
+      <Text numberOfLines={1}>Channel Image URL: {channelImageUrl}</Text>
 
       {/* List of articles */}
       <FlatList
