@@ -50,6 +50,7 @@ export default function ChannelCard({ item }) {
       marginTop: 6,
       flexDirection: "row",
       gap: 12,
+      alignItems: "flex-end",
     },
     description: {
       flex: 1,
@@ -64,8 +65,10 @@ export default function ChannelCard({ item }) {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      height: 36,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 34,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -79,7 +82,7 @@ export default function ChannelCard({ item }) {
 
   return (
     <Pressable style={styles.card}>
-      {item ? (
+      {!item.channel_image_url ? (
         <View
           style={{
             height: 74,
@@ -104,7 +107,7 @@ export default function ChannelCard({ item }) {
               width: "100%",
               height: "100%",
             }}
-            source={{ uri: item.image.url }}
+            source={{ uri: item.channel_image_url }}
           />
         </View>
       )}
@@ -114,7 +117,7 @@ export default function ChannelCard({ item }) {
         </Text>
         <View style={styles.cardControls}>
           <Text numberOfLines={2} style={styles.description}>
-            Nut
+            {item.channel_description}
           </Text>
           <TouchableOpacity style={styles.subscribeButton}>
             <Text style={styles.subscribeButtonText}>Subscribe</Text>

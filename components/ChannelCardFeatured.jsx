@@ -12,10 +12,9 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
-
 export default function ChannelCardFeatured({ item }) {
   const colorScheme = useColorScheme();
-  console.log("ITEM:", item)
+  console.log("ITEM:", item);
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -53,6 +52,7 @@ export default function ChannelCardFeatured({ item }) {
       marginTop: 6,
       flexDirection: "row",
       gap: 12,
+      alignItems: 'flex-end',
     },
     description: {
       flex: 1,
@@ -67,8 +67,10 @@ export default function ChannelCardFeatured({ item }) {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      height: 36,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 34,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -82,7 +84,7 @@ export default function ChannelCardFeatured({ item }) {
 
   return (
     <Pressable style={styles.card}>
-      {item ? (
+      {!item.channel_image_url ? (
         <View
           style={{
             aspectRatio: "5/3",
@@ -109,15 +111,17 @@ export default function ChannelCardFeatured({ item }) {
               width: "100%",
               height: "100%",
             }}
-            source={{ uri: item.image.url }}
+            source={{ uri: item.channel_image_url }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title}  numberOfLines={1} >{item.channel_title}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {item.channel_title}
+        </Text>
         <View style={styles.cardControls}>
           <Text numberOfLines={2} style={styles.description}>
-            {item.description}
+            {item.channel_description}
           </Text>
           <TouchableOpacity style={styles.subscribeButton}>
             <Text style={styles.subscribeButtonText}>Subscribe</Text>
