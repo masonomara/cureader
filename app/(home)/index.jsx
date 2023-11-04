@@ -112,7 +112,9 @@ export default function TabOneScreen() {
       const response = await fetch(channelUrl);
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(
+          "Network response was not ok, could not fetch channelUrl"
+        );
       }
 
       // Check if the channel already exists
@@ -158,6 +160,58 @@ export default function TabOneScreen() {
               updateData
             );
             showErrorAlert("Success", "You have subscribed to the channel.");
+
+            const channelId = existingChannel.id;
+            const channelUrl = existingChannel.channel_url;
+
+            // Fetch the user's existing channel subscriptions
+
+            const { data: userProfileData, error: userProfileError } =
+              await supabase
+                .from("profiles")
+                .select("channel_subscriptions")
+                .eq("id", user.id);
+
+            if (userProfileError) {
+              console.log("FETCH USER PROFILE DATA error:", userProfileError);
+              showErrorAlert(
+                "Error fetching user profile data. Please try again."
+              );
+            } else {
+              const existingSubscriptions =
+                userProfileData[0].channel_subscriptions || [];
+
+              // Create a new subscription object with channelId and channelUrl
+              const newSubscription = { channelId, channelUrl };
+
+              // Add the new subscription to the existing subscriptions
+              const newSubscriptions = [
+                ...existingSubscriptions,
+                newSubscription,
+              ];
+
+              // Update the user profile with the updated subscriptions
+              const { data: updatedProfileData, error: updatedProfileError } =
+                await supabase.from("profiles").upsert([
+                  {
+                    id: user.id,
+                    channel_subscriptions: newSubscriptions,
+                  },
+                ]);
+
+              if (updatedProfileError) {
+                console.log("UPDATE USER PROFILE error:", updatedProfileError);
+                showErrorAlert(
+                  "Error updating user profile. Please try again."
+                );
+              } else {
+                console.log("UPDATE USER PROFILE data:", updatedProfileData);
+                showErrorAlert(
+                  "Success",
+                  "Profile subscription successfully updated"
+                );
+              }
+            }
           }
         }
       } else {
@@ -187,6 +241,7 @@ export default function TabOneScreen() {
           const channelUrl = channelData.channel_url;
 
           // Fetch the user's existing channel subscriptions
+
           const { data: userProfileData, error: userProfileError } =
             await supabase
               .from("profiles")
