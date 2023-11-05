@@ -34,8 +34,8 @@ export default function ChannelCard({ item, user }) {
           userProfileData[0].channel_subscriptions || [];
         const itemChannelId = item.id;
 
-        console.log("channelSubscriptions:", channelSubscriptions);
-        console.log("itemChannelId:", itemChannelId);
+        // console.log("channelSubscriptions:", channelSubscriptions);
+        // console.log("itemChannelId:", itemChannelId);
 
         const subscribed = channelSubscriptions.some(
           (subscription) => subscription.channelId === itemChannelId
@@ -49,6 +49,56 @@ export default function ChannelCard({ item, user }) {
 
     checkSubscription();
   }, [user, item]);
+
+  // Define a function to handle the subscribe/unsubscribe button click
+  const handleSubscribe = async () => {
+    try {
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id);
+      // Get a copy of the user's channel subscriptions
+
+      const updatedChannelSubscriptions =
+        userProfileData[0].channel_subscriptions;
+
+      console.log("updatedChannelSubscriptions:", updatedChannelSubscriptions);
+
+      if (isSubscribed) {
+        // Unsubscribe: Remove the channel with the matching channelId
+        const itemChannelId = item.id;
+        const index = updatedChannelSubscriptions.findIndex(
+          (subscription) => subscription.channelId === itemChannelId
+        );
+        if (index !== -1) {
+          updatedChannelSubscriptions.splice(index, 1);
+        }
+      } else {
+        // Subscribe: Add the channel
+        const newSubscription = {
+          channelId: item.id,
+          channelUrl: item.channel_url, // Replace with the actual channel URL
+        };
+        updatedChannelSubscriptions.push(newSubscription);
+      }
+
+      // Update the user's subscriptions in your database
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({
+          channel_subscriptions: updatedChannelSubscriptions,
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating channel subscriptions:", error);
+      } else {
+        setIsSubscribed(!isSubscribed); // Toggle the local state
+      }
+    } catch (error) {
+      console.error("Error handling subscription:", error);
+    }
+  };
 
   const colorScheme = useColorScheme();
   const styles = {
@@ -156,7 +206,10 @@ export default function ChannelCard({ item, user }) {
           <Text numberOfLines={2} style={styles.description}>
             {item.channel_description}
           </Text>
-          <TouchableOpacity style={styles.subscribeButton}>
+          <TouchableOpacity
+            style={styles.subscribeButton}
+            onPress={handleSubscribe}
+          >
             <Text style={styles.subscribeButtonText}>
               {isSubscribed ? "Subscribed" : "Subscribe"}
             </Text>
