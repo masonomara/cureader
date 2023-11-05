@@ -16,6 +16,3 @@ P1
 [ ] reformat article cards
 [ ] reformat channel cards
 [ ] create email verification on sign up
-
-P2
-[ ] show user location and weather on login

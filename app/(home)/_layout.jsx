@@ -60,17 +60,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="channels"
-        options={{
-          title: 'Channels',
-          headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
-            backgroundColor: Colors[colorScheme || "light"].background,
-          },
-          tabBarIcon: ({ color }) => <TabBarIcon name="rss" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="bookmarks"
         options={{
           title: "Bookmarks",
