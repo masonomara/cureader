@@ -8,11 +8,50 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
+import { supabase } from "../config/initSupabase";
+
+import { useState, useEffect } from "react";
 import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
-export default function ChannelCardFeatured({ item }) {
+export default function ChannelCardFeatured({ item, user }) {
+
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is subscribed to this channel
+    async function checkSubscription() {
+      try {
+        const { data: userProfileData, error: userProfileError } =
+          await supabase.from("profiles").select().eq("id", user.id);
+
+        if (userProfileError) {
+          console.log("Error fetching user profile data:", userProfileError);
+          return;
+        }
+
+        const channelSubscriptions =
+          userProfileData[0].channel_subscriptions || [];
+        const itemChannelId = item.id;
+
+        console.log("channelSubscriptions:", channelSubscriptions);
+        console.log("itemChannelId:", itemChannelId);
+
+        const subscribed = channelSubscriptions.some(
+          (subscription) => subscription.channelId === itemChannelId
+        );
+
+        setIsSubscribed(subscribed);
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+      }
+    }
+
+    checkSubscription();
+  }, [user, item]);
+
+
   const colorScheme = useColorScheme();
   console.log("ITEM:", item);
   const styles = {
@@ -52,7 +91,7 @@ export default function ChannelCardFeatured({ item }) {
       marginTop: 6,
       flexDirection: "row",
       gap: 12,
-      alignItems: 'flex-end',
+      alignItems: "flex-end",
     },
     description: {
       flex: 1,
@@ -67,9 +106,9 @@ export default function ChannelCardFeatured({ item }) {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
       paddingHorizontal: 12,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       height: 34,
     },
     subscribeButtonText: {
@@ -124,7 +163,9 @@ export default function ChannelCardFeatured({ item }) {
             {item.channel_description}
           </Text>
           <TouchableOpacity style={styles.subscribeButton}>
-            <Text style={styles.subscribeButtonText}>Subscribe</Text>
+            <Text style={styles.subscribeButtonText}>
+              {isSubscribed ? "Subscribed" : "Subscribe"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -8,11 +8,48 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
+import { supabase } from "../config/initSupabase";
+
+import { useEffect, useState } from "react";
 import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
-export default function ChannelCard({ item }) {
+export default function ChannelCard({ item, user }) {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is subscribed to this channel
+    async function checkSubscription() {
+      try {
+        const { data: userProfileData, error: userProfileError } =
+          await supabase.from("profiles").select().eq("id", user.id);
+
+        if (userProfileError) {
+          console.log("Error fetching user profile data:", userProfileError);
+          return;
+        }
+
+        const channelSubscriptions =
+          userProfileData[0].channel_subscriptions || [];
+        const itemChannelId = item.id;
+
+        console.log("channelSubscriptions:", channelSubscriptions);
+        console.log("itemChannelId:", itemChannelId);
+
+        const subscribed = channelSubscriptions.some(
+          (subscription) => subscription.channelId === itemChannelId
+        );
+
+        setIsSubscribed(subscribed);
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+      }
+    }
+
+    checkSubscription();
+  }, [user, item]);
+
   const colorScheme = useColorScheme();
   const styles = {
     card: {
@@ -120,7 +157,9 @@ export default function ChannelCard({ item }) {
             {item.channel_description}
           </Text>
           <TouchableOpacity style={styles.subscribeButton}>
-            <Text style={styles.subscribeButtonText}>Subscribe</Text>
+            <Text style={styles.subscribeButtonText}>
+              {isSubscribed ? "Subscribed" : "Subscribe"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

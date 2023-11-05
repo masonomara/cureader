@@ -8,7 +8,18 @@ import Colors from "../../constants/Colors";
 
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
+  const [user, setUser] = useState(null);
+
   const [popularChannels, setPopularChannels] = useState([]);
+
+  // Fetch user information
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
 
   // Function to fetch all entries in the "channels" table
   const fetchChannels = async () => {
@@ -135,7 +146,7 @@ export default function TabOneScreen() {
           contentContainerStyle={styles.randomChannelList}
         >
           {popularChannels.map((item) => (
-            <ChannelCardFeatured key={item.id} item={item} />
+            <ChannelCardFeatured key={item.id} item={item} user={user}/>
           ))}
         </ScrollView>
       ) : (
@@ -148,7 +159,7 @@ export default function TabOneScreen() {
       {popularChannels && popularChannels.length > 0 ? (
         <View style={styles.popularChannelList}>
           {popularChannels.map((item) => (
-            <ChannelCard key={item.id} item={item} />
+            <ChannelCard key={item.id} item={item} user={user} />
           ))}
         </View>
       ) : (
