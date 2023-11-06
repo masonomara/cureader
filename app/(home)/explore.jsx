@@ -1,6 +1,11 @@
-import { ScrollView, useColorScheme, Text, TextInput } from "react-native";
-import { View } from "../../components/Themed";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  useColorScheme,
+} from "react-native";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
@@ -9,17 +14,8 @@ import Colors from "../../constants/Colors";
 export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState(null);
-
   const [popularChannels, setPopularChannels] = useState([]);
-
-  // Fetch user information
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
+  const [userChannelIds, setUserChannelIds] = useState([]);
 
   // Function to fetch all entries in the "channels" table
   const fetchChannels = async () => {
@@ -27,30 +23,69 @@ export default function TabOneScreen() {
       const { data, error } = await supabase
         .from("channels")
         .select("*")
-        .order("channel_subscribers", { ascending: false }); // Sort by the "channel_subscribers" column in descending order
+        .order("channel_subscribers", { ascending: false });
 
       if (error) {
         console.error("Error fetching channels:", error);
-        return []; // Return an empty array in case of an error
+        return [];
       } else {
-        console.log("List of channels sorted by subscribers:", data);
-        return data; // Return the data if fetched successfully
+        return data;
       }
     } catch (error) {
       console.error("Error fetching channels:", error);
-      return []; // Return an empty array in case of an error
+      return [];
     }
   };
 
+  // Function to fetch all channels user is subscribed to
+  const fetchUserChannels = async (user) => {
+    try {
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id);
+
+      if (userProfileError) {
+        console.error("Error fetching user profile data:", userProfileError);
+        return [];
+      }
+
+      const channelSubscriptions =
+        userProfileData[0].channel_subscriptions || [];
+      const channelIds = channelSubscriptions.map(
+        (subscription) => subscription.channelId
+      );
+      console.log("CHANNELIDS:", channelIds);
+      return channelIds;
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      return [];
+    }
+  };
+
+  // Fetch user information and user's channel subscriptions
   useEffect(() => {
-    // Fetch channels when the component mounts
+    // Fetch user information
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
+
+  // Fetch channels and user's channel subscriptions
+  useEffect(() => {
     const fetchData = async () => {
       const channelsData = await fetchChannels();
-      setPopularChannels(channelsData); // Set the state with the fetched data
+      setPopularChannels(channelsData);
+      if (user) {
+        const channelIds = await fetchUserChannels(user);
+        setUserChannelIds(channelIds);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
   const styles = {
     container: {
@@ -146,7 +181,7 @@ export default function TabOneScreen() {
           contentContainerStyle={styles.randomChannelList}
         >
           {popularChannels.map((item) => (
-            <ChannelCardFeatured key={item.id} item={item} user={user}/>
+            <ChannelCardFeatured key={item.id} item={item} user={user} />
           ))}
         </ScrollView>
       ) : (
