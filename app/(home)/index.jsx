@@ -329,24 +329,46 @@ export default function TabOneScreen() {
   // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
   const getChannelSubscriptions = async () => {
     try {
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("channel_subscriptions")
-        .eq("id", user.id);
+      if (!user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("channel_subscriptions")
+          .eq("id", userSession.user.id);
 
-      if (profileError) {
-        console.error("Error fetching user profile data:", profileError);
+        if (profileError) {
+          console.error("Error fetching user profile data:", profileError);
+        } else {
+          const channelSubscriptions =
+            profileData[0]?.channel_subscriptions || [];
+          const channelUrls = channelSubscriptions.map(
+            (subscription) => subscription.channelUrl
+          );
+
+          console.log("USER'S CHANNELURLS:", channelUrls);
+          return channelUrls;
+        }
       } else {
-        const channelSubscriptions = profileData[0].channel_subscriptions;
-        const channelUrls = channelSubscriptions.map(
-          (subscription) => subscription.channelUrl
-        );
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("channel_subscriptions")
+          .eq("id", user.id);
 
-        console.log("USER'S CHANNELURLS:", channelUrls);
-        return channelUrls;
+        if (profileError) {
+          console.error("Error fetching user profile data:", profileError);
+        } else {
+          const channelSubscriptions =
+            profileData[0]?.channel_subscriptions || [];
+          const channelUrls = channelSubscriptions.map(
+            (subscription) => subscription.channelUrl
+          );
+
+          console.log("USER'S CHANNELURLS:", channelUrls);
+          return channelUrls;
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile data:", error);
+      return [];
     }
   };
 
