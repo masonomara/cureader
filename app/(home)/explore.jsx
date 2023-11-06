@@ -11,7 +11,7 @@ import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 
-export default function TabOneScreen() {
+export default function Explore() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState(null);
   const [popularChannels, setPopularChannels] = useState([]);
@@ -50,18 +50,15 @@ export default function TabOneScreen() {
         return [];
       }
 
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map(
-        (subscription) => subscription.channelId
-      );
-      console.log("CHANNELIDS:", channelIds);
+      const channelSubscriptions = userProfileData[0].channel_subscriptions || [];
+      const channelIds = channelSubscriptions.map((subscription) => subscription.channelId);
+      console.log("CHANNEL IDS:", channelIds)
       return channelIds;
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
       return [];
     }
-  };
+  }
 
   // Fetch user information and user's channel subscriptions
   useEffect(() => {
@@ -78,6 +75,7 @@ export default function TabOneScreen() {
     const fetchData = async () => {
       const channelsData = await fetchChannels();
       setPopularChannels(channelsData);
+
       if (user) {
         const channelIds = await fetchUserChannels(user);
         setUserChannelIds(channelIds);
@@ -163,10 +161,8 @@ export default function TabOneScreen() {
         <TextInput
           style={styles.input}
           label="Channel Url Text"
-          // onChangeText={handleUserInput}
-          // value={userInput}
           placeholder="Search for channel placeholder"
-          autoCapitalize={"none"}
+          autoCapitalize="none"
           autoCorrect={false}
         />
       </View>
@@ -181,11 +177,16 @@ export default function TabOneScreen() {
           contentContainerStyle={styles.randomChannelList}
         >
           {popularChannels.map((item) => (
-            <ChannelCardFeatured key={item.id} item={item} user={user} />
+            <ChannelCardFeatured
+              key={item.id}
+              item={item}
+              user={user}
+              isSubscribed={userChannelIds.includes(item.id)}
+            />
           ))}
         </ScrollView>
       ) : (
-        <Text>Loading...</Text> // You can display a loading message here
+        <Text>Loading...</Text>
       )}
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Popular Channels</Text>
@@ -194,11 +195,16 @@ export default function TabOneScreen() {
       {popularChannels && popularChannels.length > 0 ? (
         <View style={styles.popularChannelList}>
           {popularChannels.map((item) => (
-            <ChannelCard key={item.id} item={item} user={user} />
+            <ChannelCard
+              key={item.id}
+              item={item}
+              user={user}
+              isSubscribed={userChannelIds.includes(item.id)}
+            />
           ))}
         </View>
       ) : (
-        <Text>Loading...</Text> // You can display a loading message here
+        <Text>Loading...</Text>
       )}
     </ScrollView>
   );

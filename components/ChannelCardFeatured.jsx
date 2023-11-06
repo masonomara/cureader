@@ -6,7 +6,6 @@ import {
   Pressable,
   Image,
   Dimensions,
-  TextInput,
 } from "react-native";
 import { supabase } from "../config/initSupabase";
 
@@ -15,8 +14,8 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width * 0.75;
 
-export default function ChannelCardFeatured({ item, user }) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+export default function ChannelCardFeatured({ item, user, subscribed }) {
+  const [isSubscribed, setIsSubscribed] = useState(subscribed);
 
   useEffect(() => {
     // Check if the user is subscribed to this channel
