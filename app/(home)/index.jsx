@@ -132,6 +132,10 @@ export default function TabOneScreen() {
 
       if (existingChannelData.length > 0) {
         const existingChannel = existingChannelData[0];
+        if (!existingChannel.channel_subscribers) {
+          existingChannel.channel_subscribers = []; // Create an empty subscribers array
+        }
+
         if (existingChannel.channel_subscribers.includes(user.id)) {
           showErrorAlert("You are already subscribed to this channel.");
         } else {
@@ -222,7 +226,7 @@ export default function TabOneScreen() {
             {
               channel_url: channelUrl,
               channel_title: channelTitle,
-              channel_subscribers: [user.id],
+              channel_subscribers: [user.id], // Create an array with the user's ID
               channel_image_url: channelImageUrl,
               channel_description: channelDescription,
             },
