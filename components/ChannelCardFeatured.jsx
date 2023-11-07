@@ -157,10 +157,28 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       justifyContent: "center",
       height: 34,
     },
+    subscribedButton: {
+      backgroundColor: `${Colors[colorScheme || "light"].colorOn}`,
+      borderRadius: 100,
+      paddingHorizontal: 12,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 34,
+      opacity: 0.87,
+    },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
       fontFamily: "InterBold",
       fontWeight: "700",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    subscribedButtonText: {
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
@@ -209,10 +227,18 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
             {item.channel_description}
           </Text>
           <TouchableOpacity
-            style={styles.subscribeButton}
+            style={
+              isSubscribed ? styles.subscribedButton : styles.subscribeButton
+            }
             onPress={handleSubscribe}
           >
-            <Text style={styles.subscribeButtonText}>
+            <Text
+              style={
+                isSubscribed
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
               {isSubscribed ? "Subscribed" : "Subscribe"}
             </Text>
           </TouchableOpacity>
