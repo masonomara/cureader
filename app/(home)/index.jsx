@@ -329,25 +329,8 @@ export default function TabOneScreen() {
   // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
   const getChannelSubscriptions = async () => {
     try {
-      if (!user) {
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("channel_subscriptions")
-          .eq("id", userSession.user.id);
-
-        if (profileError) {
-          console.error("Error fetching user profile data:", profileError);
-        } else {
-          const channelSubscriptions =
-            profileData[0]?.channel_subscriptions || [];
-          const channelUrls = channelSubscriptions.map(
-            (subscription) => subscription.channelUrl
-          );
-
-          console.log("USER'S CHANNELURLS:", channelUrls);
-          return channelUrls;
-        }
-      } else {
+      if (user) {
+        // Check if user is defined and authenticated
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("channel_subscriptions")
@@ -355,16 +338,19 @@ export default function TabOneScreen() {
 
         if (profileError) {
           console.error("Error fetching user profile data:", profileError);
+          return [];
         } else {
           const channelSubscriptions =
             profileData[0]?.channel_subscriptions || [];
           const channelUrls = channelSubscriptions.map(
             (subscription) => subscription.channelUrl
           );
-
-          console.log("USER'S CHANNELURLS:", channelUrls);
+          console.log("User's Channel URLs:", channelUrls);
           return channelUrls;
         }
+      } else {
+        console.error("User is not nut.");
+        return [];
       }
     } catch (error) {
       console.error("Error fetching user profile data:", error);
@@ -375,47 +361,49 @@ export default function TabOneScreen() {
   // Parse feeds
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
-      const feedUrls = await getChannelSubscriptions();
+      if (user) {
+        const feedUrls = await getChannelSubscriptions();
 
-      const allChannels = [];
-      const allItems = [];
+        const allChannels = [];
+        const allItems = [];
 
-      const parseAndSort = async (url) => {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
+        const parseAndSort = async (url) => {
+          try {
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            const responseData = await response.text();
+            const parsedRss = await rssParser.parse(responseData);
+
+            allChannels.push({
+              title: parsedRss.title,
+              description: parsedRss.description,
+            });
+
+            allItems.push(
+              ...parsedRss.items.map((item) => ({
+                ...item,
+                publicationDate: new Date(item.published),
+                channel: parsedRss.title, // Include the channel title in the item
+                image: parsedRss.image,
+                channelUrl: parsedRss.links[0].url,
+              }))
+            );
+          } catch (error) {
+            console.error(error);
+            showErrorAlert("Error fetching RSS feeds. Please try again.");
           }
-          const responseData = await response.text();
-          const parsedRss = await rssParser.parse(responseData);
+        };
 
-          allChannels.push({
-            title: parsedRss.title,
-            description: parsedRss.description,
-          });
+        await Promise.all(feedUrls.map(parseAndSort));
 
-          allItems.push(
-            ...parsedRss.items.map((item) => ({
-              ...item,
-              publicationDate: new Date(item.published),
-              channel: parsedRss.title, // Include the channel title in the item
-              image: parsedRss.image,
-              channelUrl: parsedRss.links[0].url,
-            }))
-          );
-        } catch (error) {
-          console.error(error);
-          showErrorAlert("Error fetching RSS feeds. Please try again.");
-        }
-      };
+        // Sort items by publication date in descending order (most recent first)
+        allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
-      await Promise.all(feedUrls.map(parseAndSort));
-
-      // Sort items by publication date in descending order (most recent first)
-      allItems.sort((a, b) => b.publicationDate - a.publicationDate);
-
-      setRssChannels(allChannels);
-      setRssItems(allItems);
+        setRssChannels(allChannels);
+        setRssItems(allItems);
+      }
     };
 
     fetchAndParseFeeds();
@@ -494,12 +482,14 @@ export default function TabOneScreen() {
       {/* User info and logout */}
       <View>
         <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text>
+
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
 
       {/* Input for channel URL */}
+
       <TextInput
         style={styles.input}
         label="Channel Url Text"
@@ -529,6 +519,7 @@ export default function TabOneScreen() {
           color={`${Colors[colorScheme || "light"].buttonActive}`}
         />
       )}
+
       <TouchableOpacity
         onPress={handleSubmitUrl}
         disabled={!channelTitle}
