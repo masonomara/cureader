@@ -127,6 +127,9 @@ function RootLayoutNav() {
           name="addChannel"
           options={{ presentation: "modal", title: "Add Channel" }}
         />
+        <Stack.Screen
+        name="feedChannel"
+        ></Stack.Screen>
       </Stack>
     </ThemeProvider>
     // </AuthProvider>
