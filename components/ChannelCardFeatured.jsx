@@ -12,7 +12,7 @@ import { supabase } from "../config/initSupabase";
 import { useState, useEffect } from "react";
 import Colors from "../constants/Colors";
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.75;
+const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function ChannelCardFeatured({ item, user, subscribed }) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
@@ -151,16 +151,16 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
-      paddingHorizontal: 12,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       height: 34,
     },
     subscribedButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].colorOn}`,
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       borderRadius: 100,
-      paddingHorizontal: 12,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -239,7 +239,7 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
                   : styles.subscribeButtonText
               }
             >
-              {isSubscribed ? "Subscribed" : "Subscribe"}
+              {isSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>

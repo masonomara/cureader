@@ -95,6 +95,13 @@ const FONT = {
     lineHeight: 19,
     letterSpacing: -0.14,
   },
+  itemDescTiny: {
+    fontFamily: "InterRegular",
+    fontWeight: "400",
+    fontSize: 14,
+    lineHeight: 19,
+    letterSpacing: -0.14,
+  },
   itemTitle: {
     fontFamily: "InterSemiBold",
     fontWeight: "600",

@@ -5,11 +5,14 @@ import {
   useColorScheme,
   Pressable,
   Image,
+  Dimensions,
 } from "react-native";
 import { supabase } from "../config/initSupabase";
 
 import { useEffect, useState } from "react";
 import Colors from "../constants/Colors";
+
+const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function ChannelCard({ item, user, subscribed }) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
@@ -106,15 +109,28 @@ export default function ChannelCard({ item, user, subscribed }) {
       flexDirection: "row",
       display: "flex",
       flex: 1,
+      width: CARD_WIDTH,
       gap: 0,
       paddingVertical: 6,
     },
     cardContent: {
       display: "flex",
-      alignItems: "flex-start",
-      flexDirection: "column",
+      alignItems: "center",
+      flexDirection: "row",
       flex: 1,
-      padding: 12,
+      padding: 10,
+      paddingLeft: 12,
+      paddingRight: 0,
+      gap: 10,
+    },
+    cardInfo: {
+      flex: 1,
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      overflow: "hidden",
+      height: 67,
+      marginTop: -2,
+      marginBottom: -2,
     },
     title: {
       display: "flex",
@@ -128,18 +144,20 @@ export default function ChannelCard({ item, user, subscribed }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
+      marginBottom: 3,
     },
+
     cardControls: {
-      marginTop: 6,
       flexDirection: "row",
       gap: 12,
       alignItems: "flex-end",
     },
     description: {
       flex: 1,
+      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -147,21 +165,21 @@ export default function ChannelCard({ item, user, subscribed }) {
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
-      paddingHorizontal: 12,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       height: 34,
     },
     subscribedButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].colorOn}`,
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       borderRadius: 100,
-      paddingHorizontal: 9,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: .87
+      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -186,20 +204,20 @@ export default function ChannelCard({ item, user, subscribed }) {
       {!item.channel_image_url ? (
         <View
           style={{
-            height: 74,
-            width: 74,
+            height: 63,
+            width: 63,
             overflow: "hidden",
             backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-            borderRadius: 17,
+            borderRadius: 10,
           }}
         ></View>
       ) : (
         <View
           style={{
             aspectRatio: "1/1",
-            width: 74,
+            width: 63,
             overflow: "hidden",
-            borderRadius: 17,
+            borderRadius: 10,
           }}
         >
           <Image
@@ -213,19 +231,29 @@ export default function ChannelCard({ item, user, subscribed }) {
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title} numberOfLines={1}>
-          {item.channel_title}
-        </Text>
-        <View style={styles.cardControls}>
-          <Text numberOfLines={2} style={styles.description}>
+        <View style={styles.cardInfo}>
+          <Text style={styles.title} numberOfLines={2}>
+            {item.channel_title}
+          </Text>
+          <Text style={styles.description} numberOfLines={2}>
             {item.channel_description}
           </Text>
+        </View>
+        <View style={styles.cardControls}>
           <TouchableOpacity
-            style={isSubscribed ? styles.subscribedButton : styles.subscribeButton }
+            style={
+              isSubscribed ? styles.subscribedButton : styles.subscribeButton
+            }
             onPress={handleSubscribe}
           >
-            <Text style={isSubscribed ? styles.subscribedButtonText : styles.subscribeButtonText}>
-              {isSubscribed ? "Subscribed" : "Subscribe"}
+            <Text
+              style={
+                isSubscribed
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
+              {isSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>
