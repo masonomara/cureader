@@ -68,11 +68,9 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       }
 
       // Get a copy of the channel's subscribers
-      let channelSubscribers;
-      if (channelData[0].channel_subscribers === null) {
-        channelSubscribers = [];
-      } else {
-        channelSubscriptions = channelData[0].channel_subscribers;
+      const channel = channelData[0];
+      if (channel.channel_subscribers === null) {
+        channel.channel_subscribers = [];
       }
 
       if (isSubscribed) {
@@ -92,6 +90,21 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
           channelUrl: item.channel_url, // Replace with the actual channel URL
         };
         channelSubscriptions.push(newSubscription);
+
+        
+        const newSubscribers = [
+          ...channel.channel_subscribers,
+          user.id,
+        ];
+        const { data: updateData, error: updateError } = await supabase
+        .from("channels")
+        .upsert([
+          {
+            id: channel.id,
+            channel_subscribers: newSubscribers,
+          },
+        ]);
+
       }
 
       // Update the user's subscriptions in your database
