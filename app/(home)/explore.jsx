@@ -5,6 +5,7 @@ import {
   TextInput,
   View,
   useColorScheme,
+  Dimensions,
 } from "react-native";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
@@ -13,8 +14,10 @@ import Colors from "../../constants/Colors";
 
 export default function Explore() {
   const colorScheme = useColorScheme();
+  const CARD_WIDTH = Dimensions.get("window").width - 32;
   const [user, setUser] = useState(null);
-  const [popularChannels, setPopularChannels] = useState([]);
+  const [feeds, setFeeds] = useState([]);
+  const [randomFeeds, setRandomFeeds] = useState([]);
   const [userChannelIds, setUserChannelIds] = useState([]);
 
   // Function to fetch all entries in the "channels" table
@@ -50,15 +53,18 @@ export default function Explore() {
         return [];
       }
 
-      const channelSubscriptions = userProfileData[0].channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map((subscription) => subscription.channelId);
-      console.log("CHANNEL IDS:", channelIds)
+      const channelSubscriptions =
+        userProfileData[0].channel_subscriptions || [];
+      const channelIds = channelSubscriptions.map(
+        (subscription) => subscription.channelId
+      );
+      console.log("CHANNEL IDS:", channelIds);
       return channelIds;
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
       return [];
     }
-  }
+  };
 
   // Fetch user information and user's channel subscriptions
   useEffect(() => {
@@ -74,7 +80,7 @@ export default function Explore() {
   useEffect(() => {
     const fetchData = async () => {
       const channelsData = await fetchChannels();
-      setPopularChannels(channelsData);
+      setfeeds(channelsData);
 
       if (user) {
         const channelIds = await fetchUserChannels(user);
@@ -84,6 +90,40 @@ export default function Explore() {
 
     fetchData();
   }, [user]);
+
+  const chunkArray = (arr, chunkSize) => {
+    const chunkedArray = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      chunkedArray.push(arr.slice(i, i + chunkSize));
+    }
+    return chunkedArray;
+  };
+
+  // Function to shuffle an array randomly
+  const shuffleArray = (array) => {
+    let currentIndex = array.length,
+      randomIndex,
+      temporaryValue;
+
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  };
+
+  useEffect(() => {
+    if (feeds.length > 4) {
+      const randomFeedsSlice = shuffleArray(feeds.slice(4));
+      setRandomFeeds(randomFeedsSlice.slice(0, 5));
+    }
+  }, [feeds]);
+
 
   const styles = {
     container: {
@@ -95,7 +135,7 @@ export default function Explore() {
       width: "100%",
     },
     randomChannelList: {
-      gap: 12,
+      gap: 8,
       paddingHorizontal: 16,
       marginBottom: 24,
     },
@@ -147,6 +187,7 @@ export default function Explore() {
       marginTop: 8,
     },
     title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterBold",
       fontWeight: "700",
       fontSize: 22,
@@ -170,13 +211,16 @@ export default function Explore() {
         <Text style={styles.title}>Random Channels</Text>
       </View>
 
-      {popularChannels && popularChannels.length > 0 ? (
+      {randomFeeds.length > 0 ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.randomChannelList}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8} //your element width
+          snapToAlignment={"left"}
         >
-          {popularChannels.map((item) => (
+          {randomFeeds.map((item) => (
             <ChannelCardFeatured
               key={item.id}
               item={item}
@@ -192,17 +236,31 @@ export default function Explore() {
         <Text style={styles.title}>Popular Channels</Text>
       </View>
 
-      {popularChannels && popularChannels.length > 0 ? (
-        <View style={styles.popularChannelList}>
-          {popularChannels.map((item) => (
-            <ChannelCard
-              key={item.id}
-              item={item}
-              user={user}
-              isSubscribed={userChannelIds.includes(item.id)}
-            />
+      {feeds ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.randomChannelList}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8} //your element width
+          snapToAlignment={"left"}
+        >
+          {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
+            <View
+              key={index}
+              style={{ flexDirection: "column", justifyContent: "flex-start" }}
+            >
+              {chunk.map((item) => (
+                <ChannelCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  isSubscribed={userChannelIds.includes(item.id)}
+                />
+              ))}
+            </View>
           ))}
-        </View>
+        </ScrollView>
       ) : (
         <Text>Loading...</Text>
       )}
