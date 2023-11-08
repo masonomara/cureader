@@ -20,27 +20,45 @@ export default function Explore() {
   const [randomFeeds, setRandomFeeds] = useState([]);
   const [userChannelIds, setUserChannelIds] = useState([]);
 
-  // Function to fetch all entries in the "channels" table
-  const fetchChannels = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("channels")
-        .select("*")
-        .order("channel_subscribers", { ascending: false });
+  useEffect(() => {
+    // Fetch user information and channels
+    async function fetchData() {
+      try {
+        const { data: userResponse } = await supabase.auth.getUser();
+        const user = userResponse ? userResponse.user : null;
+        setUser(user);
 
-      if (error) {
-        console.error("Error fetching channels:", error);
-        return [];
-      } else {
-        return data;
+        const { data: channelsData, error } = await supabase
+          .from("channels")
+          .select("*")
+          .order("channel_subscribers", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching channels:", error);
+          return;
+        }
+
+        setFeeds(channelsData);
+
+        if (user) {
+          const channelIds = await fetchUserChannels(user);
+          setUserChannelIds(channelIds);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching channels:", error);
-      return [];
     }
-  };
 
-  // Function to fetch all channels user is subscribed to
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (feeds.length > 4) {
+      const randomFeedsSlice = shuffleArray(feeds.slice(4));
+      setRandomFeeds(randomFeedsSlice.slice(0, 5));
+    }
+  }, [feeds]);
+
   const fetchUserChannels = async (user) => {
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
@@ -65,31 +83,6 @@ export default function Explore() {
       return [];
     }
   };
-
-  // Fetch user information and user's channel subscriptions
-  useEffect(() => {
-    // Fetch user information
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
-
-  // Fetch channels and user's channel subscriptions
-  useEffect(() => {
-    const fetchData = async () => {
-      const channelsData = await fetchChannels();
-      setfeeds(channelsData);
-
-      if (user) {
-        const channelIds = await fetchUserChannels(user);
-        setUserChannelIds(channelIds);
-      }
-    };
-
-    fetchData();
-  }, [user]);
 
   const chunkArray = (arr, chunkSize) => {
     const chunkedArray = [];
@@ -116,14 +109,6 @@ export default function Explore() {
 
     return array;
   };
-
-  useEffect(() => {
-    if (feeds.length > 4) {
-      const randomFeedsSlice = shuffleArray(feeds.slice(4));
-      setRandomFeeds(randomFeedsSlice.slice(0, 5));
-    }
-  }, [feeds]);
-
 
   const styles = {
     container: {
@@ -248,7 +233,8 @@ export default function Explore() {
           {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
             <View
               key={index}
-              style={{ flexDirection: "column", justifyContent: "flex-start" }}
+              style={{ flexDirection: "column", alignItems: "flex-start",       borderTopWidth: 1,
+              borderColor: `${Colors[colorScheme || "light"].border}`, }}
             >
               {chunk.map((item) => (
                 <ChannelCard
