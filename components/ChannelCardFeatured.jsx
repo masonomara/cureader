@@ -83,28 +83,47 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
         if (channelSubscriptionsIndex !== -1) {
           channelSubscriptions.splice(channelSubscriptionsIndex, 1);
         }
+
+        // Unsubscribe: Remove the user's ID from the "channel_subscribers" array
+        const userId = user.id;
+
+        const channelSubscribersIndex =
+          channel.channel_subscribers.indexOf(userId);
+        if (channelSubscribersIndex !== -1) {
+          channel.channel_subscribers.splice(channelSubscribersIndex, 1);
+
+          // Update the "channel_subscribers" array in the "channels" table
+          const { data: updateData, error: updateError } = await supabase
+            .from("channels")
+            .upsert([
+              {
+                id: channel.id,
+                channel_subscribers: channel.channel_subscribers,
+              },
+            ]);
+
+          if (updateError) {
+            console.error("Error updating channel subscribers:", updateError);
+          }
+        }
       } else {
-        // Subscribe: Add the channel
+        // Subscribe: Add the channel to the user's subscriptions
         const newSubscription = {
           channelId: item.id,
           channelUrl: item.channel_url, // Replace with the actual channel URL
         };
         channelSubscriptions.push(newSubscription);
-
-        
-        const newSubscribers = [
-          ...channel.channel_subscribers,
-          user.id,
-        ];
+        // Subscribe: Add the user to the channel's subscribers
         const { data: updateData, error: updateError } = await supabase
-        .from("channels")
-        .upsert([
-          {
-            id: channel.id,
-            channel_subscribers: newSubscribers,
-          },
-        ]);
+          .from("channels")
+          .upsert([
+            {
+              id: channel.id,
+              channel_subscribers: [...channel.channel_subscribers, user.id],
+            },
+          ]);
 
+        console.log("NUT:", ...channel.channel_subscribers);
       }
 
       // Update the user's subscriptions in your database

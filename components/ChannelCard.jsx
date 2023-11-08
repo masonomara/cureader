@@ -51,55 +51,106 @@ export default function ChannelCard({ item, user, subscribed }) {
     checkSubscription();
   }, [user, item]);
 
-  // Define a function to handle the subscribe/unsubscribe button click
-  const handleSubscribe = async () => {
-    try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
-      // Get a copy of the user's channel subscriptions
+ // Define a function to handle the subscribe/unsubscribe button click
+ const handleSubscribe = async () => {
+  try {
+    const { data: userProfileData, error: userProfileError } = await supabase
+      .from("profiles")
+      .select()
+      .eq("id", user.id);
 
-      const updatedChannelSubscriptions =
-        userProfileData[0].channel_subscriptions;
+    const { data: channelData, error: channelError } = await supabase
+      .from("channels")
+      .select()
+      .eq("id", item.id);
 
-      console.log("updatedChannelSubscriptions:", updatedChannelSubscriptions);
-
-      if (isSubscribed) {
-        // Unsubscribe: Remove the channel with the matching channelId
-        const itemChannelId = item.id;
-        const index = updatedChannelSubscriptions.findIndex(
-          (subscription) => subscription.channelId === itemChannelId
-        );
-        if (index !== -1) {
-          updatedChannelSubscriptions.splice(index, 1);
-        }
-      } else {
-        // Subscribe: Add the channel
-        const newSubscription = {
-          channelId: item.id,
-          channelUrl: item.channel_url, // Replace with the actual channel URL
-        };
-        updatedChannelSubscriptions.push(newSubscription);
-      }
-
-      // Update the user's subscriptions in your database
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({
-          channel_subscriptions: updatedChannelSubscriptions,
-        })
-        .eq("id", user.id);
-
-      if (error) {
-        console.error("Error updating channel subscriptions:", error);
-      } else {
-        setIsSubscribed(!isSubscribed); // Toggle the local state
-      }
-    } catch (error) {
-      console.error("Error handling subscription:", error);
+    // Get a copy of the user's channel subscriptions
+    let channelSubscriptions;
+    if (userProfileData[0].channel_subscriptions === null) {
+      channelSubscriptions = [];
+    } else {
+      channelSubscriptions = userProfileData[0].channel_subscriptions;
     }
-  };
+
+    // Get a copy of the channel's subscribers
+    const channel = channelData[0];
+    if (channel.channel_subscribers === null) {
+      channel.channel_subscribers = [];
+    }
+
+    if (isSubscribed) {
+      // Unsubscribe: Remove the channel with the matching channelId
+      const itemChannelId = item.id;
+
+      const channelSubscriptionsIndex = channelSubscriptions.findIndex(
+        (subscription) => subscription.channelId === itemChannelId
+      );
+      if (channelSubscriptionsIndex !== -1) {
+        channelSubscriptions.splice(channelSubscriptionsIndex, 1);
+      }
+
+      // Unsubscribe: Remove the user's ID from the "channel_subscribers" array
+      const userId = user.id;
+
+      const channelSubscribersIndex =
+        channel.channel_subscribers.indexOf(userId);
+      if (channelSubscribersIndex !== -1) {
+        channel.channel_subscribers.splice(channelSubscribersIndex, 1);
+
+        // Update the "channel_subscribers" array in the "channels" table
+        const { data: updateData, error: updateError } = await supabase
+          .from("channels")
+          .upsert([
+            {
+              id: channel.id,
+              channel_subscribers: channel.channel_subscribers,
+            },
+          ]);
+
+        if (updateError) {
+          console.error("Error updating channel subscribers:", updateError);
+        }
+      }
+    } else {
+      // Subscribe: Add the channel to the user's subscriptions
+      const newSubscription = {
+        channelId: item.id,
+        channelUrl: item.channel_url, // Replace with the actual channel URL
+      };
+      channelSubscriptions.push(newSubscription);
+      // Subscribe: Add the user to the channel's subscribers
+      const { data: updateData, error: updateError } = await supabase
+        .from("channels")
+        .upsert([
+          {
+            id: channel.id,
+            channel_subscribers: [...channel.channel_subscribers, user.id],
+          },
+        ]);
+
+      console.log("NUT:", ...channel.channel_subscribers);
+    }
+
+    // Update the user's subscriptions in your database
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({
+        channel_subscriptions: channelSubscriptions,
+      })
+      .eq("id", user.id);
+
+    if (error) {
+      console.error("Error updating channel subscriptions:", error);
+    } else {
+      setIsSubscribed(!isSubscribed); // Toggle the local state
+    }
+    if (error) {
+      console.error("Error updating channel subscriptions:", error);
+    }
+  } catch (error) {
+    console.error("Error handling subscription:", error);
+  }
+};
 
   const colorScheme = useColorScheme();
   const styles = {
