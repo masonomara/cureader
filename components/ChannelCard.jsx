@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { supabase } from "../config/initSupabase";
-
+import { useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import Colors from "../constants/Colors";
 
@@ -16,6 +16,7 @@ const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function ChannelCard({ item, user, subscribed }) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
+  const navigation = useNavigation()
 
   useEffect(() => {
     // Check if the user is subscribed to this channel
@@ -202,7 +203,7 @@ export default function ChannelCard({ item, user, subscribed }) {
   };
 
   return (
-    <Pressable style={styles.card}>
+    <Pressable style={styles.card} onPress={() => navigation.navigate("feedChannel")}>
       {!item.channel_image_url ? (
         <View
           style={{
