@@ -103,7 +103,7 @@ export default function ChannelCard({ item, user, subscribed }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderTopWidth: 1,
+      borderBottomWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
@@ -112,6 +112,8 @@ export default function ChannelCard({ item, user, subscribed }) {
       width: CARD_WIDTH,
       gap: 0,
       paddingVertical: 6,
+      height: 96,
+      maxHeight: 96,
     },
     cardContent: {
       display: "flex",
