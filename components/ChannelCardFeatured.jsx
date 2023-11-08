@@ -33,9 +33,6 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
           userProfileData[0].channel_subscriptions || [];
         const itemChannelId = item.id;
 
-        // console.log("channelSubscriptions:", channelSubscriptions);
-        // console.log("itemChannelId:", itemChannelId);
-
         const subscribed = channelSubscriptions.some(
           (subscription) => subscription.channelId === itemChannelId
         );
@@ -56,21 +53,37 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
         .from("profiles")
         .select()
         .eq("id", user.id);
+
+      const { data: channelData, error: channelError } = await supabase
+        .from("channels")
+        .select()
+        .eq("id", item.id);
+
       // Get a copy of the user's channel subscriptions
+      let channelSubscriptions;
+      if (userProfileData[0].channel_subscriptions === null) {
+        channelSubscriptions = [];
+      } else {
+        channelSubscriptions = userProfileData[0].channel_subscriptions;
+      }
 
-      const updatedChannelSubscriptions =
-        userProfileData[0].channel_subscriptions;
-
-      console.log("updatedChannelSubscriptions:", updatedChannelSubscriptions);
+      // Get a copy of the channel's subscribers
+      let channelSubscribers;
+      if (channelData[0].channel_subscribers === null) {
+        channelSubscribers = [];
+      } else {
+        channelSubscriptions = channelData[0].channel_subscribers;
+      }
 
       if (isSubscribed) {
         // Unsubscribe: Remove the channel with the matching channelId
         const itemChannelId = item.id;
-        const index = updatedChannelSubscriptions.findIndex(
+
+        const channelSubscriptionsIndex = channelSubscriptions.findIndex(
           (subscription) => subscription.channelId === itemChannelId
         );
-        if (index !== -1) {
-          updatedChannelSubscriptions.splice(index, 1);
+        if (channelSubscriptionsIndex !== -1) {
+          channelSubscriptions.splice(channelSubscriptionsIndex, 1);
         }
       } else {
         // Subscribe: Add the channel
@@ -78,14 +91,14 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
           channelId: item.id,
           channelUrl: item.channel_url, // Replace with the actual channel URL
         };
-        updatedChannelSubscriptions.push(newSubscription);
+        channelSubscriptions.push(newSubscription);
       }
 
       // Update the user's subscriptions in your database
       const { data, error } = await supabase
         .from("profiles")
         .update({
-          channel_subscriptions: updatedChannelSubscriptions,
+          channel_subscriptions: channelSubscriptions,
         })
         .eq("id", user.id);
 
@@ -93,6 +106,9 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
         console.error("Error updating channel subscriptions:", error);
       } else {
         setIsSubscribed(!isSubscribed); // Toggle the local state
+      }
+      if (error) {
+        console.error("Error updating channel subscriptions:", error);
       }
     } catch (error) {
       console.error("Error handling subscription:", error);
