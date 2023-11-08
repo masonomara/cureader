@@ -14,7 +14,7 @@ import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 
-export default function TabOneScreen() {
+export default function Index() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);

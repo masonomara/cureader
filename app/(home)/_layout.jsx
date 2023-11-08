@@ -54,9 +54,7 @@ export default function TabLayout() {
             shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
           },
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="search" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
         }}
       />
       <Tabs.Screen

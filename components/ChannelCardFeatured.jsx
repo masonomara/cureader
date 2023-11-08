@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { supabase } from "../config/initSupabase";
-
+import { router, useNavigation } from "expo-router";
 import { useState, useEffect } from "react";
 import Colors from "../constants/Colors";
 
@@ -186,7 +186,22 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
   };
 
   return (
-    <Pressable style={styles.card}>
+    <Pressable
+      style={styles.card}
+      onPress={() =>
+        router.push({
+          pathname: "/feedChannel",
+          params: {
+            title: item.channel_title,
+            description: item.channel_description,
+            image: item.channel_image_url,
+            subscribers: item.channel_subscribers,
+            url: item.channel_url,
+            id: item.id,
+          },
+        })
+      }
+    >
       {!item.channel_image_url ? (
         <View
           style={{

@@ -14,7 +14,7 @@ import ArticleCard from "../../components/ArticleCard";
 import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
 
-export default function TabOneScreen() {
+export default function Bookmarks() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);

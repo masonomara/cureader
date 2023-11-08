@@ -21,11 +21,13 @@ function formatPublicationDate(published) {
   const timeDifference = now - publicationDate;
 
   const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
-  const daysAgo = Math.floor(hoursAgo / 24);
   const minutesAgo = Math.floor(timeDifference / (60 * 1000));
+  const daysAgo = Math.floor(hoursAgo / 24);
   const yearsAgo = Math.floor(daysAgo / 265);
 
-  if (hoursAgo < 1) {
+  if (minutesAgo < 1) {
+    return "Just now";
+  } else if (minutesAgo < 60) {
     return `${minutesAgo}m`;
   } else if (hoursAgo < 24) {
     return `${hoursAgo}h`;
