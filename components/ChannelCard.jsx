@@ -1,158 +1,109 @@
+import { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  useColorScheme,
-  Pressable,
   Image,
   Dimensions,
+  Pressable,
 } from "react-native";
-import { supabase } from "../config/initSupabase";
+import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
+import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function ChannelCard({ item, user, subscribed }) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
+  const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
+    useState(subscribed);
   const navigation = useNavigation();
-  console.log(item);
+  const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    // Check if the user is subscribed to this channel
-    async function checkSubscription() {
-      try {
-        const { data: userProfileData, error: userProfileError } =
-          await supabase.from("profiles").select().eq("id", user.id);
+  const handleSubscribe = async () => {
+    setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    try {
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id);
 
-        if (userProfileError) {
-          console.log("Error fetching user profile data:", userProfileError);
-          return;
-        }
-
-        const channelSubscriptions =
-          userProfileData[0].channel_subscriptions || [];
-        const itemChannelId = item.id;
-
-        // console.log("channelSubscriptions:", channelSubscriptions);
-        // console.log("itemChannelId:", itemChannelId);
-
-        const subscribed = channelSubscriptions.some(
-          (subscription) => subscription.channelId === itemChannelId
-        );
-
-        setIsSubscribed(subscribed);
-      } catch (error) {
-        console.error("Error checking subscription:", error);
+      if (userProfileError) {
+        console.log("Error fetching user profile data:", userProfileError);
+        return;
       }
-    }
 
-    checkSubscription();
-  }, [user, item]);
-
- // Define a function to handle the subscribe/unsubscribe button click
- const handleSubscribe = async () => {
-  try {
-    const { data: userProfileData, error: userProfileError } = await supabase
-      .from("profiles")
-      .select()
-      .eq("id", user.id);
-
-    const { data: channelData, error: channelError } = await supabase
-      .from("channels")
-      .select()
-      .eq("id", item.id);
-
-    // Get a copy of the user's channel subscriptions
-    let channelSubscriptions;
-    if (userProfileData[0].channel_subscriptions === null) {
-      channelSubscriptions = [];
-    } else {
-      channelSubscriptions = userProfileData[0].channel_subscriptions;
-    }
-
-    // Get a copy of the channel's subscribers
-    const channel = channelData[0];
-    if (channel.channel_subscribers === null) {
-      channel.channel_subscribers = [];
-    }
-
-    if (isSubscribed) {
-      // Unsubscribe: Remove the channel with the matching channelId
+      const channelSubscriptions =
+        userProfileData[0].channel_subscriptions || [];
       const itemChannelId = item.id;
-
-      const channelSubscriptionsIndex = channelSubscriptions.findIndex(
+      const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
       );
-      if (channelSubscriptionsIndex !== -1) {
-        channelSubscriptions.splice(channelSubscriptionsIndex, 1);
-      }
 
-      // Unsubscribe: Remove the user's ID from the "channel_subscribers" array
-      const userId = user.id;
+      if (isSubscribed && isAlreadySubscribed) {
+        // Unsubscribe
+        const updatedSubscriptions = channelSubscriptions.filter(
+          (subscription) => subscription.channelId !== itemChannelId
+        );
+        await updateSubscriptions(user.id, updatedSubscriptions);
 
-      const channelSubscribersIndex =
-        channel.channel_subscribers.indexOf(userId);
-      if (channelSubscribersIndex !== -1) {
-        channel.channel_subscribers.splice(channelSubscribersIndex, 1);
-
-        // Update the "channel_subscribers" array in the "channels" table
-        const { data: updateData, error: updateError } = await supabase
+        const { data: channelData, error: channelError } = await supabase
           .from("channels")
-          .upsert([
-            {
-              id: channel.id,
-              channel_subscribers: channel.channel_subscribers,
-            },
-          ]);
+          .select()
+          .eq("id", item.id);
 
-        if (updateError) {
-          console.error("Error updating channel subscribers:", updateError);
+        if (!channelError) {
+          const channel = channelData[0];
+          const updatedSubscribers = channel.channel_subscribers.filter(
+            (subscriber) => subscriber !== user.id
+          );
+          await updateChannelSubscribers(item.id, updatedSubscribers);
+        }
+      } else {
+        // Subscribe
+        const newSubscription = {
+          channelId: item.id,
+          channelUrl: item.channel_url,
+        };
+        const updatedSubscriptions = [...channelSubscriptions, newSubscription];
+        await updateSubscriptions(user.id, updatedSubscriptions);
+
+        const { data: channelData, error: channelError } = await supabase
+          .from("channels")
+          .select()
+          .eq("id", item.id);
+
+        if (!channelError) {
+          const channel = channelData[0];
+          const updatedSubscribers = [...channel.channel_subscribers, user.id];
+          await updateChannelSubscribers(item.id, updatedSubscribers);
         }
       }
-    } else {
-      // Subscribe: Add the channel to the user's subscriptions
-      const newSubscription = {
-        channelId: item.id,
-        channelUrl: item.channel_url, // Replace with the actual channel URL
-      };
-      channelSubscriptions.push(newSubscription);
-      // Subscribe: Add the user to the channel's subscribers
-      const { data: updateData, error: updateError } = await supabase
-        .from("channels")
-        .upsert([
-          {
-            id: channel.id,
-            channel_subscribers: [...channel.channel_subscribers, user.id],
-          },
-        ]);
 
-      console.log("NUT:", ...channel.channel_subscribers);
+      setIsSubscribed(!isSubscribed);
+    } catch (error) {
+      console.error("Error handling subscription:", error);
+      setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
+  };
 
-    // Update the user's subscriptions in your database
-    const { data, error } = await supabase
+  const updateSubscriptions = async (userId, updatedSubscriptions) => {
+    await supabase
       .from("profiles")
-      .update({
-        channel_subscriptions: channelSubscriptions,
-      })
-      .eq("id", user.id);
+      .update({ channel_subscriptions: updatedSubscriptions })
+      .eq("id", userId);
+  };
 
-    if (error) {
-      console.error("Error updating channel subscriptions:", error);
-    } else {
-      setIsSubscribed(!isSubscribed); // Toggle the local state
-    }
-    if (error) {
-      console.error("Error updating channel subscriptions:", error);
-    }
-  } catch (error) {
-    console.error("Error handling subscription:", error);
-  }
-};
+  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
+    await supabase.from("channels").upsert([
+      {
+        id: channelId,
+        channel_subscribers: updatedSubscribers,
+      },
+    ]);
+  };
 
-  const colorScheme = useColorScheme();
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -312,18 +263,20 @@ export default function ChannelCard({ item, user, subscribed }) {
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={
-              isSubscribed ? styles.subscribedButton : styles.subscribeButton
+              isOptimisticSubscribed
+                ? styles.subscribedButton
+                : styles.subscribeButton
             }
             onPress={handleSubscribe}
           >
             <Text
               style={
-                isSubscribed
+                isOptimisticSubscribed
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
             >
-              {isSubscribed ? "Following" : "Follow"}
+              {isOptimisticSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>
