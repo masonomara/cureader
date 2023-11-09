@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -20,6 +20,12 @@ export default function ChannelCard({ item, user, subscribed }) {
     useState(subscribed);
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // Update state when the subscribed prop changes
+    setIsSubscribed(subscribed);
+    setIsOptimisticSubscribed(subscribed);
+  }, [subscribed]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -218,6 +224,7 @@ export default function ChannelCard({ item, user, subscribed }) {
             subscribers: item.channel_subscribers,
             url: item.channel_url,
             id: item.id,
+            subscribed: isSubscribed,
           },
         })
       }
