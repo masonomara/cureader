@@ -132,10 +132,15 @@ function RootLayoutNav() {
         <Stack.Screen
           name="feedChannel"
           options={({ route }) => ({
-            title: route.params.title || 'Default Title',
+            title: route.params.title || "Default Title",
             headerStyle: {
+              headerTransparent: true,
               shadowColor: "transparent", // Remove shadow on iOS
               backgroundColor: Colors[colorScheme || "light"].background,
+            },
+            headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
+            headerTitleStyle: {
+              color: Colors[colorScheme || "light"].textHigh, // Set header title color
             },
           })}
         />
