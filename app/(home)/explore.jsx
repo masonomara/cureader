@@ -79,7 +79,6 @@ export default function Explore() {
       const channelIds = channelSubscriptions.map(
         (subscription) => subscription.channelId
       );
-      console.log("CHANNEL IDS:", channelIds);
       return channelIds;
     } catch (error) {
       console.error("Error fetching subscriptions:", error);

@@ -122,10 +122,6 @@ export default function Index() {
         await supabase.from("channels").select().eq("channel_url", channelUrl);
 
       if (existingChannelError) {
-        console.log(
-          "CHECK IF ERROR ALREADY EXISTS channel Url error:",
-          existingChannelError
-        );
         showErrorAlert("Error checking channel data. Please try again.");
         return;
       }
@@ -153,16 +149,8 @@ export default function Index() {
             ]);
 
           if (updateError) {
-            console.log(
-              "UPDATE THE CHANNEL WITH NEW SUBSCRIBERS Channel Update Error:",
-              updateError
-            );
             showErrorAlert("Error updating channel data. Please try again.");
           } else {
-            console.log(
-              "UPDATE THE CHANNEL WITH NEW SUBSCRIBERS Channel Updated:",
-              updateData
-            );
             showErrorAlert("Success", "You have subscribed to the channel.");
 
             const channelId = existingChannel.id;
@@ -177,7 +165,6 @@ export default function Index() {
                 .eq("id", user.id);
 
             if (userProfileError) {
-              console.log("FETCH USER PROFILE DATA error:", userProfileError);
               showErrorAlert(
                 "Error fetching user profile data. Please try again."
               );
@@ -204,12 +191,11 @@ export default function Index() {
                 ]);
 
               if (updatedProfileError) {
-                console.log("UPDATE USER PROFILE error:", updatedProfileError);
+
                 showErrorAlert(
                   "Error updating user profile. Please try again."
                 );
               } else {
-                console.log("UPDATE USER PROFILE data:", updatedProfileData);
                 showErrorAlert(
                   "Success",
                   "Profile subscription successfully updated"
@@ -235,10 +221,8 @@ export default function Index() {
           .single();
 
         if (channelError) {
-          console.log("CREATE A NEW CHANNEL Channel Url error:", channelError);
           showErrorAlert("Error uploading channel data. Please try again.");
         } else {
-          console.log("CREATE A NEW CHANNEL Channel Url data:", channelData);
           showErrorAlert("Success", "Channel data uploaded successfully.");
 
           const channelId = channelData.id;
@@ -253,7 +237,6 @@ export default function Index() {
               .eq("id", user.id);
 
           if (userProfileError) {
-            console.log("FETCH USER PROFILE DATA error:", userProfileError);
             showErrorAlert(
               "Error fetching user profile data. Please try again."
             );
@@ -280,10 +263,10 @@ export default function Index() {
               ]);
 
             if (updatedProfileError) {
-              console.log("UPDATE USER PROFILE error:", updatedProfileError);
+
               showErrorAlert("Error updating user profile. Please try again.");
             } else {
-              console.log("UPDATE USER PROFILE data:", updatedProfileData);
+
               showErrorAlert(
                 "Success",
                 "Profile subscription successfully updated"
@@ -345,11 +328,10 @@ export default function Index() {
           const channelUrls = channelSubscriptions.map(
             (subscription) => subscription.channelUrl
           );
-          console.log("User's Channel URLs:", channelUrls);
           return channelUrls;
         }
       } else {
-        console.error("User is not nut.");
+
         return [];
       }
     } catch (error) {

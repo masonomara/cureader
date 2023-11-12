@@ -226,7 +226,7 @@ export default function ChannelCard({ item, user, subscribed }) {
             subscribed: isSubscribed,
           },
         });
-        console.log("Subscribed (Channel Card):", subscribed);
+
       }}
     >
       {!item.channel_image_url ? (

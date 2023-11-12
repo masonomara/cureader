@@ -35,10 +35,6 @@ export default function TabOneScreen() {
   );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
-  console.log("isSubscribed:", isSubscribed)
-  console.log("isOptimisticSubscribed:", isOptimisticSubscribed)
-  console.log("user:", user)
-
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -54,10 +50,6 @@ export default function TabOneScreen() {
     setIsOptimisticSubscribed(params.subscribed);
   }, [params.subscribed]);
 
-  console.log("isSubscribed 2:", isSubscribed)
-  console.log("isOptimisticSubscribed 2:", isOptimisticSubscribed)
-  console.log("item.id:", params.id)
-  console.log("item.channel_url:", params.url)
 
   const paramsId = params.id
 

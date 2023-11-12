@@ -34,14 +34,10 @@ export default function ChannelCardHeader({
     setIsOptimisticSubscribed(subscribed);
   }, [subscribed]);
 
-  console.log("isSubscribed (ChannelCardHeader 1):", isSubscribed);
-  console.log(
-    "isOptimisticSubscribed (ChannelCardHeader 1):",
-    isOptimisticSubscribed
-  );
-
   const handleSubscribe = async () => {
-    setIsOptimisticSubscribed((prevIsOptimisticSubscribed) => !prevIsOptimisticSubscribed);
+    setIsOptimisticSubscribed(
+      (prevIsOptimisticSubscribed) => !prevIsOptimisticSubscribed
+    );
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
@@ -107,24 +103,12 @@ export default function ChannelCardHeader({
     }
   };
 
-  console.log("isSubscribed (ChannelCardHeader 2):", isSubscribed);
-  console.log(
-    "isOptimisticSubscribed (ChannelCardHeader 1):",
-    isOptimisticSubscribed
-  );
-
   const updateSubscriptions = async (userId, updatedSubscriptions) => {
     await supabase
       .from("profiles")
       .update({ channel_subscriptions: updatedSubscriptions })
       .eq("id", userId);
   };
-
-  console.log("isSubscribed (ChannelCardHeader 3):", isSubscribed);
-  console.log(
-    "isOptimisticSubscribed (ChannelCardHeader 1):",
-    isOptimisticSubscribed
-  );
 
   const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
     await supabase.from("channels").upsert([
@@ -134,12 +118,6 @@ export default function ChannelCardHeader({
       },
     ]);
   };
-
-  console.log("isSubscribed (ChannelCardHeader 4):", isSubscribed);
-  console.log(
-    "isOptimisticSubscribed (ChannelCardHeader 1):",
-    isOptimisticSubscribed
-  );
 
   const styles = {
     card: {
@@ -298,8 +276,8 @@ export default function ChannelCardHeader({
           </Text>
         </View>
         <View style={styles.cardControls}>
-          <TouchableOpacity             onPress={handleSubscribe}
-
+          <TouchableOpacity
+            onPress={handleSubscribe}
             style={
               isOptimisticSubscribed
                 ? styles.subscribedButton
