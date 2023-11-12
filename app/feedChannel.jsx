@@ -22,7 +22,7 @@ import ChannelCardHeader from "../components/ChannelCardHeader";
 export default function TabOneScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-
+  console.log("Subscribed (feedChannel):", params.subscribed);
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);

@@ -213,7 +213,7 @@ export default function ChannelCard({ item, user, subscribed }) {
   return (
     <Pressable
       style={styles.card}
-      onPress={() =>
+      onPress={() => {
         router.push({
           pathname: "/feedChannel",
           params: {
@@ -225,8 +225,9 @@ export default function ChannelCard({ item, user, subscribed }) {
             id: item.id,
             subscribed: isSubscribed,
           },
-        })
-      }
+        });
+        console.log("Subscribed (Channel Card):", subscribed);
+      }}
     >
       {!item.channel_image_url ? (
         <View

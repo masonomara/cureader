@@ -15,6 +15,7 @@ import Colors from "../constants/Colors";
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function ChannelCardFeatured({ item, user, subscribed }) {
+
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
     useState(subscribed);
@@ -208,6 +209,7 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
             subscribers: item.channel_subscribers,
             url: item.channel_url,
             id: item.id,
+            subscribed: isSubscribed,
           },
         })
       }

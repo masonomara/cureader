@@ -22,6 +22,7 @@ export default function ChannelCardHeader({
   user,
   subscribed,
 }) {
+
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
     useState(subscribed);
@@ -33,6 +34,8 @@ export default function ChannelCardHeader({
     setIsSubscribed(subscribed);
     setIsOptimisticSubscribed(subscribed);
   }, [subscribed]);
+
+  console.log("Subscribed (ChannelCardHeader):", subscribed)
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);

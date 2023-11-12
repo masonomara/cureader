@@ -19,6 +19,7 @@ export default function Explore() {
   const [feeds, setFeeds] = useState([]);
   const [randomFeeds, setRandomFeeds] = useState([]);
   const [userChannelIds, setUserChannelIds] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     // Fetch user information and channels
@@ -44,6 +45,8 @@ export default function Explore() {
           const channelIds = await fetchUserChannels(user);
           setUserChannelIds(channelIds);
         }
+
+        setIsLoading(false); // Set loading state to false when data is loaded
       } catch (error) {
         console.error("Error fetching data:", error);
       }
