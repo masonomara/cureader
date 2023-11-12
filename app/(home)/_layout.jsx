@@ -1,7 +1,6 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Link, Tabs } from "expo-router";
 import { Pressable, useColorScheme } from "react-native";
-
 import Colors from "../../constants/Colors";
 
 /**

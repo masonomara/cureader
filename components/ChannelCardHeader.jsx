@@ -12,9 +12,16 @@ import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
 
-const CARD_WIDTH = Dimensions.get("window").width - 32;
-
-export default function ChannelCardFeatured({ item, user, subscribed }) {
+export default function ChannelCardHeader({
+  title,
+  description,
+  image,
+  subscribers,
+  url,
+  id,
+  user,
+  subscribed,
+}) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
     useState(subscribed);
@@ -42,7 +49,7 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
 
       const channelSubscriptions =
         userProfileData[0].channel_subscriptions || [];
-      const itemChannelId = item.id;
+      const itemChannelId = id;
       const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
       );
@@ -57,20 +64,20 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
-          .eq("id", item.id);
+          .eq("id", id);
 
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = channel.channel_subscribers.filter(
             (subscriber) => subscriber !== user.id
           );
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+          await updateChannelSubscribers(id, updatedSubscribers);
         }
       } else {
         // Subscribe
         const newSubscription = {
-          channelId: item.id,
-          channelUrl: item.channel_url,
+          channelId: id,
+          channelUrl: url,
         };
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
         await updateSubscriptions(user.id, updatedSubscriptions);
@@ -78,12 +85,12 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
-          .eq("id", item.id);
+          .eq("id", id);
 
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = [...channel.channel_subscribers, user.id];
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+          await updateChannelSubscribers(id, updatedSubscribers);
         }
       }
 
@@ -113,22 +120,41 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderWidth: 1,
+      borderBottomWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
-      flexDirection: "column",
+      flexDirection: "row",
       display: "flex",
-      width: CARD_WIDTH,
-      borderRadius: 12,
-      overflow: "hidden",
+      flex: 1,
+      width: "100%",
       gap: 0,
+      paddingVertical: 22,
+      height: 172,
+      minHeight: 172,
+      maxHeight: 172,
+      padding: 16,
+      marginBottom: -1,
     },
     cardContent: {
       display: "flex",
       alignItems: "flex-start",
       flexDirection: "column",
+      flex: 1,
+      paddingLeft: 12,
+      paddingRight: 0,
+      gap: 12,
+    },
+    cardInfo: {
+      flex: 1,
       width: "100%",
-      padding: 12,
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      overflow: "hidden",
+      flexDirection: "column",
+      height: 88,
+      paddingTop: 2,
+      marginTop: -2,
+      marginBottom: -2,
     },
     title: {
       display: "flex",
@@ -142,18 +168,19 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
+      marginBottom: 3,
     },
     cardControls: {
-      marginTop: 3,
       flexDirection: "row",
       gap: 12,
       alignItems: "flex-end",
     },
     description: {
       flex: 1,
+      maxHeight: 57,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -193,44 +220,38 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       lineHeight: 20,
       letterSpacing: -0.15,
     },
+    channelCardTitle: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "row",
+      gap: 8,
+      height: 44,
+      minHeight: 44,
+      maxHeight: 44,
+      alignItems: "center",
+      marginBottom: 3,
+    },
   };
 
   return (
-    <Pressable
-      style={styles.card}
-      onPress={() =>
-        router.push({
-          pathname: "/feedChannel",
-          params: {
-            title: item.channel_title,
-            description: item.channel_description,
-            image: item.channel_image_url,
-            subscribers: item.channel_subscribers,
-            url: item.channel_url,
-            id: item.id,
-          },
-        })
-      }
-    >
-      {!item.channel_image_url ? (
+    <View style={styles.card}>
+      {!image ? (
         <View
           style={{
-            aspectRatio: "5/3",
-            width: "100%",
+            height: 110,
+            width: 110,
             overflow: "hidden",
             backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-            borderTopEndRadius: 12,
-            borderTopStartRadius: 12,
+            borderRadius: 18,
           }}
         ></View>
       ) : (
         <View
           style={{
-            aspectRatio: "5/3",
-            width: "100%",
+            aspectRatio: "1/1",
+            width: 110,
             overflow: "hidden",
-            borderTopEndRadius: 12,
-            borderTopStartRadius: 12,
+            borderRadius: 18,
           }}
         >
           <Image
@@ -239,18 +260,20 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
               width: "100%",
               height: "100%",
             }}
-            source={{ uri: item.channel_image_url }}
+            source={{ uri: image }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title} numberOfLines={1}>
-          {item.channel_title}
-        </Text>
-        <View style={styles.cardControls}>
-          <Text numberOfLines={2} style={styles.description}>
-            {item.channel_description}
+        <View style={styles.cardInfo}>
+          <Text style={styles.title} numberOfLines={2}>
+            {title}
           </Text>
+          <Text style={styles.description} numberOfLines={4}>
+            {description}
+          </Text>
+        </View>
+        <View style={styles.cardControls}>
           <TouchableOpacity
             style={
               isOptimisticSubscribed
@@ -271,6 +294,6 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
           </TouchableOpacity>
         </View>
       </View>
-    </Pressable>
+    </View>
   );
 }

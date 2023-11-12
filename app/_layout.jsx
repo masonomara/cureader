@@ -12,6 +12,8 @@ import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
 import { AuthProvider, useAuth } from "../provider/AuthProvider.jsx";
 
+import Colors from "../constants/Colors";
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -128,8 +130,15 @@ function RootLayoutNav() {
           options={{ presentation: "modal", title: "Add Channel" }}
         />
         <Stack.Screen
-        name="feedChannel"
-        ></Stack.Screen>
+          name="feedChannel"
+          options={({ route }) => ({
+            title: route.params.title || 'Default Title',
+            headerStyle: {
+              shadowColor: "transparent", // Remove shadow on iOS
+              backgroundColor: Colors[colorScheme || "light"].background,
+            },
+          })}
+        />
       </Stack>
     </ThemeProvider>
     // </AuthProvider>

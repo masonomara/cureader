@@ -56,6 +56,7 @@ export default function ArticleCard({ publication, item, image, user }) {
       paddingLeft: 16,
       paddingRight: 16,
       paddingBottom: 8,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
       flexDirection: "column",

@@ -138,7 +138,7 @@ export default function ChannelCard({ item, user, subscribed }) {
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
       height: 67,
       marginTop: -2,
@@ -158,7 +158,6 @@ export default function ChannelCard({ item, user, subscribed }) {
       letterSpacing: -0.17,
       marginBottom: 3,
     },
-
     cardControls: {
       flexDirection: "row",
       gap: 12,

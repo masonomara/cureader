@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
+  ScrollView,
 } from "react-native";
 import {
   router,
@@ -16,6 +17,7 @@ import { Text, View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
+import ChannelCardHeader from "../components/ChannelCardHeader";
 
 export default function TabOneScreen() {
   const router = useRouter();
@@ -64,7 +66,9 @@ export default function TabOneScreen() {
           setRssItems(allItems);
         } catch (error) {
           console.error(error);
-          showErrorAlert("Error fetching or parsing the RSS feed. Please try again.");
+          showErrorAlert(
+            "Error fetching or parsing the RSS feed. Please try again."
+          );
         }
       }
     };
@@ -141,28 +145,31 @@ export default function TabOneScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* User info and logout */}
-      <View>
-        <Text>Channel: {params.url}</Text>
-      </View>
-      {/* List of articles */}
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              image={item.image}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
-        }}
-      />
-    </View>
+    <FlatList
+      data={rssItems}
+      keyExtractor={(item, index) => index.toString()}
+      style={styles.articleList}
+      ListHeaderComponent={() => (
+        <ChannelCardHeader
+          title={params.title}
+          description={params.description}
+          image={params.image}
+          subscribers={params.subscribers}
+          url={params.url}
+          id={params.id}
+          user={user}
+          subscribed={params.subscribed}
+        />
+      )}
+      renderItem={({ item }) => (
+        <ArticleCard
+          item={item}
+          publication={item.channel}
+          image={item.image}
+          channelUrl={item.channelUrl}
+          user={user}
+        />
+      )}
+    />
   );
 }

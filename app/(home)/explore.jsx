@@ -210,7 +210,7 @@ export default function Explore() {
               key={item.id}
               item={item}
               user={user}
-              isSubscribed={userChannelIds.includes(item.id)}
+              subscribed={userChannelIds.includes(item.id)}
             />
           ))}
         </ScrollView>
@@ -227,21 +227,25 @@ export default function Explore() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.randomChannelList}
           decelerationRate={0}
-          snapToInterval={CARD_WIDTH + 8} //your element width
+          snapToInterval={CARD_WIDTH + 8}
           snapToAlignment={"left"}
         >
           {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
             <View
               key={index}
-              style={{ flexDirection: "column", alignItems: "flex-start",       borderTopWidth: 1,
-              borderColor: `${Colors[colorScheme || "light"].border}`, }}
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-start",
+                borderTopWidth: 1,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
             >
               {chunk.map((item) => (
                 <ChannelCard
                   key={item.id}
                   item={item}
                   user={user}
-                  isSubscribed={userChannelIds.includes(item.id)}
+                  subscribed={userChannelIds.includes(item.id)} // Pass the subscribed state here
                 />
               ))}
             </View>
