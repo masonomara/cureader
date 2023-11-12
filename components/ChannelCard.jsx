@@ -15,10 +15,10 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-export default function ChannelCard({ item, user, subscribed }) {
-  const [isSubscribed, setIsSubscribed] = useState(subscribed);
+export default function ChannelCard({ item, user, feeds, userChannelIds }) {
+  const [isSubscribed, setIsSubscribed] = useState(userChannelIds.includes(item.id));
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
-    useState(subscribed);
+    useState(userChannelIds.includes(item.id));
     const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
 
@@ -27,10 +27,10 @@ export default function ChannelCard({ item, user, subscribed }) {
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(subscribed);
-    setIsOptimisticSubscribed(subscribed);
+    setIsSubscribed(userChannelIds.includes(item.id));
+    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
     setSubscribeButtonLoading(false);
-  }, [subscribed]);
+  }, [userChannelIds]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);

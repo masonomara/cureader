@@ -16,15 +16,20 @@ import Colors from "../../constants/Colors";
 export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
+
+
   const [user, setUser] = useState(null);
   const [feeds, setFeeds] = useState([]);
+
   const [randomFeeds, setRandomFeeds] = useState([]);
+
   const [userChannelIds, setUserChannelIds] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
+  // Fetch user information and all feed channels — setting [feeds] and [user]
   useEffect(() => {
-    // Fetch user information and channels
     async function fetchData() {
       try {
         const { data: userResponse } = await supabase.auth.getUser();
@@ -57,6 +62,8 @@ export default function Explore() {
     fetchData();
   }, []);
 
+  // Creating random feeds — setting [randomFeeds]
+  // NOTE: change from 4 to 33 later, change from 5 to 34 later
   useEffect(() => {
     if (feeds.length > 4) {
       const randomFeedsSlice = shuffleArray(feeds.slice(4));
@@ -64,19 +71,19 @@ export default function Explore() {
     }
   }, [feeds]);
 
-  // Add the useFocusEffect hook
+  // Fetch user channels when the screen comes into focus and mark useFocusEffect as completed — setting [userChannelIds]
   useFocusEffect(
     useCallback(() => {
-      // Fetch user channels again when the screen comes into focus
       if (user) {
         fetchUserChannels(user).then((channelIds) => {
           setUserChannelIds(channelIds);
-          setFocusEffectCompleted(true); // Mark useFocusEffect as completed
+          setFocusEffectCompleted(true);
         });
       }
     }, [user])
   );
 
+  // Function to fetch user channels
   const fetchUserChannels = async (user) => {
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
@@ -101,6 +108,7 @@ export default function Explore() {
     }
   };
 
+  // Function to chunk an array
   const chunkArray = (arr, chunkSize) => {
     const chunkedArray = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
@@ -231,6 +239,8 @@ export default function Explore() {
                   item={item}
                   user={user}
                   subscribed={userChannelIds.includes(item.id)}
+                  feeds={feeds}
+                  userChannelIds = {userChannelIds}
                 />
               ))}
             </ScrollView>
@@ -265,7 +275,8 @@ export default function Explore() {
                       key={item.id}
                       item={item}
                       user={user}
-                      subscribed={userChannelIds.includes(item.id)}
+                      feeds={feeds}
+                      userChannelIds = {userChannelIds}
                     />
                   ))}
                 </View>

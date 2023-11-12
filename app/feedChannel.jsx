@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+
 import {
   FlatList,
   TouchableOpacity,
@@ -25,6 +27,8 @@ export default function TabOneScreen() {
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
+  const [userChannelIds, setUserChannelIds] = useState([]);
+  const [feeds, setFeeds] = useState([]);
   const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
@@ -35,21 +39,85 @@ export default function TabOneScreen() {
   );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
+  const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
+    // Fetch user information and channels
+    async function fetchData() {
+      try {
+        const { data: userResponse } = await supabase.auth.getUser();
+        const user = userResponse ? userResponse.user : null;
         setUser(user);
+
+        const { data: channelsData, error } = await supabase
+          .from("channels")
+          .select("*")
+          .order("channel_subscribers", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching channels:", error);
+          return;
+        }
+
+        setFeeds(channelsData);
+
+        if (user) {
+          const channelIds = await fetchUserChannels(user);
+          setUserChannelIds(channelIds);
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    });
+    }
+
+    fetchData();
   }, []);
+
+  // Add the useFocusEffect hook
+  useFocusEffect(
+    useCallback(() => {
+      // Fetch user channels again when the screen comes into focus
+      if (user) {
+        fetchUserChannels(user).then((channelIds) => {
+          setUserChannelIds(channelIds);
+          setFocusEffectCompleted(true); // Mark useFocusEffect as completed
+        });
+      }
+    }, [user])
+  );
+
+  const fetchUserChannels = async (user) => {
+    try {
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", user.id);
+
+      if (userProfileError) {
+        console.error("Error fetching user profile data:", userProfileError);
+        return [];
+      }
+
+      const channelSubscriptions =
+        userProfileData[0].channel_subscriptions || [];
+      const channelIds = channelSubscriptions.map(
+        (subscription) => subscription.channelId
+      );
+      return channelIds;
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(params.subscribed);
-    setIsOptimisticSubscribed(params.subscribed);
+    setIsSubscribed(userChannelIds.includes(params.id));
+    setIsOptimisticSubscribed(userChannelIds.includes(params.id));
     setSubscribeButtonLoading(false);
-  }, [params.subscribed]);
+  }, [feeds]);
 
   const paramsId = params.id;
 
@@ -123,7 +191,7 @@ export default function TabOneScreen() {
           "(handleSubscribe) 6 updatedSubscriptions:",
           updatedSubscriptions
         );
-        
+
         const newSubscription = {
           channelId: itemChannelId,
           channelUrl: params.url,

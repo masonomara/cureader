@@ -14,19 +14,26 @@ import Colors from "../constants/Colors";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-export default function ChannelCardFeatured({ item, user, subscribed }) {
-
-  const [isSubscribed, setIsSubscribed] = useState(subscribed);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
-    useState(subscribed);
+export default function ChannelCardFeatured({
+  item,
+  user,
+  feeds,
+  userChannelIds,
+}) {
+  const [isSubscribed, setIsSubscribed] = useState(
+    userChannelIds.includes(item.id)
+  );
+  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
+    userChannelIds.includes(item.id)
+  );
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(subscribed);
-    setIsOptimisticSubscribed(subscribed);
-  }, [subscribed]);
+    setIsSubscribed(userChannelIds.includes(item.id));
+    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
+  }, [userChannelIds.includes(item.id)]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
