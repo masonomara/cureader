@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
   Text,
@@ -46,7 +47,7 @@ export default function Explore() {
           setUserChannelIds(channelIds);
         }
 
-        setIsLoading(false); // Set loading state to false when data is loaded
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -61,6 +62,18 @@ export default function Explore() {
       setRandomFeeds(randomFeedsSlice.slice(0, 5));
     }
   }, [feeds]);
+
+  // Add the useFocusEffect hook
+  useFocusEffect(
+    useCallback(() => {
+      // Fetch user channels again when the screen comes into focus
+      if (user) {
+        fetchUserChannels(user).then((channelIds) => {
+          setUserChannelIds(channelIds);
+        });
+      }
+    }, [user])
+  );
 
   const fetchUserChannels = async (user) => {
     try {
