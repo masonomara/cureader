@@ -139,6 +139,7 @@ function RootLayoutNav() {
               backgroundColor: Colors[colorScheme || "light"].background,
             },
             headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
+            headerBackTitle: "Explore",
             headerTitleStyle: {
               color: Colors[colorScheme || "light"].textHigh, // Set header title color
             },
