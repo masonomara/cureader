@@ -130,6 +130,7 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       flexDirection: "column",
       width: "100%",
       padding: 12,
+      paddingVertical: 16,
     },
     title: {
       display: "flex",
@@ -145,9 +146,9 @@ export default function ChannelCardFeatured({ item, user, subscribed }) {
       letterSpacing: -0.17,
     },
     cardControls: {
-      marginTop: 3,
+      marginTop: 2,
       flexDirection: "row",
-      gap: 12,
+      gap: 8,
       alignItems: "flex-end",
     },
     description: {

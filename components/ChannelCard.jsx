@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   Pressable,
+  ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
@@ -18,13 +19,17 @@ export default function ChannelCard({ item, user, subscribed }) {
   const [isSubscribed, setIsSubscribed] = useState(subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] =
     useState(subscribed);
+    const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
+
+
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Update state when the subscribed prop changes
     setIsSubscribed(subscribed);
     setIsOptimisticSubscribed(subscribed);
+    setSubscribeButtonLoading(false);
   }, [subscribed]);
 
   const handleSubscribe = async () => {
@@ -121,28 +126,28 @@ export default function ChannelCard({ item, user, subscribed }) {
       flex: 1,
       width: CARD_WIDTH,
       gap: 0,
-      paddingVertical: 6,
-      height: 96,
-      maxHeight: 96,
+      paddingVertical: 16,
+      height: 97,
+      minHeight: 97,
+      maxHeight: 97,
     },
     cardContent: {
       display: "flex",
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      padding: 10,
       paddingLeft: 12,
       paddingRight: 0,
-      gap: 10,
+      gap: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       overflow: "hidden",
-      height: 67,
+      height: 64,
       marginTop: -2,
-      marginBottom: -2,
+      arginBottom: -2,
     },
     title: {
       display: "flex",
@@ -156,7 +161,7 @@ export default function ChannelCard({ item, user, subscribed }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 3,
+      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
@@ -226,14 +231,13 @@ export default function ChannelCard({ item, user, subscribed }) {
             subscribed: isSubscribed,
           },
         });
-
       }}
     >
       {!item.channel_image_url ? (
         <View
           style={{
-            height: 63,
-            width: 63,
+            height: 64,
+            width: 64,
             overflow: "hidden",
             backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
             borderRadius: 10,
@@ -243,7 +247,7 @@ export default function ChannelCard({ item, user, subscribed }) {
         <View
           style={{
             aspectRatio: "1/1",
-            width: 63,
+            width: 64,
             overflow: "hidden",
             borderRadius: 10,
           }}
@@ -276,15 +280,24 @@ export default function ChannelCard({ item, user, subscribed }) {
             }
             onPress={handleSubscribe}
           >
-            <Text
-              style={
-                isOptimisticSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
-              }
-            >
-              {isOptimisticSubscribed ? "Following" : "Follow"}
-            </Text>
+{subscribeButtonLoading === true ? (
+              <ActivityIndicator
+                size="small"
+                color={Colors[colorScheme || "light"].colorOn}
+              />
+            ) : (
+              <Text
+                style={
+                  isOptimisticSubscribed.toString() === "true"
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isOptimisticSubscribed.toString() === "true"
+                  ? "Following"
+                  : "Follow"}
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>

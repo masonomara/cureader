@@ -34,7 +34,7 @@ export default function TabOneScreen() {
     isOptimisticSubscribed
   );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
-
+  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -48,45 +48,67 @@ export default function TabOneScreen() {
     // Update state when the subscribed prop changes
     setIsSubscribed(params.subscribed);
     setIsOptimisticSubscribed(params.subscribed);
+    setSubscribeButtonLoading(false);
   }, [params.subscribed]);
 
-
-  const paramsId = params.id
-
+  const paramsId = params.id;
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    console.log(
+      "(handleSubscribe) 1 isOptimisticSubscribed:",
+      isOptimisticSubscribed
+    );
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
         .eq("id", user.id);
-  
+
+      console.log("(handleSubscribe) 2 userProfileData:", userProfileData);
+
       if (userProfileError) {
         console.log("Error fetching user profile data:", userProfileError);
         return;
       }
-  
+
       const channelSubscriptions =
         userProfileData[0].channel_subscriptions || [];
+
+      console.log(
+        "(handleSubscribe) 3 channelSubscriptions:",
+        channelSubscriptions
+      );
+
       const itemChannelId = parseInt(paramsId, 10); // Ensure channelId is a number
-  
+
       const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
       );
-  
+
+      console.log(
+        "(handleSubscribe) 4 isAlreadySubscribed:",
+        isAlreadySubscribed
+      );
+
       if (isSubscribed && isAlreadySubscribed) {
         // Unsubscribe
         const updatedSubscriptions = channelSubscriptions.filter(
           (subscription) => subscription.channelId !== itemChannelId
         );
+
+        console.log(
+          "(handleSubscribe) 5 updatedSubscriptions:",
+          updatedSubscriptions
+        );
+
         await updateSubscriptions(user.id, updatedSubscriptions);
-  
+
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
           .eq("id", paramsId);
-  
+
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = channel.channel_subscribers.filter(
@@ -96,25 +118,31 @@ export default function TabOneScreen() {
         }
       } else {
         // Subscribe
+
+        console.log(
+          "(handleSubscribe) 6 updatedSubscriptions:",
+          updatedSubscriptions
+        );
+        
         const newSubscription = {
           channelId: itemChannelId,
           channelUrl: params.url,
         };
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
         await updateSubscriptions(user.id, updatedSubscriptions);
-  
+
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
           .eq("id", paramsId);
-  
+
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = [...channel.channel_subscribers, user.id];
           await updateChannelSubscribers(paramsId, updatedSubscribers);
         }
       }
-  
+
       setIsSubscribed(!isSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
@@ -256,6 +284,88 @@ export default function TabOneScreen() {
       letterSpacing: -0,
       marginTop: 10,
     },
+    card: {
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      borderBottomWidth: 1,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      flexDirection: "row",
+      display: "flex",
+      width: "100%",
+      gap: 10,
+      padding: 16,
+      marginBottom: -1,
+    },
+    cardContent: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 0,
+      flex: 1,
+    },
+    title: {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      marginBottom: 2,
+    },
+    description: {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+      marginBottom: 10,
+    },
+    subscribeButton: {
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 100,
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 34,
+    },
+    subscribedButton: {
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+      borderRadius: 100,
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 34,
+      opacity: 0.87,
+    },
+    subscribeButtonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    subscribedButtonText: {
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
   };
 
   return isLoading ? (
@@ -266,72 +376,88 @@ export default function TabOneScreen() {
       />
     </View>
   ) : (
-    <FlatList
-      data={rssItems}
-      keyExtractor={(item, index) => index.toString()}
-      style={styles.articleList}
-      ListHeaderComponent={() => (
-        <View style={styles.card}>
-          {!params.image ? (
-            <View
+    <>
+      <View style={styles.card}>
+        {!params.image ? (
+          <View
+            style={{
+              height: 104,
+              width: 104,
+              overflow: "hidden",
+              backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+              borderRadius: 15,
+            }}
+          ></View>
+        ) : (
+          <View
+            style={{
+              aspectRatio: "1/1",
+              width: 104,
+              overflow: "hidden",
+              borderRadius: 15,
+            }}
+          >
+            <Image
               style={{
-                height: 110,
-                width: 110,
-                overflow: "hidden",
-                backgroundColor: `${
-                  Colors[colorScheme || "light"].colorPrimary
-                }`,
-                borderRadius: 18,
+                flex: 1,
+                width: "100%",
+                height: "100%",
               }}
-            ></View>
-          ) : (
-            <View
-              style={{
-                aspectRatio: "1/1",
-                width: 110,
-                overflow: "hidden",
-                borderRadius: 18,
-              }}
-            >
-              <Image
-                style={{
-                  flex: 1,
-                  width: "100%",
-                  height: "100%",
-                }}
-                source={{ uri: params.image }}
+              source={{ uri: params.image }}
+            />
+          </View>
+        )}
+        <View style={styles.cardContent}>
+          <Text style={styles.title} numberOfLines={2}>
+            {params.title}
+          </Text>
+          <Text style={styles.description} numberOfLines={3}>
+            {params.description}
+          </Text>
+          <TouchableOpacity
+            style={
+              isOptimisticSubscribed.toString() === "true"
+                ? styles.subscribedButton
+                : styles.subscribeButton
+            }
+            onPress={handleSubscribe}
+          >
+            {subscribeButtonLoading === true ? (
+              <ActivityIndicator
+                size="small"
+                color={Colors[colorScheme || "light"].colorOn}
               />
-            </View>
-          )}
-          <View style={styles.cardContent}>
-            <Text style={styles.title} numberOfLines={2}>
-              {params.title}
-            </Text>
-            <Text style={styles.description} numberOfLines={4}>
-              {params.description}
-            </Text>
-            <Text style={styles.subscriptionText}>
-              {subscriptionStatus.toString() === "true" ? "Nut" : "No Nut"}
-            </Text>
-            <TouchableOpacity onPress={handleSubscribe}>
-              <Text>
+            ) : (
+              <Text
+                style={
+                  isOptimisticSubscribed.toString() === "true"
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
                 {isOptimisticSubscribed.toString() === "true"
                   ? "Following"
                   : "Follow"}
               </Text>
-            </TouchableOpacity>
-          </View>
+            )}
+          </TouchableOpacity>
+          <Text>{isOptimisticSubscribed.toString()}</Text>
         </View>
-      )}
-      renderItem={({ item }) => (
-        <ArticleCard
-          item={item}
-          publication={item.channel}
-          image={item.image}
-          channelUrl={item.channelUrl}
-          user={user}
-        />
-      )}
-    />
+      </View>
+      <FlatList
+        data={rssItems}
+        keyExtractor={(item, index) => index.toString()}
+        style={styles.articleList}
+        renderItem={({ item }) => (
+          <ArticleCard
+            item={item}
+            publication={item.channel}
+            image={item.image}
+            channelUrl={item.channelUrl}
+            user={user}
+          />
+        )}
+      />
+    </>
   );
 }
