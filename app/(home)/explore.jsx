@@ -21,6 +21,7 @@ export default function Explore() {
   const [randomFeeds, setRandomFeeds] = useState([]);
   const [userChannelIds, setUserChannelIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
   useEffect(() => {
     // Fetch user information and channels
@@ -70,6 +71,7 @@ export default function Explore() {
       if (user) {
         fetchUserChannels(user).then((channelIds) => {
           setUserChannelIds(channelIds);
+          setFocusEffectCompleted(true); // Mark useFocusEffect as completed
         });
       }
     }, [user])
@@ -198,74 +200,81 @@ export default function Explore() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          label="Channel Url Text"
-          placeholder="Search for channel placeholder"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>Random Channels</Text>
-      </View>
-
-      {randomFeeds.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.randomChannelList}
-          decelerationRate={0}
-          snapToInterval={CARD_WIDTH + 8} //your element width
-          snapToAlignment={"left"}
-        >
-          {randomFeeds.map((item) => (
-            <ChannelCardFeatured
-              key={item.id}
-              item={item}
-              user={user}
-              subscribed={userChannelIds.includes(item.id)}
+      {/* Conditionally render content based on focusEffectCompleted */}
+      {focusEffectCompleted ? (
+        <>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              label="Channel Url Text"
+              placeholder="Search for channel placeholder"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
-          ))}
-        </ScrollView>
-      ) : (
-        <Text>Loading...</Text>
-      )}
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>Popular Channels</Text>
-      </View>
+          </View>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Random Channels</Text>
+          </View>
 
-      {feeds ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.randomChannelList}
-          decelerationRate={0}
-          snapToInterval={CARD_WIDTH + 8}
-          snapToAlignment={"left"}
-        >
-          {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
-            <View
-              key={index}
-              style={{
-                flexDirection: "column",
-                alignItems: "flex-start",
-                borderTopWidth: 1,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
-              }}
+          {randomFeeds.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.randomChannelList}
+              decelerationRate={0}
+              snapToInterval={CARD_WIDTH + 8} //your element width
+              snapToAlignment={"left"}
             >
-              {chunk.map((item) => (
-                <ChannelCard
+              {randomFeeds.map((item) => (
+                <ChannelCardFeatured
                   key={item.id}
                   item={item}
                   user={user}
-                  subscribed={userChannelIds.includes(item.id)} // Pass the subscribed state here
+                  subscribed={userChannelIds.includes(item.id)}
                 />
               ))}
-            </View>
-          ))}
-        </ScrollView>
+            </ScrollView>
+          ) : (
+            <Text>Loading...</Text>
+          )}
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Popular Channels</Text>
+          </View>
+
+          {feeds ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.randomChannelList}
+              decelerationRate={0}
+              snapToInterval={CARD_WIDTH + 8}
+              snapToAlignment={"left"}
+            >
+              {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    borderTopWidth: 1,
+                    borderColor: `${Colors[colorScheme || "light"].border}`,
+                  }}
+                >
+                  {chunk.map((item) => (
+                    <ChannelCard
+                      key={item.id}
+                      item={item}
+                      user={user}
+                      subscribed={userChannelIds.includes(item.id)}
+                    />
+                  ))}
+                </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text>Loading...</Text>
+          )}
+        </>
       ) : (
         <Text>Loading...</Text>
       )}
