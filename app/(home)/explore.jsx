@@ -7,6 +7,7 @@ import {
   View,
   useColorScheme,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
@@ -16,7 +17,6 @@ import Colors from "../../constants/Colors";
 export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
-
 
   const [user, setUser] = useState(null);
   const [feeds, setFeeds] = useState([]);
@@ -195,6 +195,9 @@ export default function Explore() {
       paddingBottom: 16,
       width: "100%",
       marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -203,6 +206,14 @@ export default function Explore() {
       fontSize: 22,
       lineHeight: 28,
       letterSpacing: -0.22,
+    },
+    textButtonText: {
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
   };
 
@@ -240,7 +251,7 @@ export default function Explore() {
                   user={user}
                   subscribed={userChannelIds.includes(item.id)}
                   feeds={feeds}
-                  userChannelIds = {userChannelIds}
+                  userChannelIds={userChannelIds}
                 />
               ))}
             </ScrollView>
@@ -249,6 +260,9 @@ export default function Explore() {
           )}
           <View style={styles.titleWrapper}>
             <Text style={styles.title}>Popular Channels</Text>
+            <TouchableOpacity style={styles.textButton}>
+              <Text style={styles.textButtonText}>See all</Text>
+            </TouchableOpacity>
           </View>
 
           {feeds ? (
@@ -276,7 +290,7 @@ export default function Explore() {
                       item={item}
                       user={user}
                       feeds={feeds}
-                      userChannelIds = {userChannelIds}
+                      userChannelIds={userChannelIds}
                     />
                   ))}
                 </View>
