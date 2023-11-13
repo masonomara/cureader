@@ -191,7 +191,6 @@ export default function Index() {
                 ]);
 
               if (updatedProfileError) {
-
                 showErrorAlert(
                   "Error updating user profile. Please try again."
                 );
@@ -263,10 +262,8 @@ export default function Index() {
               ]);
 
             if (updatedProfileError) {
-
               showErrorAlert("Error updating user profile. Please try again.");
             } else {
-
               showErrorAlert(
                 "Success",
                 "Profile subscription successfully updated"
@@ -331,7 +328,6 @@ export default function Index() {
           return channelUrls;
         }
       } else {
-
         return [];
       }
     } catch (error) {

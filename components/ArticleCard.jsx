@@ -5,6 +5,8 @@ import {
   Pressable,
   useColorScheme,
   Image,
+  Share,
+  Alert,
 } from "react-native";
 
 import React, { useState } from "react";
@@ -45,6 +47,28 @@ export default function ArticleCard({ publication, item, image, user }) {
   const _handlePressButtonAsync = async () => {
     let result = await WebBrowser.openBrowserAsync(item.links[0].url);
     setResult(result);
+  };
+
+  const onShare = () => {
+    try {
+      const result = Share.share({
+        message: "I found this article on my Cureader app",
+        url: item.links[0].url,
+        tintColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type of:", result.activityType);
+        } else {
+          console.log("Shared");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Dismissed");
+      }
+    } catch (error) {
+      Alert.alert(error.message);
+    }
   };
 
   const styles = {
@@ -227,7 +251,7 @@ export default function ArticleCard({ publication, item, image, user }) {
             />
             <Text style={styles.buttonText}>Bookmark</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
             <Share20
               style={styles.buttonImage}
               color={Colors[colorScheme || "light"].buttonActive}
