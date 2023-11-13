@@ -228,7 +228,10 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
             subscribers: item.channel_subscribers,
             url: item.channel_url,
             id: item.id,
+            user: user,
+            userId: user.id,
             subscribed: isSubscribed,
+            userChannelIds: userChannelIds
           },
         });
       }}

@@ -6,16 +6,10 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
-  ScrollView,
   Image,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
-import {
-  router,
-  useLocalSearchParams,
-  useNavigation,
-  useRouter,
-} from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import { Text, View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
@@ -23,117 +17,39 @@ import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
 
 export default function TabOneScreen() {
-  const router = useRouter();
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
-  const [userChannelIds, setUserChannelIds] = useState([]);
-  const [feeds, setFeeds] = useState([]);
-  const [user, setUser] = useState(null);
   const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     params.subscribed
   );
-  const [subscriptionStatus, setSubscriptionStatus] = useState(
-    isOptimisticSubscribed
-  );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
-  const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
-  useEffect(() => {
-    // Fetch user information and channels
-    async function fetchData() {
-      try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
-
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select("*")
-          .order("channel_subscribers", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching channels:", error);
-          return;
-        }
-
-        setFeeds(channelsData);
-
-        if (user) {
-          const channelIds = await fetchUserChannels(user);
-          setUserChannelIds(channelIds);
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  // Add the useFocusEffect hook
-  useFocusEffect(
-    useCallback(() => {
-      // Fetch user channels again when the screen comes into focus
-      if (user) {
-        fetchUserChannels(user).then((channelIds) => {
-          setUserChannelIds(channelIds);
-          setFocusEffectCompleted(true); // Mark useFocusEffect as completed
-        });
-      }
-    }, [user])
-  );
-
-  const fetchUserChannels = async (user) => {
-    try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
-
-      if (userProfileError) {
-        console.error("Error fetching user profile data:", userProfileError);
-        return [];
-      }
-
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map(
-        (subscription) => subscription.channelId
-      );
-      return channelIds;
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-      return [];
-    }
-  };
+  console.log("params.userChannelIds:", params.userChannelIds);
+  console.log("params.id:", params.id);
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userChannelIds.includes(params.id));
-    setIsOptimisticSubscribed(userChannelIds.includes(params.id));
+    setIsSubscribed(params.userChannelIds.includes(params.id));
+    setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
     setSubscribeButtonLoading(false);
-  }, [feeds]);
+  }, [params.userChannelIds]);
+
+  console.log("isSubscribed:", isSubscribed);
+  console.log("userId", params.userId);
 
   const paramsId = params.id;
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
-    console.log(
-      "(handleSubscribe) 1 isOptimisticSubscribed:",
-      isOptimisticSubscribed
-    );
+
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
-        .eq("id", user.id);
-
-      console.log("(handleSubscribe) 2 userProfileData:", userProfileData);
+        .eq("id", params.userId);
 
       if (userProfileError) {
         console.log("Error fetching user profile data:", userProfileError);
@@ -170,7 +86,7 @@ export default function TabOneScreen() {
           updatedSubscriptions
         );
 
-        await updateSubscriptions(user.id, updatedSubscriptions);
+        await updateSubscriptions(params.userId, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
@@ -180,7 +96,7 @@ export default function TabOneScreen() {
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== user.id
+            (subscriber) => subscriber !== params.userId
           );
           await updateChannelSubscribers(paramsId, updatedSubscribers);
         }
@@ -197,7 +113,7 @@ export default function TabOneScreen() {
           channelUrl: params.url,
         };
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        await updateSubscriptions(user.id, updatedSubscriptions);
+        await updateSubscriptions(params.userId, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
@@ -206,7 +122,10 @@ export default function TabOneScreen() {
 
         if (!channelError) {
           const channel = channelData[0];
-          const updatedSubscribers = [...channel.channel_subscribers, user.id];
+          const updatedSubscribers = [
+            ...channel.channel_subscribers,
+            params.userId,
+          ];
           await updateChannelSubscribers(paramsId, updatedSubscribers);
         }
       }
@@ -509,7 +428,6 @@ export default function TabOneScreen() {
               </Text>
             )}
           </TouchableOpacity>
-          <Text>{isOptimisticSubscribed.toString()}</Text>
         </View>
       </View>
       <FlatList
@@ -522,7 +440,7 @@ export default function TabOneScreen() {
             publication={item.channel}
             image={item.image}
             channelUrl={item.channelUrl}
-            user={user}
+            user={params.user}
           />
         )}
       />
