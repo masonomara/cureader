@@ -66,7 +66,7 @@ export default function Index() {
     setUserInput(userInput);
   };
 
-  // Handle API request for channel information
+  // Handles API request for channel information
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
       try {
