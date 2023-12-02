@@ -295,7 +295,7 @@ export default function Explore() {
     searchTextWrapper: {
       paddingTop: 8,
       width: "100%",
-      marginBottom: 24,
+      marginBottom: 16,
     },
     searchText: {
       color: `${Colors[colorScheme || "light"].textMedium}`,
@@ -307,7 +307,7 @@ export default function Explore() {
     },
     noResultsWrapper: {
       width: "100%",
-      alignItems: 'center',
+      alignItems: "center",
       marginBottom: 16,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
@@ -317,19 +317,20 @@ export default function Explore() {
     noResultsHeader: {
       paddingBottom: 3,
       width: "100%",
-      maxWidth: 369,
+      maxWidth: 304,
     },
     noResultsHeaderText: {
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       textAlign: "center",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 19,
+      lineHeight: 24,
+      letterSpacing: -0.19,
     },
     noResultsTextWrapper: {
       width: "100%",
-      maxWidth: 369,
+      maxWidth: 304,
     },
     noResultsText: {
       color: `${Colors[colorScheme || "light"].textMedium}`,
@@ -430,7 +431,13 @@ export default function Explore() {
           {isSearchInputSelected && searchInput !== "" ? (
             <View style={styles.searchContainer}>
               <View style={styles.searchHeader}>
-                <Text style={styles.searchHeaderText}>Search Results</Text>
+                {searchResults.length > 0 ? (
+                  <Text style={styles.searchHeaderText}>Search Results</Text>
+                ) : (
+                  <Text style={styles.searchHeaderText}>
+                    No Search Results Found
+                  </Text>
+                )}
               </View>
 
               {searchResults.length > 0 ? (
@@ -453,24 +460,24 @@ export default function Explore() {
                 </View>
               ) : (
                 <View style={styles.searchTextWrapper}>
+                  {/*
                   <Text style={styles.searchText}>
                     Search results not found.
                   </Text>
+              */}
                 </View>
               )}
               <View style={styles.noResultsWrapper}>
                 <View style={styles.noResultsHeader}>
                   <Text style={styles.noResultsHeaderText}>
-                    Feed not found?
+                    Can't find your feed?
                   </Text>
                 </View>
-
                 <View style={styles.noResultsTextWrapper}>
                   <Text style={styles.noResultsText}>
-                    Enter your RSS Feed URL below, and it will appear here. For
-                    example:{" "}
+                    Simply enter your RSS Feed's URL to add it. For example:{" "}
                     <Text style={styles.noResultsTextBold}>
-                      cureader.com/rss/feed
+                      nasa.gov/rss/breaking_news.rss
                     </Text>
                   </Text>
                 </View>
