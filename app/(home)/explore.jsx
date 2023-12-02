@@ -13,6 +13,11 @@ import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
+import Feather from "@expo/vector-icons/Feather";
+
+function Icon(props) {
+  return <Feather size={23} {...props} />;
+}
 
 export default function Explore() {
   const colorScheme = useColorScheme();
@@ -24,6 +29,9 @@ export default function Explore() {
   const [randomFeeds, setRandomFeeds] = useState([]);
 
   const [userChannelIds, setUserChannelIds] = useState([]);
+
+  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
+  
 
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
@@ -158,14 +166,30 @@ export default function Explore() {
     },
     inputWrapper: {
       flex: 1,
-      padding: 16,
+      paddingHorizontal: 16,
       width: "100%",
+      paddingBottom: 16,
+      marginTop: -3,
+    },
+    searchIcon: {
+      position: "absolute",
+      left: 31,
+      top: 16.5,
+      zIndex: 2,
+      pointerEvents: "none",
+    },
+    closeIcon: {
+      position: "absolute",
+      right: 31,
+      top: 16.5,
+      zIndex: 2,
+      pointerEvents: "none",
     },
     input: {
       flex: 1,
       borderRadius: 20,
       height: 56,
-      paddingHorizontal: 16,
+      paddingHorizontal: 48,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].border}`,
@@ -197,7 +221,7 @@ export default function Explore() {
       marginTop: 8,
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
+      alignItems: "flex-end",
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -206,6 +230,10 @@ export default function Explore() {
       fontSize: 22,
       lineHeight: 28,
       letterSpacing: -0.22,
+    },
+    textButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
     },
     textButtonText: {
       fontFamily: "InterMedium",
@@ -222,17 +250,39 @@ export default function Explore() {
       {/* Conditionally render content based on focusEffectCompleted */}
       {focusEffectCompleted ? (
         <>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Feed Search</Text>
+          </View>
           <View style={styles.inputWrapper}>
+            <Icon
+              name="search"
+              color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.input}
               label="Channel Url Text"
-              placeholder="Search for channel placeholder"
+              placeholder="Search for feed"
               autoCapitalize="none"
               autoCorrect={false}
+              onFocus={() => setIsSearchInputSelected(true)}
+              onBlur={() => setIsSearchInputSelected(false)}
+            />
+
+            <Icon
+              name="x-circle"
+              color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+              style={[
+                styles.closeIcon,
+                isSearchInputSelected ? { opacity: 1, transition: 100ms ease-in all } : { opacity: 0 },
+              ]}
             />
           </View>
           <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Random Channels</Text>
+            <Text style={styles.title}>Random Feeds</Text>
+            <TouchableOpacity style={styles.textButton}>
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
           </View>
 
           {randomFeeds.length > 0 ? (
@@ -259,9 +309,9 @@ export default function Explore() {
             <Text>Loading...</Text>
           )}
           <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Channels</Text>
+            <Text style={styles.title}>Popular Feeds</Text>
             <TouchableOpacity style={styles.textButton}>
-              <Text style={styles.textButtonText}>See all</Text>
+              <Text style={styles.textButtonText}>View more</Text>
             </TouchableOpacity>
           </View>
 
