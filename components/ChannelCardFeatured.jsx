@@ -197,6 +197,7 @@ export default function ChannelCardFeatured({
       borderRadius: 12,
       overflow: "hidden",
       gap: 0,
+      height: 'auto',
     },
     cardContent: {
       display: "flex",
@@ -205,6 +206,7 @@ export default function ChannelCardFeatured({
       width: "100%",
       padding: 12,
       paddingVertical: 16,
+      flex: 1,
     },
     title: {
       display: "flex",
@@ -218,12 +220,14 @@ export default function ChannelCardFeatured({
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
+      flex: 1,
     },
     cardControls: {
       marginTop: 2,
       flexDirection: "row",
       gap: 8,
       alignItems: "flex-end",
+      flex: 1,
     },
     description: {
       flex: 1,
@@ -319,31 +323,31 @@ export default function ChannelCardFeatured({
       {!item.channel_image_url ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
             {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
             {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
             {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
-            {item.channel_title}{" "}{item.channel_title}{" "}{item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
           </Text>
         </View>
       ) : (

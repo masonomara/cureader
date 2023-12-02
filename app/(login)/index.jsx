@@ -89,7 +89,8 @@ export default function Auth() {
       borderRadius: 20,
       height: 56,
       marginBottom: 16,
-      paddingHorizontal: 16,
+      paddingLeft: 16,
+      paddingRight: 6,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].border}`,
@@ -113,7 +114,7 @@ export default function Auth() {
       letterSpacing: -0,
     },
     inputButton: {
-      width: 34,
+      width: 44,
       marginLeft: 8,
       alignItems: "center",
       justifyContent: "center",

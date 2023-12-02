@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
@@ -8,15 +8,20 @@ import {
   useColorScheme,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
+import { SearchBar } from "react-native-elements";
 
-function Icon(props) {
-  return <Feather size={23} {...props} />;
+function SearchIcon(props) {
+  return <Feather size={24} {...props} />;
+}
+function CloseIcon(props) {
+  return <Feather size={24} {...props} />;
 }
 
 export default function Explore() {
@@ -30,11 +35,39 @@ export default function Explore() {
 
   const [userChannelIds, setUserChannelIds] = useState([]);
 
+  const [searchInput, setSearchInput] = useState("");
+  const [dbInput, setDbInput] = useState("");
+
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
-  
+  const textInputRef = useRef(null);
 
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
+
+  const handleFocus = () => {
+    setIsSearchInputSelected(true);
+  };
+
+  const handleBlur = () => {
+    setIsSearchInputSelected(false);
+  };
+
+  const handleClearInput = () => {
+    if (textInputRef.current) {
+      textInputRef.current.clear();
+      textInputRef.current.blur(); // Remove focus
+    }
+  };
+
+    // Handle search input change
+    const handleSearchInput = (searchInput) => {
+      searchInput = searchInput.trim();
+      let moddedSearchInput = "";
+  
+  
+      setDbInput(moddedSearchInput);
+      setSearchInput(searchInput);
+    };
 
   // Fetch user information and all feed channels — setting [feeds] and [user]
   useEffect(() => {
@@ -161,11 +194,9 @@ export default function Explore() {
       paddingHorizontal: 16,
       display: "flex",
       flexDirection: "column",
-      flex: 1,
       width: "100%",
     },
     inputWrapper: {
-      flex: 1,
       paddingHorizontal: 16,
       width: "100%",
       paddingBottom: 16,
@@ -173,23 +204,26 @@ export default function Explore() {
     },
     searchIcon: {
       position: "absolute",
-      left: 31,
-      top: 16.5,
+      left: 32,
+      top: 16,
       zIndex: 2,
       pointerEvents: "none",
     },
-    closeIcon: {
+    closeIconWrapper: {
       position: "absolute",
-      right: 31,
-      top: 16.5,
+      right: 24,
       zIndex: 2,
-      pointerEvents: "none",
+      height: 56,
+      width: 44,
+      alignItems: "center",
+      justifyContent: "center",
     },
     input: {
       flex: 1,
       borderRadius: 20,
       height: 56,
-      paddingHorizontal: 48,
+      paddingLeft: 52,
+      paddingRight: 52,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].border}`,
@@ -216,7 +250,7 @@ export default function Explore() {
       marginTop: 0,
       flex: 1,
       padding: 16,
-      paddingBottom: 16,
+      paddingVertical: 12,
       width: "100%",
       marginTop: 8,
       flexDirection: "row",
@@ -243,6 +277,12 @@ export default function Explore() {
       letterSpacing: -0.15,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
+    loadingContainer: {
+      flex: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
   };
 
   return (
@@ -254,30 +294,45 @@ export default function Explore() {
             <Text style={styles.title}>Feed Search</Text>
           </View>
           <View style={styles.inputWrapper}>
-            <Icon
+            <SearchIcon
               name="search"
               color={`${Colors[colorScheme || "light"].textPlaceholder}`}
               style={styles.searchIcon}
             />
             <TextInput
+              ref={textInputRef}
               style={styles.input}
               label="Channel Url Text"
               placeholder="Search for feed"
               autoCapitalize="none"
               autoCorrect={false}
-              onFocus={() => setIsSearchInputSelected(true)}
-              onBlur={() => setIsSearchInputSelected(false)}
+              onChangeText={handleSearchInput}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
             />
-
-            <Icon
-              name="x-circle"
-              color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+            <TouchableOpacity
               style={[
-                styles.closeIcon,
-                isSearchInputSelected ? { opacity: 1, transition: 100ms ease-in all } : { opacity: 0 },
+                styles.closeIconWrapper,
+                isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
               ]}
-            />
+              onPress={handleClearInput}
+            >
+              <CloseIcon
+                name="x-circle"
+                color={`${Colors[colorScheme || "light"].buttonActive}`}
+                style={styles.closeIcon}
+              />
+            </TouchableOpacity>
           </View>
+
+          {isSearchInputSelected ? (
+            <View>
+              <Text>Nut</Text>
+            </View>
+          ) : (
+            ""
+          )}
+
           <View style={styles.titleWrapper}>
             <Text style={styles.title}>Random Feeds</Text>
             <TouchableOpacity style={styles.textButton}>
@@ -319,7 +374,7 @@ export default function Explore() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.randomChannelList}
+              contentContainerStyle={[styles.randomChannelList]}
               decelerationRate={0}
               snapToInterval={CARD_WIDTH + 8}
               snapToAlignment={"left"}
@@ -347,11 +402,21 @@ export default function Explore() {
               ))}
             </ScrollView>
           ) : (
-            <Text>Loading...</Text>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator
+                size="large"
+                color={Colors[colorScheme || "light"].colorPrimary}
+              />
+            </View>
           )}
         </>
       ) : (
-        <Text>Loading...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={Colors[colorScheme || "light"].colorPrimary}
+          />
+        </View>
       )}
     </ScrollView>
   );
