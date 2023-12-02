@@ -58,6 +58,7 @@ export default function Explore() {
       textInputRef.current.clear();
       textInputRef.current.blur(); // Remove focus
     }
+    setSearchInput("");
   };
 
   // Handle search input change
@@ -88,7 +89,7 @@ export default function Explore() {
         }
 
         setFeeds(channelsData);
-        console.log(feeds)
+        console.log(feeds);
 
         if (user) {
           const channelIds = await fetchUserChannels(user);
@@ -106,10 +107,25 @@ export default function Explore() {
 
   // Create searchResults that match the user's search input
   useEffect(() => {
-    if (searchInput != "") {
-      setSearchResults(feeds);
-    }
-  });
+    const filterResults = () => {
+      if (searchInput !== "") {
+        const lowercasedInput = searchInput.toLowerCase();
+
+        const filteredFeeds = feeds.filter(
+          (feed) =>
+            feed.channel_title.toLowerCase().includes(lowercasedInput) ||
+            feed.channel_url.toLowerCase().includes(lowercasedInput) ||
+            feed.channel_description.toLowerCase().includes(lowercasedInput)
+        );
+
+        setSearchResults(filteredFeeds.slice(0, 3));
+      } else {
+        setSearchResults([]);
+      }
+    };
+
+    filterResults();
+  }, [searchInput, feeds]);
 
   // Creating random feeds — setting [randomFeeds]
   // NOTE: change from 4 to 33 later, change from 5 to 34 later
@@ -198,6 +214,9 @@ export default function Explore() {
       paddingHorizontal: 16,
       marginBottom: 24,
     },
+    searchResultsList: {
+      marginBottom: 18,
+    },
     popularChannelList: {
       paddingHorizontal: 16,
       display: "flex",
@@ -254,20 +273,80 @@ export default function Explore() {
       lineHeight: 22,
       letterSpacing: -0,
     },
-    searchHeaderWrapper: {
+    searchContainer: {
       paddingHorizontal: 16,
-      paddingBottom: 12,
       width: "100%",
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
-
       zIndex: 1,
     },
+
     searchHeader: {
+      borderBottomWidth: 1,
+      paddingBottom: 7,
+      borderBottomColor: `${Colors[colorScheme || "light"].border}`,
+    },
+    searchHeaderText: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
+    },
+    searchTextWrapper: {
+      paddingTop: 8,
+      width: "100%",
+      marginBottom: 24,
+    },
+    searchText: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    noResultsWrapper: {
+      width: "100%",
+      alignItems: 'center',
+      marginBottom: 16,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+      borderBottomWidth: 1,
+      paddingBottom: 24,
+      paddingHorizontal: 16,
+    },
+    noResultsHeader: {
+      paddingBottom: 3,
+      width: "100%",
+      maxWidth: 369,
+    },
+    noResultsHeaderText: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      textAlign: "center",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+    noResultsTextWrapper: {
+      width: "100%",
+      maxWidth: 369,
+    },
+    noResultsText: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      textAlign: "center",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+    },
+    noResultsTextBold: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     titleWrapper: {
       marginTop: 0,
@@ -348,29 +427,55 @@ export default function Explore() {
             </TouchableOpacity>
           </View>
 
-          {isSearchInputSelected ? (
-            <>
-              <View style={styles.searchHeaderWrapper}>
-                <Text style={styles.searchHeader}>Search Results</Text>
+          {isSearchInputSelected && searchInput !== "" ? (
+            <View style={styles.searchContainer}>
+              <View style={styles.searchHeader}>
+                <Text style={styles.searchHeaderText}>Search Results</Text>
               </View>
-              <View
-                showsHorizontalScrollIndicator={false}
-                style={[styles.randomChannelList]}
-                decelerationRate={0}
-                snapToInterval={CARD_WIDTH + 8}
-                snapToAlignment={"left"}
-              >
-                {searchResults.map((item) => (
-                  <ChannelCard
-                    key={item.id}
-                    item={item}
-                    user={user}
-                    feeds={feeds}
-                    userChannelIds={userChannelIds}
-                  />
-                ))}
+
+              {searchResults.length > 0 ? (
+                <View
+                  showsHorizontalScrollIndicator={false}
+                  style={[styles.searchResultsList]}
+                  decelerationRate={0}
+                  snapToInterval={CARD_WIDTH + 8}
+                  snapToAlignment={"left"}
+                >
+                  {searchResults.map((item) => (
+                    <ChannelCard
+                      key={item.id}
+                      item={item}
+                      user={user}
+                      feeds={feeds}
+                      userChannelIds={userChannelIds}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.searchTextWrapper}>
+                  <Text style={styles.searchText}>
+                    Search results not found.
+                  </Text>
+                </View>
+              )}
+              <View style={styles.noResultsWrapper}>
+                <View style={styles.noResultsHeader}>
+                  <Text style={styles.noResultsHeaderText}>
+                    Feed not found?
+                  </Text>
+                </View>
+
+                <View style={styles.noResultsTextWrapper}>
+                  <Text style={styles.noResultsText}>
+                    Enter your RSS Feed URL below, and it will appear here. For
+                    example:{" "}
+                    <Text style={styles.noResultsTextBold}>
+                      cureader.com/rss/feed
+                    </Text>
+                  </Text>
+                </View>
               </View>
-            </>
+            </View>
           ) : (
             ""
           )}
