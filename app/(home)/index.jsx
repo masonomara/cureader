@@ -44,7 +44,7 @@ export default function Index() {
     Alert.alert("Error", message);
   };
 
-  // Funciton for handling user input change
+  // Function for handling user input change
   const handleUserInput = (userInput) => {
     userInput = userInput.trim();
     let moddedUserInput = "";
