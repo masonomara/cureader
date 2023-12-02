@@ -17,11 +17,12 @@ import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { SearchBar } from "react-native-elements";
 
-function SearchIcon(props) {
-  return <Feather size={24} {...props} />;
+function SearchIcon({ size, ...props }) {
+  return <Feather size={size || 24} {...props} />;
 }
-function CloseIcon(props) {
-  return <Feather size={24} {...props} />;
+
+function CloseIcon({ size, ...props }) {
+  return <Feather size={size || 24} {...props} />;
 }
 
 export default function Explore() {
@@ -85,6 +86,7 @@ export default function Explore() {
 
         if (error) {
           console.error("Error fetching channels:", error);
+          // You might want to show a user-friendly error message here.
           return;
         }
 
@@ -99,6 +101,7 @@ export default function Explore() {
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        // Handle unexpected errors here, e.g., show a generic error message.
       }
     }
 
@@ -158,6 +161,7 @@ export default function Explore() {
 
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
+        // Handle specific error cases, show user-friendly messages.
         return [];
       }
 
@@ -169,6 +173,7 @@ export default function Explore() {
       return channelIds;
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
+      // Handle unexpected errors here, e.g., show a generic error message.
       return [];
     }
   };
