@@ -28,32 +28,31 @@ function CloseIcon({ size, ...props }) {
 export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
-
-  const [user, setUser] = useState(null);
-  const [feeds, setFeeds] = useState([]);
-
-  const [randomFeeds, setRandomFeeds] = useState([]);
-
-  const [userChannelIds, setUserChannelIds] = useState([]);
-
-  const [searchInput, setSearchInput] = useState("");
-  const [dbInput, setDbInput] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-
-  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
-  const textInputRef = useRef(null);
-
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
+  const [user, setUser] = useState(null);
+  const [userChannelIds, setUserChannelIds] = useState([]);
+  const [feeds, setFeeds] = useState([]);
+  const [randomFeeds, setRandomFeeds] = useState([]);
+
+  const textInputRef = useRef(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [dbInput, setDbInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
+
+  // Function for handling search input focus
   const handleFocus = () => {
     setIsSearchInputSelected(true);
   };
 
+  // Function for handling seach input blur
   const handleBlur = () => {
     setIsSearchInputSelected(false);
   };
 
+  // Function for clearing the search input
   const handleClearInput = () => {
     if (textInputRef.current) {
       textInputRef.current.clear();
@@ -62,7 +61,7 @@ export default function Explore() {
     setSearchInput("");
   };
 
-  // Handle search input change
+  // Function for handling when there is search input entered
   const handleSearchInput = (searchInput) => {
     searchInput = searchInput.trim();
     let moddedSearchInput = "";
@@ -71,7 +70,7 @@ export default function Explore() {
     setSearchInput(searchInput);
   };
 
-  // Fetch user information and all feed channels — setting [feeds] and [user]
+  // Fetches user information and all feed channels — sets [feeds] and [user]
   useEffect(() => {
     async function fetchData() {
       try {
@@ -108,7 +107,7 @@ export default function Explore() {
     fetchData();
   }, []);
 
-  // Create searchResults that match the user's search input
+  // Creates search results that match the user's search input — sets [searchResults]
   useEffect(() => {
     const filterResults = () => {
       if (searchInput !== "") {
@@ -130,7 +129,7 @@ export default function Explore() {
     filterResults();
   }, [searchInput, feeds]);
 
-  // Creating random feeds — setting [randomFeeds]
+  // Creates random feeds — sets [randomFeeds]
   // NOTE: change from 4 to 33 later, change from 5 to 34 later
   useEffect(() => {
     if (feeds.length > 4) {
@@ -139,7 +138,7 @@ export default function Explore() {
     }
   }, [feeds]);
 
-  // Fetch user channels when the screen comes into focus and mark useFocusEffect as completed — setting [userChannelIds]
+  // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userChannelIds]
   useFocusEffect(
     useCallback(() => {
       if (user) {
@@ -392,6 +391,8 @@ export default function Explore() {
       justifyContent: "center",
     },
   };
+
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
