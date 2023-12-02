@@ -37,6 +37,7 @@ export default function Explore() {
 
   const [searchInput, setSearchInput] = useState("");
   const [dbInput, setDbInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
   const textInputRef = useRef(null);
@@ -59,15 +60,14 @@ export default function Explore() {
     }
   };
 
-    // Handle search input change
-    const handleSearchInput = (searchInput) => {
-      searchInput = searchInput.trim();
-      let moddedSearchInput = "";
-  
-  
-      setDbInput(moddedSearchInput);
-      setSearchInput(searchInput);
-    };
+  // Handle search input change
+  const handleSearchInput = (searchInput) => {
+    searchInput = searchInput.trim();
+    let moddedSearchInput = "";
+
+    setDbInput(moddedSearchInput);
+    setSearchInput(searchInput);
+  };
 
   // Fetch user information and all feed channels — setting [feeds] and [user]
   useEffect(() => {
@@ -88,6 +88,7 @@ export default function Explore() {
         }
 
         setFeeds(channelsData);
+        console.log(feeds)
 
         if (user) {
           const channelIds = await fetchUserChannels(user);
@@ -102,6 +103,13 @@ export default function Explore() {
 
     fetchData();
   }, []);
+
+  // Create searchResults that match the user's search input
+  useEffect(() => {
+    if (searchInput != "") {
+      setSearchResults(feeds);
+    }
+  });
 
   // Creating random feeds — setting [randomFeeds]
   // NOTE: change from 4 to 33 later, change from 5 to 34 later
@@ -246,6 +254,21 @@ export default function Explore() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    searchHeaderWrapper: {
+      paddingHorizontal: 16,
+      paddingBottom: 12,
+      width: "100%",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+
+      zIndex: 1,
+    },
+    searchHeader: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
     titleWrapper: {
       marginTop: 0,
       flex: 1,
@@ -326,9 +349,28 @@ export default function Explore() {
           </View>
 
           {isSearchInputSelected ? (
-            <View>
-              <Text>Nut</Text>
-            </View>
+            <>
+              <View style={styles.searchHeaderWrapper}>
+                <Text style={styles.searchHeader}>Search Results</Text>
+              </View>
+              <View
+                showsHorizontalScrollIndicator={false}
+                style={[styles.randomChannelList]}
+                decelerationRate={0}
+                snapToInterval={CARD_WIDTH + 8}
+                snapToAlignment={"left"}
+              >
+                {searchResults.map((item) => (
+                  <ChannelCard
+                    key={item.id}
+                    item={item}
+                    user={user}
+                    feeds={feeds}
+                    userChannelIds={userChannelIds}
+                  />
+                ))}
+              </View>
+            </>
           ) : (
             ""
           )}
