@@ -72,7 +72,7 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCardSearchPreview({ item, user }) {
+export default function ChannelCardSearchPreview({ channelUrl, channelTitle, channelDescription, channelImageUrl, user }) {
   const [isSubscribed, setIsSubscribed] = useState(
     false
   );
@@ -286,7 +286,7 @@ export default function ChannelCardSearchPreview({ item, user }) {
       height: 64,
       width: 64,
       borderRadius: 10,
-      backgroundColor: getColorForLetter(item.channel_title[0]),
+      backgroundColor: getColorForLetter(channelTitle[0]),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -299,7 +299,7 @@ export default function ChannelCardSearchPreview({ item, user }) {
       lineHeight: 26,
       letterSpacing: -0.173,
       height: 26,
-      color: getTextColorForLetter(item.channel_title[0]),
+      color: getTextColorForLetter(channelTitle[0]),
       textAlignVertical: "center",
       textAlign: "center",
       width: "1000%",
@@ -307,35 +307,19 @@ export default function ChannelCardSearchPreview({ item, user }) {
   };
 
   return (
-    <Pressable
+    <View
       style={styles.card}
-      onPress={() => {
-        router.push({
-          pathname: "/feedChannel",
-          params: {
-            title: item.channel_title,
-            description: item.channel_description,
-            image: item.channel_image_url,
-            subscribers: item.channel_subscribers,
-            url: item.channel_url,
-            id: item.id,
-            user: user,
-            userId: user.id,
-            subscribed: isSubscribed,
-          },
-        });
-      }}
     >
-      {!item.channel_image_url ? (
+      {!channelImageUrl ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
+            {channelTitle} {channelTitle}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title} {item.channel_title}
+            {channelTitle} {channelTitle} {channelTitle}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
+            {channelTitle} {channelTitle}
           </Text>
         </View>
       ) : (
@@ -353,17 +337,17 @@ export default function ChannelCardSearchPreview({ item, user }) {
               width: "100%",
               height: "100%",
             }}
-            source={{ uri: item.channel_image_url }}
+            source={{ uri: channelImageUrl }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.title} numberOfLines={2}>
-            {item.channel_title}
+            {channelTitle}
           </Text>
           <Text style={styles.description} numberOfLines={2}>
-            {item.channel_description}
+            {channelDescription}
           </Text>
         </View>
         <View style={styles.cardControls}>
@@ -396,6 +380,6 @@ export default function ChannelCardSearchPreview({ item, user }) {
           </TouchableOpacity>
         </View>
       </View>
-    </Pressable>
+    </View>
   );
 }
