@@ -44,6 +44,16 @@ export default function ArticleCard({ publication, item, image, user }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
+  const descriptionWithoutTags = item.description;
+
+  // Use a regular expression to capture the URL of the first image
+  const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
+
+  // Extract the captured URL or provide a default value if not found
+  const imageUrl = match ? match[1] : "";
+
+  // console.log("item description:", item.description);
+
   const _handlePressButtonAsync = async () => {
     let result = await WebBrowser.openBrowserAsync(item.links[0].url);
     setResult(result);
@@ -201,7 +211,7 @@ export default function ArticleCard({ publication, item, image, user }) {
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {item.image.url && (
+      {(item.image.url || imageUrl) && (
         <View
           style={{
             aspectRatio: "4/3",
@@ -216,8 +226,11 @@ export default function ArticleCard({ publication, item, image, user }) {
               flex: 1,
               width: "100%",
               height: "100%",
+              borderRadius: 12,
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
-            source={{ uri: item.image.url }}
+            source={{ uri: imageUrl || item.image.url }}
           />
         </View>
       )}
@@ -238,7 +251,7 @@ export default function ArticleCard({ publication, item, image, user }) {
           </Text>
           <Text style={styles.title}>{item.title ? item.title : ""}</Text>
           <Text numberOfLines={4} style={styles.description}>
-            {item.description.replace(/<[^>]*>/g, "")}
+            {item.description.replace(/<[^>]*>/g, "").trim()}
           </Text>
         </View>
       </View>
