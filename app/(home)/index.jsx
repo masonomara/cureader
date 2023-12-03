@@ -469,7 +469,7 @@ export default function Index() {
 
       {/* Input for channel URL */}
 
-      <TextInput
+      {/*<TextInput
         style={styles.input}
         label="Channel Url Text"
         onChangeText={handleUserInput}
@@ -477,9 +477,10 @@ export default function Index() {
         placeholder="https://"
         autoCapitalize={"none"}
         autoCorrect={false}
-      />
+  /> */}
 
       {/* Channel title and submit button */}
+      {/*
       {!channelTitleWait ? (
         <>
           {channelTitle ? (
@@ -513,6 +514,7 @@ export default function Index() {
       <Text>Channel Title: {channelTitle}</Text>
       <Text numberOfLines={1}>Channel Description: {channelDescription}</Text>
       <Text numberOfLines={1}>Channel Image URL: {channelImageUrl}</Text>
+      */}
 
       {/* List of articles */}
       <FlatList
