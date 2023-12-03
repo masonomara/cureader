@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
-
+import { useState, useEffect, useLayoutEffect } from "react";
 import {
-  FlatList,
+  View,
+  Text,
   TouchableOpacity,
-  Alert,
-  useColorScheme,
   Image,
+  Dimensions,
+  Pressable,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useColorScheme } from "react-native";
+import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
-import { Text, View } from "../components/Themed";
-import * as rssParser from "react-native-rss-parser";
-import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
-import ChannelCardFeedPreview from "../components/ChannelCardFeedPreview";
+
+const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -74,31 +72,24 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function TabOneScreen() {
-  const params = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-  const [rssItems, setRssItems] = useState([]);
+export default function ChannelCardFeedPreview({ params }) {
   const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     params.subscribed
   );
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
-  console.log("params.userChannelIds:", params.userChannelIds);
-  console.log("params.id:", params.id);
+  const navigation = useNavigation();
+  const colorScheme = useColorScheme();
 
-  useEffect(() => {
+  const paramsId = params.id;
+
+  useLayoutEffect(() => {
     // Update state when the subscribed prop changes
     setIsSubscribed(params.userChannelIds.includes(params.id));
     setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
     setSubscribeButtonLoading(false);
   }, [params.userChannelIds]);
-
-  console.log("isSubscribed:", isSubscribed);
-  console.log("userId", params.userId);
-
-  const paramsId = params.id;
 
   // Function to calculate subscription button style
   const getSubscribeButtonStyle = () => {
@@ -219,47 +210,6 @@ export default function TabOneScreen() {
     ]);
   };
 
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
-
-  // Parse feed channel for articles in the feed
-  useEffect(() => {
-    const parseFeed = async () => {
-      if (params.url) {
-        try {
-          const response = await fetch(params.url);
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const responseData = await response.text();
-          const parsedRss = await rssParser.parse(responseData);
-
-          const allItems = parsedRss.items.map((item) => ({
-            ...item,
-            publicationDate: new Date(item.published),
-            channel: parsedRss.title,
-            image: parsedRss.image,
-            channelUrl: parsedRss.links[0].url,
-          }));
-
-          allItems.sort((a, b) => b.publicationDate - a.publicationDate);
-
-          setRssItems(allItems);
-        } catch (error) {
-          console.error(error);
-          showErrorAlert(
-            "Error fetching or parsing the RSS feed. Please try again."
-          );
-        } finally {
-          setIsLoading(false); // Set loading to false after the effect is done firing
-        }
-      }
-    };
-
-    parseFeed();
-  }, [params.url]);
-
   // Function to get background color based on the first letter
   const getColorForLetter = (letter) => {
     const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
@@ -270,72 +220,7 @@ export default function TabOneScreen() {
     return textColorArray[index];
   };
 
-  // Styles
   const styles = {
-    container: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    articleList: {
-      width: "100%",
-    },
-    input: {
-      width: "100%",
-      borderRadius: 20,
-      height: 56,
-      marginBottom: 16,
-      paddingHorizontal: 16,
-      borderWidth: 1,
-      flexDirection: "row",
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      alignContent: "center",
-      justifyContent: "space-between",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
-    },
-    inputText: {
-      flex: 1,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
-    },
-    button: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
-    buttonDisabled: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].buttonMuted}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
-    buttonText: {
-      color: `${Colors[colorScheme || "light"].colorOn}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-    },
     subscriptionText: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterRegular",
@@ -448,38 +333,78 @@ export default function TabOneScreen() {
       textAlign: "center",
       width: "1000%",
     },
-    loadingContainer: {
-      flex: 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
   };
 
-  return isLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator
-        size="large"
-        color={Colors[colorScheme || "light"].colorPrimary}
-      />
-    </View>
-  ) : (
-    <>
-      <ChannelCardFeedPreview params={params} />
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => (
-          <ArticleCard
-            item={item}
-            publication={item.channel}
-            image={item.image}
-            channelUrl={item.channelUrl}
-            user={params.user}
+  return (
+    <View style={styles.card}>
+      {!params.image ? (
+        <View style={styles.noImageContainer}>
+          <Text style={styles.noImageContainerText}>
+            {params.title} {params.title} {params.title} {params.title}
+          </Text>
+          <Text style={styles.noImageContainerText}>
+            {params.title} {params.title} {params.title} {params.title}{" "}
+            {params.title}
+          </Text>
+          <Text style={styles.noImageContainerText}>
+            {params.title} {params.title} {params.title} {params.title}
+          </Text>
+        </View>
+      ) : (
+        <View
+          style={{
+            aspectRatio: "1/1",
+            width: 96,
+            overflow: "hidden",
+            borderRadius: 14,
+          }}
+        >
+          <Image
+            style={{
+              flex: 1,
+              width: "100%",
+              height: "100%",
+              borderRadius: 10,
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
+            }}
+            source={{ uri: params.image }}
           />
-        )}
-      />
-    </>
+        </View>
+      )}
+      <View style={styles.cardContent}>
+        <Text style={styles.title} numberOfLines={2}>
+          {params.title}
+        </Text>
+        <Text style={styles.description} numberOfLines={3}>
+          {params.description}
+        </Text>
+        <View style={styles.cardControls}>
+          <TouchableOpacity
+            style={getSubscribeButtonStyle()}
+            onPress={handleSubscribe}
+          >
+            {subscribeButtonLoading === true ? (
+              <ActivityIndicator
+                size="small"
+                color={Colors[colorScheme || "light"].colorOn}
+              />
+            ) : (
+              <Text
+                style={
+                  isOptimisticSubscribed.toString() === "true"
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isOptimisticSubscribed.toString() === "true"
+                  ? "Following"
+                  : "Follow"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
 }
