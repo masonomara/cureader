@@ -40,12 +40,16 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item, user, fallbackImage }) {
-
+export default function ArticleCard({
+  publication,
+  item,
+  user,
+  fallbackImage,
+}) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
-  const descriptionWithoutTags = item.description;
+  const descriptionWithoutTags = item.description || "";
 
   // Use a regular expression to capture the URL of the first image
   const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
@@ -56,15 +60,19 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
   // console.log("item description:", item.description);
 
   const _handlePressButtonAsync = async () => {
-    let result = await WebBrowser.openBrowserAsync(item.links[0].url);
-    setResult(result);
+    try {
+      let result = await WebBrowser.openBrowserAsync(item.links[0].url);
+      setResult(result);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
   };
 
   const onShare = () => {
     try {
       const result = Share.share({
         message: "I found this article on my Cureader app",
-        url: item.links[0].url,
+        url: item.links[0]?.url || "",
         tintColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       });
 
@@ -78,7 +86,7 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
         console.log("Dismissed");
       }
     } catch (error) {
-      Alert.alert(error.message);
+      console.error("Error sharing:", error.message);
     }
   };
 
@@ -210,13 +218,11 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
     },
   };
 
+  // console.log( "[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url );
 
-  // console.log("[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url )
-
-  
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {(item.image.url || imageUrl || fallbackImage) && (
+      {(item.image?.url || imageUrl || fallbackImage) && (
         <View
           style={{
             aspectRatio: "4/3",
@@ -235,7 +241,7 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
-            source={{ uri: imageUrl || fallbackImage || item.image.url  }}
+            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
           />
         </View>
       )}
@@ -256,7 +262,13 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
           </Text>
           <Text style={styles.title}>{item.title ? item.title : ""}</Text>
           <Text numberOfLines={4} style={styles.description}>
-            {item.description.replace(/<[^>]*>/g, "").trim()}
+            {item.description ? (
+              <Text numberOfLines={4} style={styles.description}>
+                {item.description.replace(/<[^>]*>/g, "").trim()}
+              </Text>
+            ) : (
+              <Text style={styles.description}></Text>
+            )}
           </Text>
         </View>
       </View>

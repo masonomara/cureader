@@ -386,8 +386,8 @@ export default function Index() {
             const parsedRss = await rssParser.parse(responseData);
 
 
-            console.log("FALLBACKIMAGES:", fallbackImages)
-            console.log("FEEDURLS:", feedUrls)
+            // console.log("FALLBACKIMAGES:", fallbackImages)
+            // console.log("FEEDURLS:", feedUrls)
 
             const channelImage = fallbackImages.find(
               (image) => image.channel_url === url
