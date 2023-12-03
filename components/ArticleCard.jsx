@@ -42,7 +42,6 @@ function formatPublicationDate(published) {
 
 export default function ArticleCard({ publication, item, user, fallbackImage }) {
 
-  console.log("[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url )
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
@@ -211,6 +210,10 @@ export default function ArticleCard({ publication, item, user, fallbackImage }) 
     },
   };
 
+
+  // console.log("[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url )
+
+  
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
       {(item.image.url || imageUrl || fallbackImage) && (

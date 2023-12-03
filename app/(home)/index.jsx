@@ -337,32 +337,33 @@ export default function Index() {
     }
   };
 
-// Use the Supabase client to query the "channels" table and get the channel_image_url items
-const getFallbackImages = async () => {
-  try {
-    if (user) {
-      // Check if user is defined and authenticated
-      const feedUrls = await getChannelSubscriptions();
+  // Use the Supabase client to query the "channels" table and get the channel_image_url items
+  const getFallbackImages = async () => {
+    try {
+      if (user) {
+        // Check if user is defined and authenticated
+        const feedUrls = await getChannelSubscriptions();
 
-      const { data: fallbackImageData, error: fallbackImageError } = await supabase
-        .from("channels")
-        .select("channel_url, channel_image_url")
-        .in("channel_url", feedUrls);
+        const { data: fallbackImageData, error: fallbackImageError } =
+          await supabase
+            .from("channels")
+            .select("channel_url, channel_image_url")
+            .in("channel_url", feedUrls);
 
-      if (fallbackImageError) {
-        console.error("Error fetching fallback images:", fallbackImageError);
-        return [];
+        if (fallbackImageError) {
+          console.error("Error fetching fallback images:", fallbackImageError);
+          return [];
+        } else {
+          return fallbackImageData || [];
+        }
       } else {
-        return fallbackImageData || [];
+        return [];
       }
-    } else {
+    } catch (error) {
+      console.error("Error fetching fallback images:", error);
       return [];
     }
-  } catch (error) {
-    console.error("Error fetching fallback images:", error);
-    return [];
-  }
-};
+  };
 
   // Parse feeds
   useEffect(() => {
@@ -387,7 +388,10 @@ const getFallbackImages = async () => {
 
             console.log("FALLBACKIMAGES:", fallbackImages)
             console.log("FEEDURLS:", feedUrls)
-            
+
+            const channelImage = fallbackImages.find(
+              (image) => image.channel_url === url
+            );
 
             allChannels.push({
               title: parsedRss.title,
@@ -398,8 +402,9 @@ const getFallbackImages = async () => {
               ...parsedRss.items.map((item) => ({
                 ...item,
                 publicationDate: new Date(item.published),
-                channel: parsedRss.title, // Include the channel title in the item
+                channel: parsedRss.title,
                 image: parsedRss.image,
+                fallbackImage: channelImage ? channelImage.channel_image_url : null,
                 channelUrl: parsedRss.links[0].url,
               }))
             );
@@ -561,7 +566,7 @@ const getFallbackImages = async () => {
               item={item}
               publication={item.channel}
               fallbackImage={
-                "https://image.simplecastcdn.com/images/ae183fe2-c634-458a-93dd-5770f0676f77/b010809a-c311-425c-9325-2235c21e6939/3000x3000/7f0421f73d2ce0ca272e392c937e1a301285d44fe7c6d710c2844d80c0c7bb1a3e9838ac03ee80fc64199891cb9d5c6e9d4490f5081fb379c0ab2317f2cadf14.jpeg?aid=rss_feed"
+                item.fallbackImage
               }
               channelUrl={item.channelUrl}
               user={user}
