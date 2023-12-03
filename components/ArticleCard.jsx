@@ -40,7 +40,9 @@ function formatPublicationDate(published) {
   }
 }
 
-export default function ArticleCard({ publication, item, image, user }) {
+export default function ArticleCard({ publication, item, user, fallbackImage }) {
+
+  console.log("[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url )
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
@@ -211,7 +213,7 @@ export default function ArticleCard({ publication, item, image, user }) {
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {(item.image.url || imageUrl) && (
+      {(item.image.url || imageUrl || fallbackImage) && (
         <View
           style={{
             aspectRatio: "4/3",
@@ -230,7 +232,7 @@ export default function ArticleCard({ publication, item, image, user }) {
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
-            source={{ uri: imageUrl || item.image.url }}
+            source={{ uri: imageUrl || fallbackImage || item.image.url  }}
           />
         </View>
       )}

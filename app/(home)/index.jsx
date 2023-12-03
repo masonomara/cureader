@@ -526,7 +526,6 @@ export default function Index() {
             <ArticleCard
               item={item}
               publication={item.channel}
-              image={item.image}
               channelUrl={item.channelUrl}
               user={user}
             />
