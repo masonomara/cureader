@@ -82,6 +82,7 @@ export default function Index() {
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
         setChannelTitle(parsedRss.title);
+        console.log("channelTitle:", channelTitle);
         setChannelUrl(parserInput);
         setChannelDescription(parsedRss.description);
         setChannelImageUrl(parsedRss.image.url);
