@@ -264,6 +264,8 @@ export default function ChannelCardFeatured({
       padding: 12,
       paddingVertical: 16,
       flex: 1,
+      borderTopWidth: .5,
+      borderColor: `${Colors[colorScheme || "light"].border}`
     },
     title: {
       display: "flex",
@@ -294,6 +296,7 @@ export default function ChannelCardFeatured({
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
+      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -422,6 +425,7 @@ export default function ChannelCardFeatured({
               flex: 1,
               width: "100%",
               height: "100%",
+
             }}
             source={{ uri: item.channel_image_url }}
           />
@@ -433,7 +437,7 @@ export default function ChannelCardFeatured({
         </Text>
         <View style={styles.cardControls}>
           <Text numberOfLines={2} style={styles.description}>
-            {item.channel_description}
+            {item.channel_description.replace(/<[^>]*>/g, "").trim()}
           </Text>
           <TouchableOpacity
             style={

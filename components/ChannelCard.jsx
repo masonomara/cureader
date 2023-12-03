@@ -246,6 +246,7 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
+      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -353,6 +354,9 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
               flex: 1,
               width: "100%",
               height: "100%",
+              borderRadius: 10,
+              borderWidth: .67,
+              borderColor: `${Colors[colorScheme || "light"].border}`
             }}
             source={{ uri: item.channel_image_url }}
           />
@@ -364,7 +368,8 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
             {item.channel_title}
           </Text>
           <Text style={styles.description} numberOfLines={2}>
-            {item.channel_description}
+          {item.channel_description.replace(/<[^>]*>/g, "").trim()}
+
           </Text>
         </View>
         <View style={styles.cardControls}>

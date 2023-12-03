@@ -485,6 +485,9 @@ export default function TabOneScreen() {
                 flex: 1,
                 width: "100%",
                 height: "100%",
+                borderRadius: 14,
+                borderWidth: .67,
+                borderColor: `${Colors[colorScheme || "light"].border}`
               }}
               source={{ uri: params.image }}
             />

@@ -352,6 +352,7 @@ export default function ChannelCardSearchPreview({
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
+      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -440,6 +441,9 @@ export default function ChannelCardSearchPreview({
               flex: 1,
               width: "100%",
               height: "100%",
+              borderRadius: 10,
+              borderWidth: .67,
+              borderColor: `${Colors[colorScheme || "light"].border}`
             }}
             source={{ uri: channelImageUrl }}
           />
