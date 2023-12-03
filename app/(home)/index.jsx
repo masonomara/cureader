@@ -337,11 +337,40 @@ export default function Index() {
     }
   };
 
+// Use the Supabase client to query the "channels" table and get the channel_image_url items
+const getFallbackImages = async () => {
+  try {
+    if (user) {
+      // Check if user is defined and authenticated
+      const feedUrls = await getChannelSubscriptions();
+
+      const { data: fallbackImageData, error: fallbackImageError } = await supabase
+        .from("channels")
+        .select("channel_url, channel_image_url")
+        .in("channel_url", feedUrls);
+
+      if (fallbackImageError) {
+        console.error("Error fetching fallback images:", fallbackImageError);
+        return [];
+      } else {
+        return fallbackImageData || [];
+      }
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching fallback images:", error);
+    return [];
+  }
+};
+
   // Parse feeds
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
       if (user) {
         const feedUrls = await getChannelSubscriptions();
+        const fallbackImages = await getFallbackImages();
+
 
         const allChannels = [];
         const allItems = [];
@@ -354,6 +383,11 @@ export default function Index() {
             }
             const responseData = await response.text();
             const parsedRss = await rssParser.parse(responseData);
+
+
+            console.log("FALLBACKIMAGES:", fallbackImages)
+            console.log("FEEDURLS:", feedUrls)
+            
 
             allChannels.push({
               title: parsedRss.title,
@@ -526,6 +560,9 @@ export default function Index() {
             <ArticleCard
               item={item}
               publication={item.channel}
+              fallbackImage={
+                "https://image.simplecastcdn.com/images/ae183fe2-c634-458a-93dd-5770f0676f77/b010809a-c311-425c-9325-2235c21e6939/3000x3000/7f0421f73d2ce0ca272e392c937e1a301285d44fe7c6d710c2844d80c0c7bb1a3e9838ac03ee80fc64199891cb9d5c6e9d4490f5081fb379c0ab2317f2cadf14.jpeg?aid=rss_feed"
+              }
               channelUrl={item.channelUrl}
               user={user}
             />
