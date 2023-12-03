@@ -146,7 +146,7 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
 
         if (!channelError) {
           const channel = channelData[0];
-          const updatedSubscribers = [...channel.channel_subscribers, user.id];
+          const updatedSubscribers = [...(channel.channel_subscribers ?? []), user.id];
           await updateChannelSubscribers(item.id, updatedSubscribers);
         }
       }
