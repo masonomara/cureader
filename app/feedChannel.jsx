@@ -474,7 +474,7 @@ export default function TabOneScreen() {
           <ArticleCard
             item={item}
             publication={item.channel}
-            image={item.image}
+            fallbackImage={params.image}
             channelUrl={item.channelUrl}
             user={params.user}
           />

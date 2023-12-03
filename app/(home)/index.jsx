@@ -372,7 +372,6 @@ export default function Index() {
         const feedUrls = await getChannelSubscriptions();
         const fallbackImages = await getFallbackImages();
 
-
         const allChannels = [];
         const allItems = [];
 
@@ -384,7 +383,6 @@ export default function Index() {
             }
             const responseData = await response.text();
             const parsedRss = await rssParser.parse(responseData);
-
 
             // console.log("FALLBACKIMAGES:", fallbackImages)
             // console.log("FEEDURLS:", feedUrls)
@@ -404,7 +402,9 @@ export default function Index() {
                 publicationDate: new Date(item.published),
                 channel: parsedRss.title,
                 image: parsedRss.image,
-                fallbackImage: channelImage ? channelImage.channel_image_url : null,
+                fallbackImage: channelImage
+                  ? channelImage.channel_image_url
+                  : null,
                 channelUrl: parsedRss.links[0].url,
               }))
             );
@@ -565,9 +565,7 @@ export default function Index() {
             <ArticleCard
               item={item}
               publication={item.channel}
-              fallbackImage={
-                item.fallbackImage
-              }
+              fallbackImage={item.fallbackImage}
               channelUrl={item.channelUrl}
               user={user}
             />
