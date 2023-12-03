@@ -209,7 +209,10 @@ export default function ChannelCardFeatured({
 
         console.log("Fetched channel:", channel);
         console.log("Fetching updatedSubscribers...");
-        const updatedSubscribers = [...(channel.channel_subscribers ?? []), user.id];
+        const updatedSubscribers = [
+          ...(channel.channel_subscribers ?? []),
+          user.id,
+        ];
         console.log("Fetched updatedSubscribers:", updatedSubscribers);
         await updateChannelSubscribers(item.id, updatedSubscribers);
       }
@@ -264,8 +267,8 @@ export default function ChannelCardFeatured({
       padding: 12,
       paddingVertical: 16,
       flex: 1,
-      borderTopWidth: .5,
-      borderColor: `${Colors[colorScheme || "light"].border}`
+      borderTopWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     title: {
       display: "flex",
@@ -425,7 +428,6 @@ export default function ChannelCardFeatured({
               flex: 1,
               width: "100%",
               height: "100%",
-
             }}
             source={{ uri: item.channel_image_url }}
           />
@@ -436,9 +438,13 @@ export default function ChannelCardFeatured({
           {item.channel_title}
         </Text>
         <View style={styles.cardControls}>
-          <Text numberOfLines={2} style={styles.description}>
-            {item.channel_description.replace(/<[^>]*>/g, "").trim()}
-          </Text>
+          {item.channel_description ? (
+            <Text numberOfLines={2} style={styles.description}>
+              {item.channel_description.replace(/<[^>]*>/g, "").trim()}
+            </Text>
+          ) : (
+            <Text numberOfLines={2} style={styles.description}></Text>
+          )}
           <TouchableOpacity
             style={
               isOptimisticSubscribed

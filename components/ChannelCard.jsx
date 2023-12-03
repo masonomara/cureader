@@ -146,7 +146,10 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
 
         if (!channelError) {
           const channel = channelData[0];
-          const updatedSubscribers = [...(channel.channel_subscribers ?? []), user.id];
+          const updatedSubscribers = [
+            ...(channel.channel_subscribers ?? []),
+            user.id,
+          ];
           await updateChannelSubscribers(item.id, updatedSubscribers);
         }
       }
@@ -355,8 +358,8 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
               width: "100%",
               height: "100%",
               borderRadius: 10,
-              borderWidth: .67,
-              borderColor: `${Colors[colorScheme || "light"].border}`
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             source={{ uri: item.channel_image_url }}
           />
@@ -367,10 +370,13 @@ export default function ChannelCard({ item, user, feeds, userChannelIds }) {
           <Text style={styles.title} numberOfLines={2}>
             {item.channel_title}
           </Text>
-          <Text style={styles.description} numberOfLines={2}>
-          {item.channel_description.replace(/<[^>]*>/g, "").trim()}
-
-          </Text>
+          {item.channel_description ? (
+            <Text numberOfLines={2} style={styles.description}>
+              {item.channel_description.replace(/<[^>]*>/g, "").trim()}
+            </Text>
+          ) : (
+            <Text numberOfLines={2} style={styles.description}></Text>
+          )}
         </View>
         <View style={styles.cardControls}>
           <TouchableOpacity

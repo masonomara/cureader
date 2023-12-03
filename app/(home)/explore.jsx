@@ -89,6 +89,8 @@ export default function Explore() {
     setSearchInput(searchInput);
   };
 
+
+
   // Handles API request for channel information
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
@@ -175,7 +177,7 @@ export default function Explore() {
           if (updateError) {
             showErrorAlert("Error updating channel data. Please try again.");
           } else {
-            showErrorAlert("Success", "You have subscribed to the channel.");
+            //showErrorAlert("Success", "You have subscribed to the channel.");
 
             const channelId = existingChannel.id;
             const channelUrl = existingChannel.channel_url;
@@ -219,10 +221,7 @@ export default function Explore() {
                   "Error updating user profile. Please try again."
                 );
               } else {
-                showErrorAlert(
-                  "Success",
-                  "Profile subscription successfully updated"
-                );
+                //showErrorAlert("Success", "Profile subscription successfully updated");
               }
             }
           }
@@ -246,7 +245,7 @@ export default function Explore() {
         if (channelError) {
           showErrorAlert("Error uploading channel data. Please try again.");
         } else {
-          showErrorAlert("Success", "Channel data uploaded successfully.");
+          // showErrorAlert("Success", "Channel data uploaded successfully.");
 
           const channelId = channelData.id;
           const channelUrl = channelData.channel_url;
@@ -288,10 +287,7 @@ export default function Explore() {
             if (updatedProfileError) {
               showErrorAlert("Error updating user profile. Please try again.");
             } else {
-              showErrorAlert(
-                "Success",
-                "Profile subscription successfully updated"
-              );
+              // showErrorAlert("Success", "Profile subscription successfully updated");
             }
           }
         }
@@ -332,7 +328,7 @@ export default function Explore() {
         const { data: channelsData, error } = await supabase
           .from("channels")
           .select("*")
-          .order("channel_subscribers", { ascending: false });
+          .order("channel_subscribers", { ascending: true });
 
         if (error) {
           console.error("Error fetching channels:", error);
@@ -363,29 +359,32 @@ export default function Explore() {
     const filterResults = () => {
       if (searchInput !== "") {
         const lowercasedInput = searchInput.toLowerCase();
-
-        const filteredFeeds = feeds.filter(
-          (feed) =>
-            feed.channel_title.toLowerCase().includes(lowercasedInput) ||
-            feed.channel_url.toLowerCase().includes(lowercasedInput) ||
-            feed.channel_description.toLowerCase().includes(lowercasedInput)
-        );
-
+  
+        const filteredFeeds = feeds.filter((feed) => {
+          const titleMatch = feed.channel_title.toLowerCase().includes(lowercasedInput);
+          const urlMatch = feed.channel_url.toLowerCase().includes(lowercasedInput);
+          const descriptionMatch = feed.channel_description
+            ? feed.channel_description.toLowerCase().includes(lowercasedInput)
+            : "";
+  
+          return titleMatch || urlMatch || descriptionMatch;
+        });
+  
         setSearchResults(filteredFeeds.slice(0, 3));
       } else {
         setSearchResults([]);
       }
     };
-
+  
     filterResults();
   }, [searchInput, feeds]);
 
   // Creates random feeds — sets [randomFeeds]
   // NOTE: change from 4 to 33 later, change from 5 to 34 later
   useEffect(() => {
-    if (feeds.length > 4) {
-      const randomFeedsSlice = shuffleArray(feeds.slice(4));
-      setRandomFeeds(randomFeedsSlice.slice(0, 5));
+    if (feeds.length > 33) {
+      const randomFeedsSlice = shuffleArray(feeds.slice(33));
+      setRandomFeeds(randomFeedsSlice.slice(0, 34));
     }
   }, [feeds]);
 
@@ -700,7 +699,7 @@ export default function Explore() {
               <View style={styles.searchHeader}>
                 <Text style={styles.searchHeaderText}>
                   {searchResults.length > 0 || channelTitle
-                    ? "Search Results"
+                    ? "Search Results" : searchResults.length === 0 && channelTitleWait ? "Searching..."
                     : "No Search Results Found"}
                 </Text>
               </View>
@@ -814,7 +813,7 @@ export default function Explore() {
               snapToInterval={CARD_WIDTH + 8}
               snapToAlignment={"left"}
             >
-              {chunkArray(feeds.slice(0, 4), 3).map((chunk, index) => (
+              {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
                 <View
                   key={index}
                   style={{

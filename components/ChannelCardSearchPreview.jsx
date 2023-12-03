@@ -442,8 +442,8 @@ export default function ChannelCardSearchPreview({
               width: "100%",
               height: "100%",
               borderRadius: 10,
-              borderWidth: .67,
-              borderColor: `${Colors[colorScheme || "light"].border}`
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             source={{ uri: channelImageUrl }}
           />
@@ -454,9 +454,13 @@ export default function ChannelCardSearchPreview({
           <Text style={styles.title} numberOfLines={2}>
             {channelTitle}
           </Text>
-          <Text style={styles.description} numberOfLines={2}>
-            {channelDescription}
-          </Text>
+          {channelDescription ? (
+            <Text numberOfLines={2} style={styles.description}>
+              {channelDescription.replace(/<[^>]*>/g, "").trim()}
+            </Text>
+          ) : (
+            <Text numberOfLines={2} style={styles.description}></Text>
+          )}
         </View>
         <View style={styles.cardControls}>
           <TouchableOpacity
