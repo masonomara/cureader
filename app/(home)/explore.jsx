@@ -469,9 +469,6 @@ export default function Explore() {
       paddingHorizontal: 16,
       marginBottom: 24,
     },
-    searchResultsList: {
-      marginBottom: 18,
-    },
     popularChannelList: {
       paddingHorizontal: 16,
       display: "flex",
@@ -567,6 +564,7 @@ export default function Explore() {
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
       paddingBottom: 24,
+      paddingTop: 20,
       paddingHorizontal: 16,
     },
     noResultsHeader: {
@@ -684,19 +682,30 @@ export default function Explore() {
             </TouchableOpacity>
           </View>
 
-          {isSearchInputSelected && searchInput !== "" ? (
+          {/*
+                          <Text>Search Input: {searchInput}</Text>
+                          <Text>Parser Input: {parserInput}</Text>
+                          <Text>Channel Url: {channelUrl}</Text>
+                          <Text>Channel Title: {channelTitle}</Text>
+                          <Text numberOfLines={1}>
+                            Channel Description: {channelDescription}
+                          </Text>
+                          <Text numberOfLines={1}>
+                            Channel Image URL: {channelImageUrl}
+                          </Text>
+                        */}
+
+          {isSearchInputSelected && searchInput !== "" && (
             <View style={styles.searchContainer}>
               <View style={styles.searchHeader}>
-                {searchResults.length > 0 ? (
-                  <Text style={styles.searchHeaderText}>Search Results</Text>
-                ) : (
-                  <Text style={styles.searchHeaderText}>
-                    No Search Results Found
-                  </Text>
-                )}
+                <Text style={styles.searchHeaderText}>
+                  {searchResults.length > 0 || channelTitle
+                    ? "Search Results"
+                    : "No Search Results Found"}
+                </Text>
               </View>
 
-              {searchResults.length > 0 ? (
+              {searchResults.length > 0 && (
                 <View
                   showsHorizontalScrollIndicator={false}
                   style={[styles.searchResultsList]}
@@ -714,89 +723,49 @@ export default function Explore() {
                     />
                   ))}
                 </View>
-              ) : (
-                <View style={styles.searchTextWrapper}></View>
               )}
-              {channelTitle ? (
-                ""
-              ) : (
-                <>
-                  <View style={styles.noResultsHeader}>
-                    <Text style={styles.noResultsHeaderText}>
-                      Can't find your feed?
-                    </Text>
-                  </View>
-                  <View style={styles.noResultsTextWrapper}>
-                    <Text style={styles.noResultsText}>
-                      Simply enter your RSS Feed's URL to add it. For example:{" "}
-                      <Text style={styles.noResultsTextBold}>
-                        nasa.gov/rss/breaking_news.rss
-                      </Text>
-                    </Text>
-                  </View>
-                </>
-              )}
-              <View style={styles.noResultsWrapper}>
-                <Text>Search Input: {searchInput}</Text>
-                <Text>Parser Input: {parserInput}</Text>
 
-                <Text>Channel Url: {channelUrl}</Text>
-                <Text>Channel Title: {channelTitle}</Text>
-                <Text numberOfLines={1}>
-                  Channel Description: {channelDescription}
-                </Text>
-                <Text numberOfLines={1}>
-                  Channel Image URL: {channelImageUrl}
-                </Text>
-
-                {searchResults.length == 0 ? (
+              <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
+                {!channelTitle && (
                   <>
-                    {!channelTitleWait ? (
-                      <>
-                        {channelTitle ? (
-                          <></>
-                        ) : channelUrl ? (
-                          <Text>Channel not found</Text>
-                        ) : (
-                          <></>
-                        )}
-                      </>
-                    ) : (
+                    {searchResults.length === 0 && channelTitleWait ? (
                       <ActivityIndicator
                         color={`${Colors[colorScheme || "light"].buttonActive}`}
                       />
-                    )}
-                    {!channelTitleWait ? (
-                      <>
-                        {channelTitle ? (
-                          <>
-                            <ChannelCardSearchPreview
-                              channelUrl={channelUrl}
-                              channelTitle={channelTitle}
-                              channelDescription={channelDescription}
-                              channelImageUrl={channelImageUrl}
-                              user={user}
-                            />
-                          </>
-                        ) : channelUrl ? (
-                          <Text>Channel not found</Text>
-                        ) : (
-                          <></>
-                        )}
-                      </>
                     ) : (
-                      <ActivityIndicator
-                        color={`${Colors[colorScheme || "light"].buttonActive}`}
-                      />
+                      <>
+                        <View style={styles.noResultsHeader}>
+                          <Text style={styles.noResultsHeaderText}>
+                            Can't find your feed?
+                          </Text>
+                        </View>
+                        <View style={styles.noResultsTextWrapper}>
+                          <Text style={styles.noResultsText}>
+                            Simply enter your RSS Feed's URL to add it. For
+                            example:{" "}
+                            <Text style={styles.noResultsTextBold}>
+                              nasa.gov/rss/breaking_news.rss
+                            </Text>
+                          </Text>
+                        </View>
+                      </>
                     )}
                   </>
-                ) : (
-                  ""
                 )}
+
+                {searchResults.length === 0 &&
+                  !channelTitleWait &&
+                  channelTitle && (
+                    <ChannelCardSearchPreview
+                      channelUrl={channelUrl}
+                      channelTitle={channelTitle}
+                      channelDescription={channelDescription}
+                      channelImageUrl={channelImageUrl}
+                      user={user}
+                    />
+                  )}
               </View>
             </View>
-          ) : (
-            ""
           )}
 
           <View style={styles.titleWrapper}>
