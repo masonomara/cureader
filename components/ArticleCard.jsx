@@ -162,7 +162,7 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 5,
+      marginBottom: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
