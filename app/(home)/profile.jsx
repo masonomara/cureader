@@ -5,13 +5,13 @@ import {
   Alert,
   useColorScheme,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
-import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
 
 export default function Profile() {
@@ -20,73 +20,63 @@ export default function Profile() {
   const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
 
-  // redirect based on if user exists
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
+  // State for handling channel URL input
+  const [userInput, setUserInput] = useState("");
+  const [parserInput, setParserInput] = useState("");
+  const [channelUrl, setChannelUrl] = useState("");
+  const [channelTitle, setChannelTitle] = useState("");
+  const [channelDescription, setChannelDescription] = useState("");
+  const [channelImageUrl, setChannelImageUrl] = useState("");
 
+  const [channelTitleWait, setChannelTitleWait] = useState(false);
+  const [channelUrlError, setChannelUrlError] = useState(null);
+
+  const [feeds, setFeeds] = useState([]);
+
+  const showErrorAlert = (message) => {
+    Alert.alert("Error", message);
+  };
+
+  // Logout user
   const doLogout = async () => {
     const { error } = await supabase.auth.signOut();
     router.replace("(login)");
     if (error) {
-      Alert.alert("Error Signing Out User", error.message);
+      showErrorAlert("Error signing out: " + error.message);
     }
   };
 
-  // parse feeds
+  // Fetches user information and all feed channels — sets [feeds] and [user]
   useEffect(() => {
-    const feedUrls = [
-      "https://feeds.megaphone.fm/newheights",
-      "http://www.nasa.gov/rss/dyn/breaking_news.rss",
-      "https://podcastfeeds.nbcnews.com/RPWEjhKq",
-      // Add more RSS feed URLs here
-    ];
+    async function fetchData() {
+      try {
+        const { data: userResponse } = await supabase.auth.getUser();
+        const user = userResponse ? userResponse.user : null;
+        setUser(user);
 
-    const fetchAndParseFeeds = async () => {
-      const allChannels = [];
-      const allItems = [];
+        const { data: channelsData, error } = await supabase
+          .from("channels")
+          .select()
+          .order("channel_subscribers", { ascending: true });
 
-      const parseAndSort = async (url) => {
-        try {
-          const response = await fetch(url);
-          const responseData = await response.text();
-          const parsedRss = await rssParser.parse(responseData);
-
-          allChannels.push({
-            title: parsedRss.title,
-            description: parsedRss.description,
-          });
-
-          allItems.push(
-            ...parsedRss.items.map((item) => ({
-              ...item,
-              publicationDate: new Date(item.published),
-              channel: parsedRss.title, // Include the channel title in the item
-              image: parsedRss.image,
-              channelUrl: parsedRss.links[0].url,
-            }))
-          );
-        } catch (error) {
-          console.error(error);
+        if (error) {
+          console.error("Error fetching channels:", error);
+          // You might want to show a user-friendly error message here.
+          return;
         }
-      };
 
-      await Promise.all(feedUrls.map(parseAndSort));
+        setFeeds(channelsData);
+        console.log("FEEDS:", feeds);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle unexpected errors here, e.g., show a generic error message.
+      }
+    }
 
-      // Sort items by publication date in descending order (most recent first)
-      allItems.sort((a, b) => b.publicationDate - a.publicationDate);
-
-      setRssChannels(allChannels);
-      setRssItems(allItems);
-    };
-
-    fetchAndParseFeeds();
+    fetchData();
   }, []);
 
+  // Styles
   const styles = {
     container: {
       flex: 1,
@@ -124,41 +114,57 @@ export default function Profile() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonDisabled: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].buttonMuted}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
   };
 
   return (
     <View style={styles.container}>
+      {/* User info and logout */}
       <View>
-        <Text numberOfLines={20}>{JSON.stringify(user, null, 2)}</Text>
+        <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text>
+
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
-      <TextInput
-        style={styles.input}
-        label="Email"
-        // onChangeText={(text) => setEmail(text)}
-        // value={email}
-        placeholder="email"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-      />
+
+      {/* List of feeds */}
       <FlatList
-        data={rssItems}
+        data={feeds}
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              image={item.image}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
+          return <Text>{item.channel_title}</Text>;
         }}
       />
+      <Text>Hello</Text>
     </View>
   );
 }
