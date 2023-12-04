@@ -72,7 +72,7 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCard({ item, user, feeds, userChannelIds }) {
+export default function ChannelCard({ item, user, userChannelIds }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userChannelIds.includes(item.id)
   );
