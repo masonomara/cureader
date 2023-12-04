@@ -221,32 +221,39 @@ export default function ChannelCardFeedPreview({ params }) {
   };
 
   const styles = {
-    subscriptionText: {
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 20,
-      lineHeight: 26,
-      letterSpacing: -0,
-      marginTop: 10,
-    },
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderBottomWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
+      alignItems: "center",
       flexDirection: "row",
       display: "flex",
-      width: "100%",
-      gap: 12,
-      padding: 16,
+      flex: 1,
+      width: '100%',
+      gap: 0,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      height: 89,
+      minHeight: 89,
+      maxHeight: 89,
     },
     cardContent: {
       display: "flex",
-      flexDirection: "column",
-      gap: 0,
+      alignItems: "center",
+      flexDirection: "row",
       flex: 1,
+      paddingLeft: 12,
+      paddingRight: 0,
+      gap: 8,
+    },
+    cardInfo: {
+      flex: 1,
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      overflow: "hidden",
+      height: 64,
+      marginTop: -2,
+      arginBottom: -2,
     },
     title: {
       display: "flex",
@@ -262,19 +269,21 @@ export default function ChannelCardFeedPreview({ params }) {
       letterSpacing: -0.17,
       marginBottom: 2,
     },
-    description: {
-      display: "flex",
+    cardControls: {
       flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
+      gap: 12,
+      alignItems: "flex-end",
+    },
+    description: {
+      flex: 1,
+      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      marginBottom: 10,
+      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -312,22 +321,22 @@ export default function ChannelCardFeedPreview({ params }) {
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 96,
-      width: 96,
-      overflow: "hidden",
+      height: 64,
+      width: 64,
+      borderRadius: 10,
       backgroundColor: getColorForLetter(params.title[0]),
-      borderRadius: 14,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      overflow: "hidden",
     },
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 36,
-      lineHeight: 39,
-      letterSpacing: -0.27,
-      height: 39,
+      fontSize: 23,
+      lineHeight: 26,
+      letterSpacing: -0.173,
+      height: 26,
       color: getTextColorForLetter(params.title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -340,23 +349,22 @@ export default function ChannelCardFeedPreview({ params }) {
       {!params.image ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title} {params.title} {params.title}
+            {params.title} {params.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title} {params.title} {params.title}{" "}
-            {params.title}
+            {params.title} {params.title} {params.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title} {params.title} {params.title}
+            {params.title} {params.title}
           </Text>
         </View>
       ) : (
         <View
           style={{
             aspectRatio: "1/1",
-            width: 96,
+            width: 64,
             overflow: "hidden",
-            borderRadius: 14,
+            borderRadius: 10,
           }}
         >
           <Image
@@ -373,12 +381,18 @@ export default function ChannelCardFeedPreview({ params }) {
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.title} numberOfLines={2}>
-          {params.title}
-        </Text>
-        <Text style={styles.description} numberOfLines={3}>
-          {params.description}
-        </Text>
+        <View style={styles.cardInfo}>
+          <Text style={styles.title} numberOfLines={2}>
+            {params.title}
+          </Text>
+          {params.description ? (
+            <Text style={styles.description} numberOfLines={2}>
+              {params.description.replace(/<[^>]*>/g, "").trim()}
+            </Text>
+          ) : (
+            <Text numberOfLines={2} style={styles.description}></Text>
+          )}
+        </View>
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={getSubscribeButtonStyle()}
