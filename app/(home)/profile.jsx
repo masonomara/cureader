@@ -13,6 +13,7 @@ import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
+import ChannelCardList from "../../components/ChannelCardList";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
@@ -47,6 +48,7 @@ export default function Profile() {
   };
 
   // Fetches user information and all feed channels — sets [feeds] and [user]
+  // Filters out channels that user isn't subscribed to
   useEffect(() => {
     async function fetchData() {
       try {
@@ -56,8 +58,7 @@ export default function Profile() {
 
         const { data: channelsData, error } = await supabase
           .from("channels")
-          .select()
-          .order("channel_subscribers", { ascending: true });
+          .select();
 
         if (error) {
           console.error("Error fetching channels:", error);
@@ -65,7 +66,12 @@ export default function Profile() {
           return;
         }
 
-        setFeeds(channelsData);
+        // Filter channels on the client side
+        const filteredChannels = channelsData.filter((channel) =>
+          channel.channel_subscribers.includes(user.id)
+        );
+
+        setFeeds(filteredChannels);
         console.log("FEEDS:", feeds);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -161,10 +167,9 @@ export default function Profile() {
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {
-          return <Text>{item.channel_title}</Text>;
+          return <ChannelCardList key={item.id} item={item} user={user} />;
         }}
       />
-      <Text>Hello</Text>
     </View>
   );
 }
