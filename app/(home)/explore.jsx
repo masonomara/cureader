@@ -326,7 +326,7 @@ export default function Explore() {
         const { data: channelsData, error } = await supabase
           .from("channels")
           .select("*")
-          .order("channel_subscribers", { ascending: true });
+          .order("channel_subscribers", { ascending: false });
 
         if (error) {
           console.error("Error fetching channels:", error);
