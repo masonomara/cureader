@@ -89,8 +89,6 @@ export default function Explore() {
     setSearchInput(searchInput);
   };
 
-
-
   // Handles API request for channel information
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
@@ -359,23 +357,27 @@ export default function Explore() {
     const filterResults = () => {
       if (searchInput !== "") {
         const lowercasedInput = searchInput.toLowerCase();
-  
+
         const filteredFeeds = feeds.filter((feed) => {
-          const titleMatch = feed.channel_title.toLowerCase().includes(lowercasedInput);
-          const urlMatch = feed.channel_url.toLowerCase().includes(lowercasedInput);
+          const titleMatch = feed.channel_title
+            .toLowerCase()
+            .includes(lowercasedInput);
+          const urlMatch = feed.channel_url
+            .toLowerCase()
+            .includes(lowercasedInput);
           const descriptionMatch = feed.channel_description
             ? feed.channel_description.toLowerCase().includes(lowercasedInput)
             : "";
-  
+
           return titleMatch || urlMatch || descriptionMatch;
         });
-  
+
         setSearchResults(filteredFeeds.slice(0, 3));
       } else {
         setSearchResults([]);
       }
     };
-  
+
     filterResults();
   }, [searchInput, feeds]);
 
@@ -699,7 +701,9 @@ export default function Explore() {
               <View style={styles.searchHeader}>
                 <Text style={styles.searchHeaderText}>
                   {searchResults.length > 0 || channelTitle
-                    ? "Search Results" : searchResults.length === 0 && channelTitleWait ? "Searching..."
+                    ? "Search Results"
+                    : searchResults.length === 0 && channelTitleWait
+                    ? "Searching..."
                     : "No Search Results Found"}
                 </Text>
               </View>
