@@ -223,7 +223,7 @@ export default function TabOneScreen() {
         renderItem={({ item }) => {
           return (
             <>
-              <Text>{item}</Text>
+              <Text>{item.channel_title}</Text>
               {/* <ChannelCardList key={item.id} item={item} user={user} /> */}
             </>
           );

@@ -75,8 +75,6 @@ const colorArray = [
 export default function ChannelCardList({ item, user }) {
   const feedChannelSubscribers = item.channel_subscribers;
 
-  console.log("feedChannelSubscribers:", feedChannelSubscribers);
-
   const [isSubscribed, setIsSubscribed] = useState(
     feedChannelSubscribers.includes(user.id)
   );

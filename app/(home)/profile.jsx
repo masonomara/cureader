@@ -4,33 +4,16 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
-  TextInput,
-  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
-import * as rssParser from "react-native-rss-parser";
-import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 import ChannelCardList from "../../components/ChannelCardList";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const [rssChannels, setRssChannels] = useState([]);
-  const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
-
-  // State for handling channel URL input
-  const [userInput, setUserInput] = useState("");
-  const [parserInput, setParserInput] = useState("");
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelTitle, setChannelTitle] = useState("");
-  const [channelDescription, setChannelDescription] = useState("");
-  const [channelImageUrl, setChannelImageUrl] = useState("");
-
-  const [channelTitleWait, setChannelTitleWait] = useState(false);
-  const [channelUrlError, setChannelUrlError] = useState(null);
 
   const [feeds, setFeeds] = useState([]);
 
@@ -72,7 +55,6 @@ export default function Profile() {
         );
 
         setFeeds(filteredChannels);
-        console.log("FEEDS:", feeds);
       } catch (error) {
         console.error("Error fetching data:", error);
         // Handle unexpected errors here, e.g., show a generic error message.
@@ -164,6 +146,7 @@ export default function Profile() {
       {/* List of feeds */}
       <FlatList
         data={feeds}
+        ƒ
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {

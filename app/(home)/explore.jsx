@@ -15,6 +15,7 @@ import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
+import { router, useNavigation } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
 import ChannelCardSearchPreview from "../../components/ChannelCardSearchPreview";
 
@@ -382,7 +383,6 @@ export default function Explore() {
   }, [searchInput, feeds]);
 
   // Creates random feeds — sets [randomFeeds]
-  // NOTE: change from 4 to 33 later, change from 5 to 34 later
   useEffect(() => {
     if (feeds.length > 33) {
       const randomFeedsSlice = shuffleArray(feeds.slice(33));
@@ -773,7 +773,18 @@ export default function Explore() {
 
           <View style={styles.titleWrapper}>
             <Text style={styles.title}>Random Feeds</Text>
-            <TouchableOpacity style={styles.textButton}>
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                router.push({
+                  pathname: "/allRandomFeeds",
+                  params: {
+                    feed: randomFeeds,
+                    user: user,
+                  },
+                });
+              }}
+            >
               <Text style={styles.textButtonText}>View more</Text>
             </TouchableOpacity>
           </View>
