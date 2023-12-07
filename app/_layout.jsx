@@ -7,9 +7,9 @@ import {
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
-import { useColorScheme } from "react-native";
+import { Text, useColorScheme } from "react-native";
 import { AuthProvider, useAuth } from "../provider/AuthProvider.jsx";
 
 import Colors from "../constants/Colors";
@@ -46,7 +46,6 @@ export default function RootLayout() {
   // Remove spash screen on font load
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -59,6 +58,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
   const colorScheme = useColorScheme();
 
   {
@@ -84,6 +85,9 @@ function RootLayoutNav() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        setSession(session);
+        setUser(session ? session.user : null);
+        console.log("Session 1:", session || "N/A 1");
         SplashScreen.hideAsync();
       }
 
@@ -92,11 +96,15 @@ function RootLayoutNav() {
         supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
             // If a session is present, navigate to the main screen
+            setSession(session);
+            setUser(session ? session.user : null);
+            console.log("Session 2:", session || "N/A 2");
             router.replace("(home)");
             SplashScreen.hideAsync();
           } else {
             // If a session is not present, navigate to the login screen
             setTimeout(() => {
+              console.log("Session 3:", session || "N/A 3");
               SplashScreen.hideAsync();
             }, 500);
           }
@@ -108,10 +116,14 @@ function RootLayoutNav() {
     // Listen for changes in the authentication state
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        setSession(session);
+        setUser(session ? session.user : null);
+        console.log("Session 5:", session || "N/A 5");
         // If a session is present, navigate to the main screen
         router.replace("(home)");
       } else {
         // If a session is not present, navigate to the login screen
+        console.log("Session 6:", session || "N/A 6");
         router.replace("(login)");
       }
     });
@@ -120,6 +132,7 @@ function RootLayoutNav() {
   return (
     // <AuthProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Text>APP.JS-------</Text>
       <Stack>
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
         <Stack.Screen name="(login)" options={{ headerShown: false }} />
