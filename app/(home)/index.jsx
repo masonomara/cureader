@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FlatList,
   TouchableOpacity,
   Alert,
   useColorScheme,
-  TextInput,
-  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
@@ -13,8 +11,11 @@ import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
+import { AuthContext } from "../_layout";
 
 export default function Index() {
+  const { session } = useContext(AuthContext);
+
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
@@ -500,7 +501,7 @@ export default function Index() {
       {/* User info and logout */}
       <View>
         <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text>
-
+        <Text numberOfLines={4}>{JSON.stringify(session, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
