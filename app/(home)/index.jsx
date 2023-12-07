@@ -14,7 +14,7 @@ import Colors from "../../constants/Colors";
 import { AuthContext } from "../_layout";
 
 export default function Index() {
-  const { session, user } = useContext(AuthContext);
+  const { session, user, userSubscriptions } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -271,6 +271,7 @@ export default function Index() {
       <View>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
+          <Text>{JSON.stringify(userSubscriptions)}</Text>
         </TouchableOpacity>
       </View>
 

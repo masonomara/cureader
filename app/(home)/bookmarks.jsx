@@ -17,7 +17,7 @@ import { AuthContext } from "../_layout";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
-  const { session, user } = useContext(AuthContext);
+  const { session, user, userSubscriptions } = useContext(AuthContext);
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
 
@@ -123,6 +123,7 @@ export default function Bookmarks() {
       <View>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
+
         </TouchableOpacity>
       </View>
       <TextInput

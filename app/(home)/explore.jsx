@@ -323,7 +323,7 @@ export default function Explore() {
     }
   };
 
-  // Fetches user information and all feed channels — sets [feeds] and [user]
+  // Fetches user information and all feed channels — sets [feeds]
   useEffect(() => {
     async function fetchData() {
       try {

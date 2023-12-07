@@ -69,36 +69,55 @@ function RootLayoutNav() {
 
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setAuthInitialized(true);
-        setUser(session ? session.user : null);
-        setSession(session);
-        console.log("Session 1:" || "N/A 1");
-        SplashScreen.hideAsync();
-      }
 
-      // Listen for changes in the authentication state
-      else
-        supabase.auth.onAuthStateChange((_event, session) => {
-          if (session) {
-            // If a session is present, navigate to the main screen
-            setAuthInitialized(true);
-            setUser(session ? session.user : null);
-            setSession(session);
-            console.log("Session 2:" || "N/A 2");
-            router.replace("(home)");
-            SplashScreen.hideAsync();
-          } else {
-            // If a session is not present, navigate to the login screen
-            setTimeout(() => {
-              console.log("Session 3:" || "N/A 3");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session) {
+          setAuthInitialized(true);
+          const currentUser = session.user;
+          setUser(currentUser);
+
+          // Fetch user subscriptions before proceeding
+          const channelIds = await fetchUserSubscriptions(currentUser);
+          setUserSubscriptions(channelIds);
+
+          setSession(session);
+          SplashScreen.hideAsync();
+        } else {
+          // Listen for changes in the authentication state
+          supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+              setAuthInitialized(true);
+              const currentUser = session.user;
+              setUser(currentUser);
+
+              // Fetch user subscriptions before proceeding
+              fetchUserSubscriptions(currentUser).then((channelIds) => {
+                setUserSubscriptions(channelIds);
+              });
+
+              setSession(session);
+              router.replace("(home)");
               SplashScreen.hideAsync();
-            }, 500);
-          }
-        });
-    });
+            } else {
+              setTimeout(() => {
+                SplashScreen.hideAsync();
+              }, 500);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching session:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -116,6 +135,32 @@ function RootLayoutNav() {
       }
     });
   }, []);
+
+  const fetchUserSubscriptions = async (currentUser) => {
+    try {
+      console.log("Beginning fetch user subscriptions with:", currentUser);
+      const { data: userProfileData, error: userProfileError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", currentUser.id);
+
+      if (userProfileError) {
+        console.error("Error fetching user profile data:", userProfileError);
+        return [];
+      }
+
+      const channelSubscriptions =
+        userProfileData[0]?.channel_subscriptions || [];
+      const channelIds = channelSubscriptions.map(
+        (subscription) => subscription.channelId
+      );
+      return channelIds;
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      return [];
+    }
+  };
+
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
