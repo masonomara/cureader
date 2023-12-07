@@ -1,12 +1,12 @@
 import { useState, useEffect, useLayoutEffect } from "react";
 import {
-  View,
+  ActivityIndicator, // Import ActivityIndicator
+  Dimensions,
+  Image,
+  Pressable,
   Text,
   TouchableOpacity,
-  Image,
-  Dimensions,
-  Pressable,
-  ActivityIndicator, // Import ActivityIndicator
+  View,
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
@@ -372,7 +372,7 @@ export default function ChannelCard({ item, user, userChannelIds }) {
           </Text>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
-              {item.channel_description.replace(/<[^>]*>/g, "").trim()}
+              {item.channel_description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

@@ -269,7 +269,6 @@ export default function Index() {
     <View style={styles.container}>
       {/* User info and logout */}
       <View>
-        <Text>Hi {JSON.stringify(user, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>

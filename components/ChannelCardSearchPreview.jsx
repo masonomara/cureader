@@ -456,7 +456,7 @@ export default function ChannelCardSearchPreview({
           </Text>
           {channelDescription ? (
             <Text numberOfLines={2} style={styles.description}>
-              {channelDescription.replace(/<[^>]*>/g, "").trim()}
+              {channelDescription.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

@@ -59,9 +59,13 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  // Global Values
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const [feeds, setFeeds] = useState(null);
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
-  const [authInitialized, setAuthInitialized] = useState(false);
+  const [userBookmarks, setUserBookmarks] = useState(null);
+  const [userSubscriptions, setUserSubscriptions] = useState(null);
 
   const colorScheme = useColorScheme();
 
@@ -115,7 +119,16 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <AuthContext.Provider value={{ session, user, authInitialized }}>
+      <AuthContext.Provider
+        value={{
+          authInitialized,
+          feeds,
+          session,
+          user,
+          userBookmarks,
+          userSubscriptions,
+        }}
+      >
         <Stack>
           <Stack.Screen name="(home)" options={{ headerShown: false }} />
           <Stack.Screen name="(login)" options={{ headerShown: false }} />

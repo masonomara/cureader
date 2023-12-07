@@ -264,7 +264,7 @@ export default function ArticleCard({
           <Text numberOfLines={4} style={styles.description}>
             {item.description ? (
               <Text numberOfLines={4} style={styles.description}>
-                {item.description.replace(/<[^>]*>/g, "").trim()}
+                {item.description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
               </Text>
             ) : (
               <Text style={styles.description}></Text>

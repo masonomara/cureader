@@ -121,7 +121,6 @@ export default function Bookmarks() {
   return (
     <View style={styles.container}>
       <View>
-        <Text>Hi {JSON.stringify(user, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>

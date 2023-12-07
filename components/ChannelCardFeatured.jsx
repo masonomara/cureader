@@ -440,7 +440,7 @@ export default function ChannelCardFeatured({
         <View style={styles.cardControls}>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
-              {item.channel_description.replace(/<[^>]*>/g, "").trim()}
+              {item.channel_description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

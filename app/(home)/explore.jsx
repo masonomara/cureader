@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import { AuthContext } from "../_layout";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
@@ -321,7 +327,6 @@ export default function Explore() {
   useEffect(() => {
     async function fetchData() {
       try {
-
         const { data: channelsData, error } = await supabase
           .from("channels")
           .select("*")
@@ -515,6 +520,25 @@ export default function Explore() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    inputSelected: {
+      flex: 1,
+      borderRadius: 20,
+      height: 56,
+      paddingLeft: 52,
+      paddingRight: 52,
+      borderWidth: 1,
+      flexDirection: "row",
+      borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+      alignContent: "center",
+      justifyContent: "space-between",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterRegular",
+      fontWeight: "500",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0,
+    },
     inputText: {
       flex: 1,
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -656,7 +680,10 @@ export default function Explore() {
             />
             <TextInput
               ref={textInputRef}
-              style={styles.input}
+              style={[
+                styles.input,
+                isSearchInputSelected && styles.inputSelected,
+              ]}
               value={searchInput}
               label="Channel Url Text"
               placeholder="Search for feed"
@@ -680,9 +707,7 @@ export default function Explore() {
               />
             </TouchableOpacity>
           </View>
-
-          {/*
-                          <Text>Search Input: {searchInput}</Text>
+          {/* <Text>Search Input: {searchInput}</Text>
                           <Text>Parser Input: {parserInput}</Text>
                           <Text>Channel Url: {channelUrl}</Text>
                           <Text>Channel Title: {channelTitle}</Text>
@@ -691,9 +716,7 @@ export default function Explore() {
                           </Text>
                           <Text numberOfLines={1}>
                             Channel Image URL: {channelImageUrl}
-                          </Text>
-                        */}
-
+                          </Text> */}
           {isSearchInputSelected && searchInput !== "" && (
             <View style={styles.searchContainer}>
               <View style={styles.searchHeader}>

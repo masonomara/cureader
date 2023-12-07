@@ -387,7 +387,7 @@ export default function ChannelCardFeedPreview({ params }) {
           </Text>
           {params.description ? (
             <Text style={styles.description} numberOfLines={2}>
-              {params.description.replace(/<[^>]*>/g, "").trim()}
+              {params.description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
