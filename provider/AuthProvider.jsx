@@ -1,41 +1,63 @@
-import React, { useState, useEffect, createContext } from 'react';
-import { supabase } from '../config/initSupabase';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { SplashScreen, Stack, useRouter } from 'expo-router';
+import { ThemeProvider, DarkTheme, DefaultTheme, useColorScheme } from '@react-navigation/native';
+import AuthContext from './AuthContext';
+import { supabase } from '../config/initSupabase.js';
+import Colors from '../constants/Colors';
 
-export const AuthContext = createContext({});
-
-// Custom hook to read the context values
-export function useAuth() {
-  return React.useContext(AuthContext);
-}
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
-  const [initialized, setInitialized] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const router = useRouter();
+
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
-    // Listen for changes to authentication state
-    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session ? session.user : null);
-      setInitialized(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setAuthInitialized(true);
+        setUser(session ? session.user : null);
+        setSession(session);
+        SplashScreen.hideAsync();
+      }
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          setAuthInitialized(true);
+          setUser(session ? session.user : null);
+          setSession(session);
+          router.replace('(home)');
+          SplashScreen.hideAsync();
+        } else {
+          setTimeout(() => {
+            SplashScreen.hideAsync();
+          }, 500);
+        }
+      });
     });
-    return () => {
-      data.subscription.unsubscribe();
-    };
-  }, []);
+  }, [router]);
 
-  // Log out the user
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setAuthInitialized(true);
+        setUser(session ? session.user : null);
+        setSession(session);
+        router.replace('(home)');
+      } else {
+        router.replace('(login)');
+      }
+    });
+  }, [router]);
 
-  const value = {
-    user,
-    session,
-    initialized,
-    signOut,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthContext.Provider value={{ session, user, authInitialized }}>
+        {children}
+      </AuthContext.Provider>
+    </ThemeProvider>
+  );
 };
+
+export default AuthProvider;

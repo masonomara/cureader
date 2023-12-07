@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FlatList,
   TouchableOpacity,
@@ -10,10 +10,11 @@ import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
 import ChannelCardList from "../../components/ChannelCardList";
+import { AuthContext } from "../_layout";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const [user, setUser] = useState(null);
+  const { session, user } = useContext(AuthContext);
 
   const [feeds, setFeeds] = useState([]);
 
@@ -35,10 +36,6 @@ export default function Profile() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
-
         const { data: channelsData, error } = await supabase
           .from("channels")
           .select();
@@ -62,7 +59,7 @@ export default function Profile() {
     }
 
     fetchData();
-  }, []);
+  }, [user]);
 
   // Styles
   const styles = {
@@ -146,7 +143,7 @@ export default function Profile() {
       {/* List of feeds */}
       <FlatList
         data={feeds}
-        ƒ
+        
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {

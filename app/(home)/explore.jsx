@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import { AuthContext } from "../_layout";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
@@ -15,7 +16,7 @@ import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
 import ChannelCardSearchPreview from "../../components/ChannelCardSearchPreview";
 
@@ -33,7 +34,7 @@ export default function Explore() {
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
-  const [user, setUser] = useState(null);
+  const { session, user } = useContext(AuthContext);
   const [userChannelIds, setUserChannelIds] = useState([]);
   const [feeds, setFeeds] = useState([]);
   const [randomFeeds, setRandomFeeds] = useState([]);
@@ -320,9 +321,6 @@ export default function Explore() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
 
         const { data: channelsData, error } = await supabase
           .from("channels")

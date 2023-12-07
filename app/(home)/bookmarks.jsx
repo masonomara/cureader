@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FlatList,
   TouchableOpacity,
@@ -13,21 +13,13 @@ import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
+import { AuthContext } from "../_layout";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
+  const { session, user } = useContext(AuthContext);
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
-  const [user, setUser] = useState(null);
-
-  // redirect based on if user exists
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
 
   const doLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -129,7 +121,7 @@ export default function Bookmarks() {
   return (
     <View style={styles.container}>
       <View>
-        <Text numberOfLines={20}>{JSON.stringify(user, null, 2)}</Text>
+        <Text>Hi {JSON.stringify(user, null, 2)}</Text>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>

@@ -1,17 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
-
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "./_layout";
 import {
   FlatList,
-  TouchableOpacity,
   Alert,
   useColorScheme,
-  Image,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../config/initSupabase";
-import { Text, View } from "../components/Themed";
+import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
@@ -75,6 +72,8 @@ const colorArray = [
 ];
 
 export default function TabOneScreen() {
+  const { session, user } = useContext(AuthContext);
+
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
@@ -90,8 +89,8 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(params.userChannelIds.includes(params.id));
-    setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
+    setIsSubscribed(params.userChannelIds.includes(user.id));
+    setIsOptimisticSubscribed(params.userChannelIds.includes(user.id));
     setSubscribeButtonLoading(false);
   }, [params.userChannelIds]);
 

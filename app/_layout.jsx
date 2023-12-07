@@ -5,12 +5,13 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
 import { Text, useColorScheme } from "react-native";
-import { AuthProvider, useAuth } from "../provider/AuthProvider.jsx";
+
+export const AuthContext = createContext();
 
 import Colors from "../constants/Colors";
 
@@ -60,34 +61,17 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
+
   const colorScheme = useColorScheme();
-
-  {
-    /*
-
-  const { session, initialized } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!initialized) return;
-    const inHomeGroup = segments[0] === "(home)";
-    if (session && !inHomeGroup) {
-      router.replace("(home)");
-    } else if (!session && inHomeGroup) {
-      router.replace("(login)");
-    }
-  }, [session, initialized]);
-
-*/
-  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setSession(session);
+        setAuthInitialized(true);
         setUser(session ? session.user : null);
-        console.log("Session 1:", session || "N/A 1");
+        setSession(session);
+        console.log("Session 1:" || "N/A 1");
         SplashScreen.hideAsync();
       }
 
@@ -96,15 +80,16 @@ function RootLayoutNav() {
         supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
             // If a session is present, navigate to the main screen
-            setSession(session);
+            setAuthInitialized(true);
             setUser(session ? session.user : null);
-            console.log("Session 2:", session || "N/A 2");
+            setSession(session);
+            console.log("Session 2:" || "N/A 2");
             router.replace("(home)");
             SplashScreen.hideAsync();
           } else {
             // If a session is not present, navigate to the login screen
             setTimeout(() => {
-              console.log("Session 3:", session || "N/A 3");
+              console.log("Session 3:" || "N/A 3");
               SplashScreen.hideAsync();
             }, 500);
           }
@@ -117,49 +102,47 @@ function RootLayoutNav() {
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setSession(session);
-        setUser(session ? session.user : null);
-        console.log("Session 5:", session || "N/A 5");
+        console.log("Session 5:" || "N/A 5");
         // If a session is present, navigate to the main screen
         router.replace("(home)");
       } else {
         // If a session is not present, navigate to the login screen
-        console.log("Session 6:", session || "N/A 6");
+        console.log("Session 6:" || "N/A 6");
         router.replace("(login)");
       }
     });
   }, []);
 
   return (
-    // <AuthProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Text>APP.JS-------</Text>
-      <Stack>
-        <Stack.Screen name="(home)" options={{ headerShown: false }} />
-        <Stack.Screen name="(login)" options={{ headerShown: false }} />
-        <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        <Stack.Screen
-          name="addChannel"
-          options={{ presentation: "modal", title: "Add Channel" }}
-        />
-        <Stack.Screen
-          name="feedChannel"
-          options={({ route }) => ({
-            title: route.params.title || "Default Title",
-            headerStyle: {
-              headerTransparent: true,
-              shadowColor: "transparent", // Remove shadow on iOS
-              backgroundColor: Colors[colorScheme || "light"].background,
-            },
-            headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
-            headerBackTitle: "Explore",
-            headerTitleStyle: {
-              color: Colors[colorScheme || "light"].textHigh, // Set header title color
-            },
-          })}
-        />
-      </Stack>
+      <AuthContext.Provider value={{ session, user, authInitialized }}>
+        <Stack>
+          <Stack.Screen name="(home)" options={{ headerShown: false }} />
+          <Stack.Screen name="(login)" options={{ headerShown: false }} />
+          <Stack.Screen name="(signup)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="addChannel"
+            options={{ presentation: "modal", title: "Add Channel" }}
+          />
+          <Stack.Screen
+            name="feedChannel"
+            options={({ route }) => ({
+              title: route.params.title || "Default Title",
+              headerStyle: {
+                headerTransparent: true,
+                shadowColor: "transparent", // Remove shadow on iOS
+                backgroundColor: Colors[colorScheme || "light"].background,
+              },
+              headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
+              headerBackTitle: "Explore",
+              headerTitleStyle: {
+                color: Colors[colorScheme || "light"].textHigh, // Set header title color
+              },
+            })}
+          />
+        </Stack>
+      </AuthContext.Provider>
     </ThemeProvider>
-    // </AuthProvider>
   );
 }

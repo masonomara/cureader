@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 
 import {
   FlatList,
-  Alert,
   useColorScheme,
   ActivityIndicator,
   Text, // Import ActivityIndicator
@@ -11,36 +10,16 @@ import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
-import ChannelCardList from "../components/ChannelCardList";
+import { AuthContext } from "./_layout";
 
 export default function TabOneScreen() {
+  const { session, user } = useContext(AuthContext);
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
-  const [user, setUser] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
   console.log("params.feed:", params.feed);
-
-  // Parse feed channel for articles in the feed
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
-      } catch (error) {
-        console.error(error);
-        showErrorAlert(
-          "Error fetching or parsing the RSS feed. Please try again."
-        );
-      } finally {
-        setIsLoading(false); // Set loading to false after the effect is done firing
-      }
-    };
-
-    getUser();
-  }, []);
 
   // Styles
   const styles = {
