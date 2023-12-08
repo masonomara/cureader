@@ -138,6 +138,8 @@ export default function Bookmarks() {
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => {
             return (
               <ArticleCard

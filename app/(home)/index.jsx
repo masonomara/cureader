@@ -280,6 +280,10 @@ export default function Index() {
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           refreshing={isRefreshing} // Add this line to pass the refreshing state
           onRefresh={onRefresh}
           estimatedItemSize={200}

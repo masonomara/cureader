@@ -199,6 +199,8 @@ export default function TabOneScreen() {
       <View style={styles.articleList}></View>
       <FlashList
         data={params.feed}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         estimatedItemSize={200}
         renderItem={({ item }) => {
           return (

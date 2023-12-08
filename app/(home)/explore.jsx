@@ -615,7 +615,11 @@ export default function Explore() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+    >
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Feed Search</Text>
       </View>
@@ -675,6 +679,7 @@ export default function Explore() {
 
           {searchResults.length > 0 && (
             <View
+              showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
               style={[styles.searchResultsList]}
               decelerationRate={0}
@@ -756,6 +761,7 @@ export default function Explore() {
       {randomFeeds.length > 0 ? (
         <ScrollView
           horizontal
+          showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.randomChannelList}
           decelerationRate={0}
@@ -786,6 +792,7 @@ export default function Explore() {
       {feeds ? (
         <ScrollView
           horizontal
+          showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={[styles.randomChannelList]}
           decelerationRate={0}

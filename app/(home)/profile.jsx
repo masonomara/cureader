@@ -145,7 +145,8 @@ export default function Profile() {
       <FlashList
         data={feeds}
         estimatedItemSize={64}
-        
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => {
           return <ChannelCardList key={item.id} item={item} user={user} />;
         }}

@@ -473,6 +473,8 @@ export default function TabOneScreen() {
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
           renderItem={({ item }) => (
             <ArticleCard
