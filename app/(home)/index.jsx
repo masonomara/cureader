@@ -271,11 +271,6 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      {/* User info and logout */}
-      <View>
-        <Text>{JSON.stringify(userSubscriptions)}</Text>
-      </View>
-
       {/* List of articles */}
       <View style={styles.articleList}>
         <FlashList
