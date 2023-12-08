@@ -1,6 +1,6 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useContext, useLayoutEffect } from "react";
+import { AuthContext } from "../app/_layout";
 import {
-  ActivityIndicator, // Import ActivityIndicator
   Dimensions,
   Pressable,
   Text,
@@ -8,9 +8,12 @@ import {
   View,
 } from "react-native";
 import { Image } from "expo-image";
-
+import {
+  updateSubscriptions,
+  updateChannelSubscribers,
+} from "../utils/FeedCardFunctions";
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
 
@@ -73,23 +76,22 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function FeedCard({ item, user, userSubscriptions }) {
+export default function FeedCard({ item }) {
+  const { user, userSubscriptions, updateUserSubscriptions } =
+    useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptions.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     userSubscriptions.includes(item.id)
   );
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
     setIsSubscribed(userSubscriptions.includes(item.id));
     setIsOptimisticSubscribed(userSubscriptions.includes(item.id));
-    setSubscribeButtonLoading(false);
   }, [userSubscriptions]);
 
   const handleSubscribe = async () => {
@@ -101,7 +103,10 @@ export default function FeedCard({ item, user, userSubscriptions }) {
         .eq("id", user.id);
 
       if (userProfileError) {
-        console.log("Error fetching user profile data:", userProfileError);
+        console.error("Error fetching user profile data:", userProfileError);
+        Alert.alert(
+          "Failed to fetch user profile data. Please try again later."
+        );
         return;
       }
 
@@ -124,13 +129,19 @@ export default function FeedCard({ item, user, userSubscriptions }) {
           .select()
           .eq("id", item.id);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== user.id
-          );
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          Alert.alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        const channel = channelData[0];
+        const updatedSubscribers = channel.channel_subscribers.filter(
+          (subscriber) => subscriber !== user.id
+        );
+        await updateChannelSubscribers(item.id, updatedSubscribers);
+        // Update userSubscriptions globally
+        updateUserSubscriptions(updatedSubscriptions);
       } else {
         // Subscribe
         const newSubscription = {
@@ -145,37 +156,30 @@ export default function FeedCard({ item, user, userSubscriptions }) {
           .select()
           .eq("id", item.id);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = [
-            ...(channel.channel_subscribers ?? []),
-            user.id,
-          ];
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          Alert.alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        const channel = channelData[0];
+        const updatedSubscribers = [
+          ...(channel.channel_subscribers ?? []),
+          user.id,
+        ];
+        await updateChannelSubscribers(item.id, updatedSubscribers);
+        // Update userSubscriptions globally
+        updateUserSubscriptions(updatedSubscriptions);
       }
 
-      setIsSubscribed(!isSubscribed);
+      // Toggle the isSubscribed state
+      return !isSubscribed;
     } catch (error) {
-      console.error("Error handling subscription:", error);
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      console.error("Error handling subscription:", error);
+      Alert.alert("Failed to handle subscription. Please try again later.");
+      return isSubscribed;
     }
-  };
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
-  };
-
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
   };
 
   // Function to get background color based on the first letter
@@ -393,24 +397,17 @@ export default function FeedCard({ item, user, userSubscriptions }) {
             }
             onPress={handleSubscribe}
           >
-            {subscribeButtonLoading === true ? (
-              <ActivityIndicator
-                size="small"
-                color={Colors[colorScheme || "light"].colorOn}
-              />
-            ) : (
-              <Text
-                style={
-                  isOptimisticSubscribed.toString() === "true"
-                    ? styles.subscribedButtonText
-                    : styles.subscribeButtonText
-                }
-              >
-                {isOptimisticSubscribed.toString() === "true"
-                  ? "Following"
-                  : "Follow"}
-              </Text>
-            )}
+            <Text
+              style={
+                isOptimisticSubscribed.toString() === "true"
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
+              {isOptimisticSubscribed.toString() === "true"
+                ? "Following"
+                : "Follow"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

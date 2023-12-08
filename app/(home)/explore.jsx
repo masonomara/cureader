@@ -725,7 +725,6 @@ export default function Explore() {
                   channelTitle={channelTitle}
                   channelDescription={channelDescription}
                   channelImageUrl={channelImageUrl}
-                  user={user}
                 />
               )}
           </View>
@@ -737,11 +736,11 @@ export default function Explore() {
         <TouchableOpacity
           style={styles.textButton}
           onPress={() => {
-            console.log("RANDOMFEEDS:", randomFeeds)
+            console.log("RANDOMFEEDS:", randomFeeds);
             router.push({
               pathname: "/allRandomFeeds",
               params: {
-                feed: [...randomFeeds],  // Convert to array
+                feed: [...randomFeeds], // Convert to array
                 user: user,
               },
             });
@@ -762,14 +761,7 @@ export default function Explore() {
           snapToAlignment={"left"}
         >
           {randomFeeds.map((item) => (
-            <FeedCardFeatured
-              key={item.id}
-              item={item}
-              user={user}
-              subscribed={userSubscriptions.includes(item.id)}
-              feeds={feeds}
-              userSubscriptions={userSubscriptions}
-            />
+            <FeedCardFeatured key={item.id} item={item} />
           ))}
         </ScrollView>
       ) : (
@@ -806,9 +798,6 @@ export default function Explore() {
                 <FeedCard
                   key={item.id}
                   item={item}
-                  user={user}
-                  feeds={feeds}
-                  userSubscriptions={userSubscriptions}
                 />
               ))}
             </View>

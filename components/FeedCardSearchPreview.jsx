@@ -1,17 +1,7 @@
-import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Dimensions,
-  Pressable,
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+import { useState } from "react";
+import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { Image } from "expo-image";
-
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
 
@@ -78,13 +68,13 @@ export default function FeedCardSearchPreview({
   channelUrl,
   channelTitle,
   channelDescription,
-  channelImageUrl,
-  user,
+  channelImageUrl
 }) {
+  const { user } =
+  useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   const showErrorAlert = (message) => {

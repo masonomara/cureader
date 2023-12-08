@@ -1,20 +1,14 @@
-import { useState, useEffect, useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  Pressable,
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+import { useState, useContext, useLayoutEffect } from "react";
+import { AuthContext } from "../app/_layout";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-
+import {
+  updateSubscriptions,
+  updateChannelSubscribers,
+} from "../utils/FeedCardFunctions";
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
-
-const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -73,64 +67,48 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function FeedCardFeedPreview({ params, userSubscriptions }) {
-  const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    params.subscribed
+export default function FeedCardFeedPreview({ params }) {
+  console.log("FEED PREVIEW:", params.id);
+  const paramsId = parseInt(params.id, 10);
+
+  const { user, userSubscriptions, updateUserSubscriptions } =
+    useContext(AuthContext);
+  const [isSubscribed, setIsSubscribed] = useState(
+    userSubscriptions.includes(paramsId)
   );
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
+  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
+    userSubscriptions.includes(paramsId)
+  );
 
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
-
-  const paramsId = params.id;
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptions.includes(params.id));
-    setIsOptimisticSubscribed(userSubscriptions.includes(params.id));
-    setSubscribeButtonLoading(false);
+    setIsSubscribed(userSubscriptions.includes(paramsId));
+    setIsOptimisticSubscribed(userSubscriptions.includes(paramsId));
   }, [userSubscriptions]);
 
-  // Function to calculate subscription button style
-  const getSubscribeButtonStyle = () => {
-    return isOptimisticSubscribed
-      ? styles.subscribedButton
-      : styles.subscribeButton;
-  };
-
-  // Function to handle subscription logic
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
-
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
-        .eq("id", params.userId);
+        .eq("id", user.id);
 
       if (userProfileError) {
-        console.log("Error fetching user profile data:", userProfileError);
+        console.error("Error fetching user profile data:", userProfileError);
+        Alert.alert(
+          "Failed to fetch user profile data. Please try again later."
+        );
         return;
       }
 
       const channelSubscriptions =
         userProfileData[0].channel_subscriptions || [];
-
-      console.log(
-        "(handleSubscribe) 3 channelSubscriptions:",
-        channelSubscriptions
-      );
-
-      const itemChannelId = parseInt(paramsId, 10); // Ensure channelId is a number
-
+      const itemChannelId = paramsId;
       const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
-      );
-
-      console.log(
-        "(handleSubscribe) 4 isAlreadySubscribed:",
-        isAlreadySubscribed
       );
 
       if (isSubscribed && isAlreadySubscribed) {
@@ -138,77 +116,64 @@ export default function FeedCardFeedPreview({ params, userSubscriptions }) {
         const updatedSubscriptions = channelSubscriptions.filter(
           (subscription) => subscription.channelId !== itemChannelId
         );
-
-        console.log(
-          "(handleSubscribe) 5 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
-        await updateSubscriptions(params.userId, updatedSubscriptions);
+        await updateSubscriptions(user.id, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
           .eq("id", paramsId);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== params.userId
-          );
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          Alert.alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        const channel = channelData[0];
+        const updatedSubscribers = channel.channel_subscribers.filter(
+          (subscriber) => subscriber !== user.id
+        );
+        await updateChannelSubscribers(paramsId, updatedSubscribers);
+        // Update userSubscriptions globally
+        updateUserSubscriptions(updatedSubscriptions);
       } else {
         // Subscribe
-
-        console.log(
-          "(handleSubscribe) 6 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
         const newSubscription = {
-          channelId: itemChannelId,
+          channelId: paramsId,
           channelUrl: params.url,
         };
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        await updateSubscriptions(params.userId, updatedSubscriptions);
+        await updateSubscriptions(user.id, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
           .eq("id", paramsId);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = [
-            ...channel.channel_subscribers,
-            params.userId,
-          ];
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          Alert.alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        const channel = channelData[0];
+        const updatedSubscribers = [
+          ...(channel.channel_subscribers ?? []),
+          user.id,
+        ];
+        await updateChannelSubscribers(paramsId, updatedSubscribers);
+        // Update userSubscriptions globally
+        updateUserSubscriptions(updatedSubscriptions);
       }
 
-      setIsSubscribed(!isSubscribed);
+      // Toggle the isSubscribed state
+      return !isSubscribed;
     } catch (error) {
-      console.error("Error handling subscription:", error);
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      console.error("Error handling subscription:", error);
+      Alert.alert("Failed to handle subscription. Please try again later.");
+      return isSubscribed;
     }
-  };
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
-  };
-
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
   };
 
   // Function to get background color based on the first letter
@@ -401,27 +366,22 @@ export default function FeedCardFeedPreview({ params, userSubscriptions }) {
         </View>
         <View style={styles.cardControls}>
           <TouchableOpacity
-            style={getSubscribeButtonStyle()}
+            style={
+              isOptimisticSubscribed
+                ? styles.subscribedButton
+                : styles.subscribeButton
+            }
             onPress={handleSubscribe}
           >
-            {subscribeButtonLoading === true ? (
-              <ActivityIndicator
-                size="small"
-                color={Colors[colorScheme || "light"].colorOn}
-              />
-            ) : (
-              <Text
-                style={
-                  isOptimisticSubscribed.toString() === "true"
-                    ? styles.subscribedButtonText
-                    : styles.subscribeButtonText
-                }
-              >
-                {isOptimisticSubscribed.toString() === "true"
-                  ? "Following"
-                  : "Follow"}
-              </Text>
-            )}
+            <Text
+              style={
+                isOptimisticSubscribed
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
+              {isOptimisticSubscribed ? "Following" : "Follow"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-} from "react-native";
+import { TouchableOpacity, Alert, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
-import ChannelCardList from "../../components/ChannelCardList";
+import FeedCardListItem from "../../components/FeedCardListItem";
 import { AuthContext } from "../_layout";
 
 export default function Profile() {
@@ -136,23 +132,23 @@ export default function Profile() {
       {/* User info and logout */}
       <View>
         <TouchableOpacity onPress={doLogout}>
+          <Text>{JSON.stringify(user)}</Text>
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
 
       {/* List of feeds */}
       <View style={styles.articleList}>
-      <FlashList
-        data={feeds}
-        estimatedItemSize={64}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => {
-          return <ChannelCardList key={item.id} item={item} user={user} />;
-        }}
-      />
+        <FlashList
+          data={feeds}
+          estimatedItemSize={64}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => {
+            return <FeedCardListItem key={item.id} item={item} />;
+          }}
+        />
       </View>
-
     </View>
   );
 }

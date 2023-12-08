@@ -11,7 +11,15 @@ import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
 import { Text, useColorScheme } from "react-native";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({
+  authInitialized: false,
+  feeds: null,
+  session: null,
+  user: null,
+  userBookmarks: null,
+  userSubscriptions: null,
+  updateUserSubscriptions: () => {},
+});
 
 import Colors from "../constants/Colors";
 
@@ -159,6 +167,25 @@ function RootLayoutNav() {
     }
   };
 
+  const updateUserSubscriptions = async (updatedSubscriptions) => {
+    try {
+      const currentUser = session.user;
+
+      const channelIds = await fetchUserSubscriptions(currentUser);
+      setUserSubscriptions(channelIds);
+
+      // Update the user profile on Supabase
+      await supabase
+        .from("profiles")
+        .update({
+          channel_subscriptions: updatedSubscriptions,
+        })
+        .eq("id", currentUser.id);
+    } catch (error) {
+      console.error("Error updating user subscriptions:", error);
+    }
+  };
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthContext.Provider
@@ -169,6 +196,7 @@ function RootLayoutNav() {
           user,
           userBookmarks,
           userSubscriptions,
+          updateUserSubscriptions,
         }}
       >
         <Stack>

@@ -197,7 +197,7 @@ export default function TabOneScreen() {
             return (
               <>
                 <Text>{item.channel_title}</Text>
-                {/* <ChannelCardList key={item.id} item={item} user={user} /> */}
+                {/* <FeedCardListItem key={item.id} item={item} user={user} /> */}
               </>
             );
           }}
