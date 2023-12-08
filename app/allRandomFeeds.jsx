@@ -13,11 +13,9 @@ import Colors from "../constants/Colors";
 import { AuthContext } from "./_layout";
 
 export default function TabOneScreen() {
-  const { session, user } = useContext(AuthContext);
+  const { session, user, userSubscriptions } = useContext(AuthContext);
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
-
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
   console.log("params.feed:", params.feed);
 
@@ -187,30 +185,24 @@ export default function TabOneScreen() {
     },
   };
 
-  return isLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator
-        size="large"
-        color={Colors[colorScheme || "light"].colorPrimary}
-      />
-    </View>
-  ) : (
+  return (
     <View style={styles.container}>
-      <View style={styles.articleList}></View>
-      <FlashList
-        data={params.feed}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        estimatedItemSize={200}
-        renderItem={({ item }) => {
-          return (
-            <>
-              <Text>{item.channel_title}</Text>
-              {/* <ChannelCardList key={item.id} item={item} user={user} /> */}
-            </>
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={params.feed}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return (
+              <>
+                <Text>{item.channel_title}</Text>
+                {/* <ChannelCardList key={item.id} item={item} user={user} /> */}
+              </>
+            );
+          }}
+        />
+      </View>
     </View>
   );
 }

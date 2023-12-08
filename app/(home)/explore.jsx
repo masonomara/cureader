@@ -335,7 +335,7 @@ export default function Explore() {
         }
 
         setFeeds(channelsData);
-        console.log(feeds);
+        //console.log(feeds);
       } catch (error) {
         console.error("Error fetching data:", error);
         // Handle unexpected errors here, e.g., show a generic error message.
@@ -657,16 +657,6 @@ export default function Explore() {
           />
         </TouchableOpacity>
       </View>
-      {/* <Text>Search Input: {searchInput}</Text>
-                          <Text>Parser Input: {parserInput}</Text>
-                          <Text>Channel Url: {channelUrl}</Text>
-                          <Text>Channel Title: {channelTitle}</Text>
-                          <Text numberOfLines={1}>
-                            Channel Description: {channelDescription}
-                          </Text>
-                          <Text numberOfLines={1}>
-                            Channel Image URL: {channelImageUrl}
-                          </Text> */}
       {isSearchInputSelected && searchInput !== "" && (
         <View style={styles.searchContainer}>
           <View style={styles.searchHeader}>
@@ -747,10 +737,11 @@ export default function Explore() {
         <TouchableOpacity
           style={styles.textButton}
           onPress={() => {
+            console.log("RANDOMFEEDS:", randomFeeds)
             router.push({
               pathname: "/allRandomFeeds",
               params: {
-                feed: randomFeeds,
+                feed: [...randomFeeds],  // Convert to array
                 user: user,
               },
             });
