@@ -5,6 +5,7 @@ import {
   Alert,
   useColorScheme,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
@@ -150,6 +151,7 @@ export default function Index() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -217,22 +219,23 @@ export default function Index() {
       </View>
 
       {/* List of articles */}
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              fallbackImage={item.fallbackImage}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={rssItems}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return (
+              <ArticleCard
+                item={item}
+                publication={item.channel}
+                fallbackImage={item.fallbackImage}
+                channelUrl={item.channelUrl}
+                user={user}
+              />
+            );
+          }}
+        />
+      </View>
     </View>
   );
 }
