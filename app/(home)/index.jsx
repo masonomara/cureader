@@ -20,53 +20,9 @@ export default function Index() {
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
 
-  // State for handling channel URL input
-
-  const [parserInput, setParserInput] = useState("");
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelTitle, setChannelTitle] = useState("");
-  const [channelDescription, setChannelDescription] = useState("");
-  const [channelImageUrl, setChannelImageUrl] = useState("");
-
-  const [channelTitleWait, setChannelTitleWait] = useState(false);
-  const [channelUrlError, setChannelUrlError] = useState(null);
-
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
-
-  // Handles API request for channel information
-  useEffect(() => {
-    const delayTimer = setTimeout(async () => {
-      try {
-        const response = await Promise.race([
-          fetch(parserInput), //change: parserInput
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Request Timeout")), 10000)
-          ),
-        ]);
-        if (!response.ok) {
-          throw new Error("API Request - Network response was not ok");
-        }
-        const responseData = await response.text();
-        const parsedRss = await rssParser.parse(responseData);
-        setChannelTitle(parsedRss.title);
-        console.log("channelTitle:", channelTitle);
-        setChannelUrl(parserInput);
-        setChannelDescription(parsedRss.description);
-        setChannelImageUrl(parsedRss.image.url);
-        setChannelTitleWait(false);
-      } catch (error) {
-        console.log(error);
-        setChannelTitle(null);
-        setChannelTitleWait(false);
-        setChannelDescription(null);
-        setChannelImageUrl(null);
-      }
-    }, 150);
-
-    return () => clearTimeout(delayTimer);
-  }, [parserInput]);
 
   // Logout user
   const doLogout = async () => {
@@ -195,7 +151,7 @@ export default function Index() {
     };
 
     fetchAndParseFeeds();
-  }, [user]);
+  }, [session]);
 
   // Styles
   const styles = {
@@ -274,55 +230,6 @@ export default function Index() {
           <Text>{JSON.stringify(userSubscriptions)}</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Input for channel URL */}
-
-      {/*<TextInput
-        style={styles.input}
-        label="Channel Url Text"
-        onChangeText={handleUserInput}
-        value={userInput}
-        placeholder="https://"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-  /> */}
-
-      {/* Channel title and submit button */}
-      {/*
-      {!channelTitleWait ? (
-        <>
-          {channelTitle ? (
-            <>
-              <Text>{channelTitle}</Text>
-              <Text>{channelUrl}</Text>
-            </>
-          ) : channelUrl ? (
-            <Text>Channel not found</Text>
-          ) : (
-            <></>
-          )}
-        </>
-      ) : (
-        <ActivityIndicator
-          color={`${Colors[colorScheme || "light"].buttonActive}`}
-        />
-      )}
-
-      <TouchableOpacity
-        onPress={handleSubmitUrl}
-        disabled={!channelTitle}
-        style={channelTitle ? styles.button : styles.buttonDisabled}
-      >
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-
-      <Text>User Input: {userInput}</Text>
-      <Text>Parser Input: {parserInput}</Text>
-      <Text>Channel Url: {channelUrl}</Text>
-      <Text>Channel Title: {channelTitle}</Text>
-      <Text numberOfLines={1}>Channel Description: {channelDescription}</Text>
-      <Text numberOfLines={1}>Channel Image URL: {channelImageUrl}</Text>
-      */}
 
       {/* List of articles */}
       <FlatList

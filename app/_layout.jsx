@@ -123,12 +123,12 @@ function RootLayoutNav() {
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setSession(session);
-        console.log("Session 5:" || "N/A 5");
+        // console.log("Session 5:" || "N/A 5");
         // If a session is present, navigate to the main screen
         router.replace("(home)");
       } else {
         // If a session is not present, navigate to the login screen
-        console.log("Session 6:" || "N/A 6");
+        // console.log("Session 6:" || "N/A 6");
         router.replace("(login)");
       }
     });
@@ -136,7 +136,7 @@ function RootLayoutNav() {
 
   const fetchUserSubscriptions = async (currentUser) => {
     try {
-      console.log("Beginning fetch user subscriptions with:", currentUser);
+      // console.log("Beginning fetch user subscriptions with:", currentUser);
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
