@@ -282,8 +282,6 @@ export default function Index() {
           data={rssItems}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
           refreshing={isRefreshing} // Add this line to pass the refreshing state
           onRefresh={onRefresh}
           estimatedItemSize={200}
