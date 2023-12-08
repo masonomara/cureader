@@ -24,17 +24,8 @@ export default function Index() {
     Alert.alert("Error", message);
   };
 
-  // Logout user
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      showErrorAlert("Error signing out: " + error.message);
-    }
-  };
-
   // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
-  const getChannelSubscriptions = async () => {
+  const getFeedSubscriptions = async () => {
     try {
       if (user) {
         // Check if user is defined and authenticated
@@ -68,7 +59,7 @@ export default function Index() {
     try {
       if (user) {
         // Check if user is defined and authenticated
-        const feedUrls = await getChannelSubscriptions();
+        const feedUrls = await getFeedSubscriptions();
 
         const { data: fallbackImageData, error: fallbackImageError } =
           await supabase
@@ -95,7 +86,7 @@ export default function Index() {
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
       if (user) {
-        const feedUrls = await getChannelSubscriptions();
+        const feedUrls = await getFeedSubscriptions();
         const fallbackImages = await getFallbackImages();
 
         const allChannels = [];
@@ -109,9 +100,6 @@ export default function Index() {
             }
             const responseData = await response.text();
             const parsedRss = await rssParser.parse(responseData);
-
-            // console.log("FALLBACKIMAGES:", fallbackImages)
-            // console.log("FEEDURLS:", feedUrls)
 
             const channelImage = fallbackImages.find(
               (image) => image.channel_url === url
@@ -225,10 +213,7 @@ export default function Index() {
     <View style={styles.container}>
       {/* User info and logout */}
       <View>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-          <Text>{JSON.stringify(userSubscriptions)}</Text>
-        </TouchableOpacity>
+        <Text>{JSON.stringify(userSubscriptions)}</Text>
       </View>
 
       {/* List of articles */}
