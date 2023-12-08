@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-  FlatList,
   TouchableOpacity,
   Alert,
   useColorScheme,
@@ -11,7 +10,8 @@ import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
-import { Input } from "react-native-elements";
+import { FlashList } from "@shopify/flash-list";
+
 import Colors from "../../constants/Colors";
 import { AuthContext } from "../_layout";
 
@@ -87,6 +87,7 @@ export default function Bookmarks() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -123,7 +124,6 @@ export default function Bookmarks() {
       <View>
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
-
         </TouchableOpacity>
       </View>
       <TextInput
@@ -135,22 +135,22 @@ export default function Bookmarks() {
         autoCapitalize={"none"}
         autoCorrect={false}
       />
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              image={item.image}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={rssItems}
+          renderItem={({ item }) => {
+            return (
+              <ArticleCard
+                item={item}
+                publication={item.channel}
+                image={item.image}
+                channelUrl={item.channelUrl}
+                user={user}
+              />
+            );
+          }}
+        />
+      </View>
     </View>
   );
 }

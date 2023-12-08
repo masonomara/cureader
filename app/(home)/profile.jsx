@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-  FlatList,
   TouchableOpacity,
   Alert,
   useColorScheme,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
@@ -70,6 +71,7 @@ export default function Profile() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -139,14 +141,17 @@ export default function Profile() {
       </View>
 
       {/* List of feeds */}
-      <FlatList
+      <View style={styles.articleList}>
+      <FlashList
         data={feeds}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
+        estimatedItemSize={64}
+        
         renderItem={({ item }) => {
           return <ChannelCardList key={item.id} item={item} user={user} />;
         }}
       />
+      </View>
+
     </View>
   );
 }

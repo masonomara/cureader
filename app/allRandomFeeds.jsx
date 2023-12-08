@@ -1,13 +1,13 @@
 import React, { useState, useContext } from "react";
 
 import {
-  FlatList,
   useColorScheme,
   ActivityIndicator,
   Text, // Import ActivityIndicator
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+
 import { useLocalSearchParams } from "expo-router";
-import { supabase } from "../config/initSupabase";
 import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
 import { AuthContext } from "./_layout";
@@ -30,6 +30,7 @@ export default function TabOneScreen() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -195,10 +196,10 @@ export default function TabOneScreen() {
     </View>
   ) : (
     <View style={styles.container}>
-      <FlatList
+      <View style={styles.articleList}></View>
+      <FlashList
         data={params.feed}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
+        estimatedItemSize={200}
         renderItem={({ item }) => {
           return (
             <>

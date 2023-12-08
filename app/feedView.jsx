@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "./_layout";
 import {
-  FlatList,
   Alert,
   useColorScheme,
   ActivityIndicator, // Import ActivityIndicator
@@ -12,6 +11,8 @@ import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
+import { FlashList } from "@shopify/flash-list";
+
 import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 const textColorArray = [
@@ -278,6 +279,7 @@ export default function TabOneScreen() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -468,20 +470,21 @@ export default function TabOneScreen() {
         params={params}
         userSubscriptions={userSubscriptions}
       />
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => (
-          <ArticleCard
-            item={item}
-            publication={item.channel}
-            fallbackImage={params.image}
-            channelUrl={item.channelUrl}
-            user={params.user}
-          />
-        )}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={rssItems}
+          estimatedItemSize={200}
+          renderItem={({ item }) => (
+            <ArticleCard
+              item={item}
+              publication={item.channel}
+              fallbackImage={params.image}
+              channelUrl={item.channelUrl}
+              user={params.user}
+            />
+          )}
+        />
+      </View>
     </>
   );
 }
