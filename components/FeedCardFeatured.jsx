@@ -71,26 +71,25 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCardFeatured({
+export default function FeedCardFeatured({
   item,
   user,
   feeds,
-  userChannelIds,
+  userSubscriptions
 }) {
   const [isSubscribed, setIsSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptions.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptions.includes(item.id)
   );
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userChannelIds.includes(item.id));
-    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
-  }, [userChannelIds.includes(item.id)]);
+    setIsSubscribed(userSubscriptions.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptions.includes(item.id));
+  }, [userSubscriptions.includes(item.id)]);
 
   const updateSubscriptions = async (userId, updatedSubscriptions) => {
     await supabase
@@ -367,7 +366,7 @@ export default function ChannelCardFeatured({
       style={styles.card}
       onPress={() =>
         router.push({
-          pathname: "/feedChannel",
+          pathname: "/feedView",
           params: {
             title: item.channel_title,
             description: item.channel_description,
@@ -378,7 +377,7 @@ export default function ChannelCardFeatured({
             user: user,
             userId: user.id,
             subscribed: isSubscribed,
-            userChannelIds: userChannelIds,
+            userSubscriptions: userSubscriptions,
           },
         })
       }
@@ -440,7 +439,13 @@ export default function ChannelCardFeatured({
         <View style={styles.cardControls}>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
-              {item.channel_description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
+              {item.channel_description
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

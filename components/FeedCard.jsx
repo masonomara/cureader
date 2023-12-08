@@ -72,12 +72,12 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCard({ item, user, userChannelIds }) {
+export default function FeedCard({ item, user, userSubscriptions }) {
   const [isSubscribed, setIsSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptions.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptions.includes(item.id)
   );
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
@@ -86,10 +86,10 @@ export default function ChannelCard({ item, user, userChannelIds }) {
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userChannelIds.includes(item.id));
-    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
+    setIsSubscribed(userSubscriptions.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptions.includes(item.id));
     setSubscribeButtonLoading(false);
-  }, [userChannelIds]);
+  }, [userSubscriptions]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -315,7 +315,7 @@ export default function ChannelCard({ item, user, userChannelIds }) {
       style={styles.card}
       onPress={() => {
         router.push({
-          pathname: "/feedChannel",
+          pathname: "/feedView",
           params: {
             title: item.channel_title,
             description: item.channel_description,
@@ -326,7 +326,7 @@ export default function ChannelCard({ item, user, userChannelIds }) {
             user: user,
             userId: user.id,
             subscribed: isSubscribed,
-            userChannelIds: userChannelIds,
+            userSubscriptions: userSubscriptions,
           },
         });
       }}
@@ -372,7 +372,13 @@ export default function ChannelCard({ item, user, userChannelIds }) {
           </Text>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
-              {item.channel_description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
+              {item.channel_description
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

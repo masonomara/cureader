@@ -12,7 +12,7 @@ import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
-import ChannelCardFeedPreview from "../components/ChannelCardFeedPreview";
+import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -72,7 +72,7 @@ const colorArray = [
 ];
 
 export default function TabOneScreen() {
-  const { session, user } = useContext(AuthContext);
+  const { session, user, userSubscriptions } = useContext(AuthContext);
 
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
@@ -84,15 +84,15 @@ export default function TabOneScreen() {
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
-  console.log("params.userChannelIds:", params.userChannelIds);
+  console.log("userSubscriptions:", userSubscriptions);
   console.log("params.id:", params.id);
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(params.userChannelIds.includes(user.id));
-    setIsOptimisticSubscribed(params.userChannelIds.includes(user.id));
+    setIsSubscribed(userSubscriptions.includes(user.id));
+    setIsOptimisticSubscribed(userSubscriptions.includes(user.id));
     setSubscribeButtonLoading(false);
-  }, [params.userChannelIds]);
+  }, [userSubscriptions]);
 
   console.log("isSubscribed:", isSubscribed);
   console.log("userId", params.userId);
@@ -464,7 +464,10 @@ export default function TabOneScreen() {
     </View>
   ) : (
     <>
-      <ChannelCardFeedPreview params={params} />
+      <FeedCardFeedPreview
+        params={params}
+        userSubscriptions={userSubscriptions}
+      />
       <FlatList
         data={rssItems}
         keyExtractor={(item, index) => index.toString()}

@@ -17,14 +17,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import ChannelCardFeatured from "../../components/ChannelCardFeatured";
-import ChannelCard from "../../components/ChannelCard";
+import FeedCardFeatured from "../../components/FeedCardFeatured";
+import FeedCard from "../../components/FeedCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
-import ChannelCardSearchPreview from "../../components/ChannelCardSearchPreview";
+import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -40,8 +40,7 @@ export default function Explore() {
   const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
-  const { session, user } = useContext(AuthContext);
-  const [userChannelIds, setUserChannelIds] = useState([]);
+  const { session, user, userSubscriptions } = useContext(AuthContext);
   const [feeds, setFeeds] = useState([]);
   const [randomFeeds, setRandomFeeds] = useState([]);
 
@@ -341,11 +340,6 @@ export default function Explore() {
         setFeeds(channelsData);
         console.log(feeds);
 
-        if (user) {
-          const channelIds = await fetchUserChannels(user);
-          setUserChannelIds(channelIds);
-        }
-
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -393,12 +387,11 @@ export default function Explore() {
     }
   }, [feeds]);
 
-  // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userChannelIds]
+  // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userSubscriptions]
   useFocusEffect(
     useCallback(() => {
       if (user) {
         fetchUserChannels(user).then((channelIds) => {
-          setUserChannelIds(channelIds);
           setFocusEffectCompleted(true);
         });
       }
@@ -738,12 +731,12 @@ export default function Explore() {
                   snapToAlignment={"left"}
                 >
                   {searchResults.map((item) => (
-                    <ChannelCard
+                    <FeedCard
                       key={item.id}
                       item={item}
                       user={user}
                       feeds={feeds}
-                      userChannelIds={userChannelIds}
+                      userSubscriptions={userSubscriptions}
                     />
                   ))}
                 </View>
@@ -780,7 +773,7 @@ export default function Explore() {
                 {searchResults.length === 0 &&
                   !channelTitleWait &&
                   channelTitle && (
-                    <ChannelCardSearchPreview
+                    <FeedCardSearchPreview
                       channelUrl={channelUrl}
                       channelTitle={channelTitle}
                       channelDescription={channelDescription}
@@ -820,13 +813,13 @@ export default function Explore() {
               snapToAlignment={"left"}
             >
               {randomFeeds.map((item) => (
-                <ChannelCardFeatured
+                <FeedCardFeatured
                   key={item.id}
                   item={item}
                   user={user}
-                  subscribed={userChannelIds.includes(item.id)}
+                  subscribed={userSubscriptions.includes(item.id)}
                   feeds={feeds}
-                  userChannelIds={userChannelIds}
+                  userSubscriptions={userSubscriptions}
                 />
               ))}
             </ScrollView>
@@ -860,12 +853,12 @@ export default function Explore() {
                   }}
                 >
                   {chunk.map((item) => (
-                    <ChannelCard
+                    <FeedCard
                       key={item.id}
                       item={item}
                       user={user}
                       feeds={feeds}
-                      userChannelIds={userChannelIds}
+                      userSubscriptions={userSubscriptions}
                     />
                   ))}
                 </View>

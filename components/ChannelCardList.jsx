@@ -205,7 +205,7 @@ export default function ChannelCardList({ item, user }) {
       flexDirection: "row",
       display: "flex",
       flex: 1,
-      width: '100%',
+      width: "100%",
       paddingHorizontal: 16,
       gap: 0,
       paddingVertical: 12,
@@ -325,7 +325,7 @@ export default function ChannelCardList({ item, user }) {
       style={styles.card}
       onPress={() => {
         router.push({
-          pathname: "/feedChannel",
+          pathname: "/feedView",
           params: {
             title: item.channel_title,
             description: item.channel_description,
@@ -382,7 +382,13 @@ export default function ChannelCardList({ item, user }) {
           </Text>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
-              {item.channel_description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
+              {item.channel_description
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

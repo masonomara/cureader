@@ -72,7 +72,7 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCardFeedPreview({ params }) {
+export default function FeedCardFeedPreview({ params, userSubscriptions }) {
   const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     params.subscribed
@@ -86,10 +86,10 @@ export default function ChannelCardFeedPreview({ params }) {
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(params.userChannelIds.includes(params.id));
-    setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
+    setIsSubscribed(userSubscriptions.includes(params.id));
+    setIsOptimisticSubscribed(userSubscriptions.includes(params.id));
     setSubscribeButtonLoading(false);
-  }, [params.userChannelIds]);
+  }, [userSubscriptions]);
 
   // Function to calculate subscription button style
   const getSubscribeButtonStyle = () => {
@@ -229,7 +229,7 @@ export default function ChannelCardFeedPreview({ params }) {
       flexDirection: "row",
       display: "flex",
       flex: 1,
-      width: '100%',
+      width: "100%",
       gap: 0,
       paddingVertical: 12,
       paddingHorizontal: 16,
@@ -387,7 +387,13 @@ export default function ChannelCardFeedPreview({ params }) {
           </Text>
           {params.description ? (
             <Text style={styles.description} numberOfLines={2}>
-              {params.description.replace(/<[^>]*>/g, "").replace(/&#8217;/g, "'").replace(/&#160;/g, " ").trim()}
+              {params.description
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

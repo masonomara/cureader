@@ -44,7 +44,7 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  // Remove spash screen on font load
+  // Remove splash screen on font load
   useEffect(() => {
     if (loaded) {
     }
@@ -69,8 +69,6 @@ function RootLayoutNav() {
 
   const colorScheme = useColorScheme();
 
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -82,12 +80,12 @@ function RootLayoutNav() {
           setAuthInitialized(true);
           const currentUser = session.user;
           setUser(currentUser);
+          setSession(session);
 
-          // Fetch user subscriptions before proceeding
+          // Fetch user subscriptions in the background
           const channelIds = await fetchUserSubscriptions(currentUser);
           setUserSubscriptions(channelIds);
 
-          setSession(session);
           SplashScreen.hideAsync();
         } else {
           // Listen for changes in the authentication state
@@ -96,15 +94,15 @@ function RootLayoutNav() {
               setAuthInitialized(true);
               const currentUser = session.user;
               setUser(currentUser);
+              setSession(session);
 
-              // Fetch user subscriptions before proceeding
+              // Fetch user subscriptions in the background
               fetchUserSubscriptions(currentUser).then((channelIds) => {
                 setUserSubscriptions(channelIds);
+                SplashScreen.hideAsync();
               });
 
-              setSession(session);
               router.replace("(home)");
-              SplashScreen.hideAsync();
             } else {
               setTimeout(() => {
                 SplashScreen.hideAsync();
@@ -161,7 +159,6 @@ function RootLayoutNav() {
     }
   };
 
-
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthContext.Provider
@@ -184,7 +181,7 @@ function RootLayoutNav() {
             options={{ presentation: "modal", title: "Add Channel" }}
           />
           <Stack.Screen
-            name="feedChannel"
+            name="feedView"
             options={({ route }) => ({
               title: route.params.title || "Default Title",
               headerStyle: {
