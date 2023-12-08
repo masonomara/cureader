@@ -17,6 +17,10 @@ import Colors from "../../constants/Colors";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
+  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
+  const [isSearchInputSelectedTwo, setIsSearchInputSelectedTwo] =
+    useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,12 +38,12 @@ export default function Auth() {
 
   // Function for handling search input focus
   const handleFocusTwo = () => {
-    setIsSearchInputSelected(true);
+    setIsSearchInputSelectedTwo(true);
   };
 
   // Function for handling seach input blur
   const handleBlurTwo = () => {
-    setIsSearchInputSelected(false);
+    setIsSearchInputSelectedTwo(false);
   };
 
   async function signInWithEmail() {
@@ -108,6 +112,7 @@ export default function Auth() {
       width: "100%",
       borderRadius: 20,
       height: 56,
+      minHeight: 56,
       marginBottom: 16,
       paddingLeft: 16,
       paddingRight: 6,
@@ -125,11 +130,13 @@ export default function Auth() {
       letterSpacing: -0,
     },
     inputSelected: {
-      flex: 1,
+      width: "100%",
       borderRadius: 20,
       height: 56,
-      paddingLeft: 52,
-      paddingRight: 52,
+      minHeight: 56,
+      marginBottom: 16,
+      paddingLeft: 16,
+      paddingRight: 6,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
@@ -204,7 +211,7 @@ export default function Auth() {
             <View
               style={[
                 styles.input,
-                isSearchInputSelected && styles.inputSelected,
+                isSearchInputSelectedTwo && styles.inputSelected,
               ]}
             >
               <TextInput

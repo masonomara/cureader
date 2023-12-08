@@ -17,6 +17,12 @@ import Colors from "../../constants/Colors";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
+  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
+  const [isSearchInputSelectedTwo, setIsSearchInputSelectedTwo] =
+    useState(false);
+  const [isSearchInputSelectedThree, setIsSearchInputSelectedThree] =
+    useState(false);
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,21 +41,21 @@ export default function Auth() {
 
   // Function for handling search input focus
   const handleFocusTwo = () => {
-    setIsSearchInputSelected(true);
+    setIsSearchInputSelectedTwo(true);
   };
 
   // Function for handling seach input blur
   const handleBlurTwo = () => {
-    setIsSearchInputSelected(false);
+    setIsSearchInputSelectedTwo(false);
   };
   // Function for handling search input focus
   const handleFocusThree = () => {
-    setIsSearchInputSelected(true);
+    setIsSearchInputSelectedThree(true);
   };
 
   // Function for handling seach input blur
   const handleBlurThree = () => {
-    setIsSearchInputSelected(false);
+    setIsSearchInputSelectedThree(false);
   };
 
   async function signUpWithEmail() {
@@ -125,8 +131,10 @@ export default function Auth() {
       width: "100%",
       borderRadius: 20,
       height: 56,
+      minHeight: 56,
       marginBottom: 16,
-      paddingHorizontal: 16,
+      paddingLeft: 16,
+      paddingRight: 6,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].border}`,
@@ -141,11 +149,13 @@ export default function Auth() {
       letterSpacing: -0,
     },
     inputSelected: {
-      flex: 1,
+      width: "100%",
       borderRadius: 20,
       height: 56,
-      paddingLeft: 52,
-      paddingRight: 52,
+      minHeight: 56,
+      marginBottom: 16,
+      paddingLeft: 16,
+      paddingRight: 6,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
@@ -169,7 +179,7 @@ export default function Auth() {
       letterSpacing: -0,
     },
     inputButton: {
-      width: 34,
+      width: 44,
       marginLeft: 8,
       alignItems: "center",
       justifyContent: "center",
@@ -222,7 +232,7 @@ export default function Auth() {
             <TextInput
               style={[
                 styles.input,
-                isSearchInputSelected && styles.inputSelected,
+                isSearchInputSelectedTwo && styles.inputSelected,
               ]}
               label="Email"
               onChangeText={(text) => setEmail(text)}
@@ -234,12 +244,14 @@ export default function Auth() {
               onBlur={handleBlurTwo}
             />
             <Text style={styles.label}>Your password</Text>
-            <View style={styles.input}>
+            <View
+              style={[
+                styles.input,
+                isSearchInputSelectedThree && styles.inputSelected,
+              ]}
+            >
               <TextInput
-                style={[
-                  styles.input,
-                  isSearchInputSelected && styles.inputSelected,
-                ]}
+                style={styles.inputText}
                 label="Password"
                 onChangeText={(text) => setPassword(text)}
                 value={password}
