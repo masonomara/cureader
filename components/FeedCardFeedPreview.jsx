@@ -3,11 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   Dimensions,
   Pressable,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
+import { Image } from "expo-image";
+
 import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
@@ -370,12 +371,11 @@ export default function FeedCardFeedPreview({ params, userSubscriptions }) {
           <Image
             style={{
               flex: 1,
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
+              borderRadius: 12,
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
+            contentFit="cover"
             source={{ uri: params.image }}
           />
         </View>

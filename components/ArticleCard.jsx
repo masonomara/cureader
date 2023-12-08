@@ -4,11 +4,10 @@ import {
   TouchableOpacity,
   Pressable,
   useColorScheme,
-  Image,
   Share,
   Alert,
 } from "react-native";
-
+import { Image } from "expo-image";
 import React, { useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import Dots20 from "./icons/20/Dots20";
@@ -235,12 +234,11 @@ export default function ArticleCard({
           <Image
             style={{
               flex: 1,
-              width: "100%",
-              height: "100%",
               borderRadius: 12,
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
+            contentFit="cover"
             source={{ uri: imageUrl || fallbackImage || item.image?.url }}
           />
         </View>

@@ -1,5 +1,6 @@
 import { Tabs, usePathname, router } from "expo-router";
-import { useColorScheme, Image, Text, TouchableOpacity } from "react-native";
+import { useColorScheme, Text, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 
 import Colors from "../../constants/Colors";
 
@@ -61,7 +62,7 @@ export default function AuthLayout() {
             <Image
               style={{ width: 200, height: 36 }}
               source={require("../../assets/images/pin.png")}
-              resizeMode="contain"
+              contentFit="contain"
             />
           ),
           headerRight: () => (

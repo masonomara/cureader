@@ -1,5 +1,6 @@
 import { Tabs, usePathname, router } from "expo-router";
-import { useColorScheme, Image, Text, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
+import { useColorScheme, Text, TouchableOpacity } from "react-native";
 
 import Colors from "../../constants/Colors";
 
@@ -17,8 +18,8 @@ export default function AuthLayout() {
       marginRight: 16,
       textAlign: "right",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: 'InterSemiBold',
-      fontWeight: '600',
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
@@ -27,8 +28,8 @@ export default function AuthLayout() {
       flexDirection: "row",
       flexWrap: "nowrap",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: 'InterSemiBold',
-      fontWeight: '600',
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
@@ -61,7 +62,7 @@ export default function AuthLayout() {
             <Image
               style={{ width: 200, height: 36 }}
               source={require("../../assets/images/pin.png")}
-              resizeMode="contain"
+              contentFit="contain"
             />
           ),
           headerRight: () => (
