@@ -7,11 +7,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Pressable,
-  TouchableWithoutFeedback,
-  Keyboard,
   useColorScheme,
-  KeyboardAvoidingView,
-  ScrollView,
 } from "react-native";
 import { supabase } from "../../config/initSupabase";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -90,13 +86,13 @@ export default function Auth() {
     safeAreaView: {
       flex: 1,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderWidth: 1,
-      borderColor: "red",
+      // borderWidth: 1,
+      // borderColor: "red",
     },
     keyboardAvoidingView: {
       flex: 1,
-      borderWidth: 1,
-      borderColor: "green",
+      // borderWidth: 1,
+      // borderColor: "green",
     },
     container: {
       flex: 1,
@@ -104,16 +100,16 @@ export default function Auth() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
-      borderWidth: 1,
-      borderColor: "yellow",
+      // borderWidth: 1,
+      // borderColor: "yellow",
       overflow: "hidden",
       paddingBottom: 88,
     },
     containerScrollView: {
       justifyContent: "flex-start",
       flex: 0,
-      borderWidth: 1,
-      borderColor: "green",
+      // borderWidth: 1,
+      // borderColor: "green",
     },
     content: {
       width: "100%",
