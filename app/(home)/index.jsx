@@ -14,6 +14,7 @@ export default function Index() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -134,7 +135,70 @@ export default function Index() {
     };
 
     fetchAndParseFeeds();
+    setIsRefreshing(false);
   }, [session]);
+
+  const fetchAndParseFeedsRefresh = async () => {
+    if (user) {
+      const feedUrls = await getFeedSubscriptions();
+      const fallbackImages = await getFallbackImages();
+
+      const allChannels = [];
+      const allItems = [];
+
+      const parseAndSort = async (url) => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const responseData = await response.text();
+          const parsedRss = await rssParser.parse(responseData);
+
+          const channelImage = fallbackImages.find(
+            (image) => image.channel_url === url
+          );
+
+          allChannels.push({
+            title: parsedRss.title,
+            description: parsedRss.description,
+          });
+
+          allItems.push(
+            ...parsedRss.items.map((item) => ({
+              ...item,
+              publicationDate: new Date(item.published),
+              channel: parsedRss.title,
+              image: parsedRss.image,
+              fallbackImage: channelImage
+                ? channelImage.channel_image_url
+                : null,
+              channelUrl: parsedRss.links[0].url,
+            }))
+          );
+        } catch (error) {
+          console.error(error);
+          showErrorAlert("Error fetching RSS feeds. Please try again.");
+        }
+      };
+
+      await Promise.all(feedUrls.map(parseAndSort));
+
+      // Sort items by publication date in descending order (most recent first)
+      allItems.sort((a, b) => b.publicationDate - a.publicationDate);
+
+      setRssChannels(allChannels);
+      setRssItems(allItems);
+    }
+  };
+
+  const onRefresh = () => {
+    // set isRefreshing to true
+    setIsRefreshing(true);
+    fetchAndParseFeedsRefresh();
+    // and set isRefreshing to false at the end of your callApiMethod()
+    setIsRefreshing(false);
+  };
 
   // Styles
   const styles = {
@@ -216,6 +280,8 @@ export default function Index() {
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
+          refreshing={isRefreshing} // Add this line to pass the refreshing state
+          onRefresh={onRefresh}
           estimatedItemSize={200}
           renderItem={({ item }) => {
             return (
