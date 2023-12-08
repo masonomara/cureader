@@ -6,7 +6,6 @@ import React, {
   useContext,
 } from "react";
 import { AuthContext } from "../_layout";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
   Text,
@@ -37,8 +36,6 @@ function CloseIcon({ size, ...props }) {
 export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
-  const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
 
   const { session, user, userSubscriptions } = useContext(AuthContext);
   const [feeds, setFeeds] = useState([]);
@@ -339,8 +336,6 @@ export default function Explore() {
 
         setFeeds(channelsData);
         console.log(feeds);
-
-        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         // Handle unexpected errors here, e.g., show a generic error message.
@@ -386,44 +381,6 @@ export default function Explore() {
       setRandomFeeds(randomFeedsSlice.slice(0, 34));
     }
   }, [feeds]);
-
-  // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userSubscriptions]
-  useFocusEffect(
-    useCallback(() => {
-      if (user) {
-        fetchUserChannels(user).then((channelIds) => {
-          setFocusEffectCompleted(true);
-        });
-      }
-    }, [user])
-  );
-
-  // Function to fetch user channels
-  const fetchUserChannels = async (user) => {
-    try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
-
-      if (userProfileError) {
-        console.error("Error fetching user profile data:", userProfileError);
-        // Handle specific error cases, show user-friendly messages.
-        return [];
-      }
-
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map(
-        (subscription) => subscription.channelId
-      );
-      return channelIds;
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-      // Handle unexpected errors here, e.g., show a generic error message.
-      return [];
-    }
-  };
 
   // Function to chunk an array
   const chunkArray = (arr, chunkSize) => {
@@ -659,48 +616,42 @@ export default function Explore() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Conditionally render content based on focusEffectCompleted */}
-      {focusEffectCompleted ? (
-        <>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Feed Search</Text>
-          </View>
-          <View style={styles.inputWrapper}>
-            <SearchIcon
-              name="search"
-              color={`${Colors[colorScheme || "light"].textPlaceholder}`}
-              style={styles.searchIcon}
-            />
-            <TextInput
-              ref={textInputRef}
-              style={[
-                styles.input,
-                isSearchInputSelected && styles.inputSelected,
-              ]}
-              value={searchInput}
-              label="Channel Url Text"
-              placeholder="Search for feed"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onChangeText={handleSearchInput}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            />
-            <TouchableOpacity
-              style={[
-                styles.closeIconWrapper,
-                isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
-              ]}
-              onPress={handleClearInput}
-            >
-              <CloseIcon
-                name="x-circle"
-                color={`${Colors[colorScheme || "light"].buttonActive}`}
-                style={styles.closeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          {/* <Text>Search Input: {searchInput}</Text>
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Feed Search</Text>
+      </View>
+      <View style={styles.inputWrapper}>
+        <SearchIcon
+          name="search"
+          color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          ref={textInputRef}
+          style={[styles.input, isSearchInputSelected && styles.inputSelected]}
+          value={searchInput}
+          label="Channel Url Text"
+          placeholder="Search for feed"
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={handleSearchInput}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        <TouchableOpacity
+          style={[
+            styles.closeIconWrapper,
+            isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
+          ]}
+          onPress={handleClearInput}
+        >
+          <CloseIcon
+            name="x-circle"
+            color={`${Colors[colorScheme || "light"].buttonActive}`}
+            style={styles.closeIcon}
+          />
+        </TouchableOpacity>
+      </View>
+      {/* <Text>Search Input: {searchInput}</Text>
                           <Text>Parser Input: {parserInput}</Text>
                           <Text>Channel Url: {channelUrl}</Text>
                           <Text>Channel Title: {channelTitle}</Text>
@@ -710,169 +661,159 @@ export default function Explore() {
                           <Text numberOfLines={1}>
                             Channel Image URL: {channelImageUrl}
                           </Text> */}
-          {isSearchInputSelected && searchInput !== "" && (
-            <View style={styles.searchContainer}>
-              <View style={styles.searchHeader}>
-                <Text style={styles.searchHeaderText}>
-                  {searchResults.length > 0 || channelTitle
-                    ? "Search Results"
-                    : searchResults.length === 0 && channelTitleWait
-                    ? "Searching..."
-                    : "No Search Results Found"}
-                </Text>
-              </View>
-
-              {searchResults.length > 0 && (
-                <View
-                  showsHorizontalScrollIndicator={false}
-                  style={[styles.searchResultsList]}
-                  decelerationRate={0}
-                  snapToInterval={CARD_WIDTH + 8}
-                  snapToAlignment={"left"}
-                >
-                  {searchResults.map((item) => (
-                    <FeedCard
-                      key={item.id}
-                      item={item}
-                      user={user}
-                      feeds={feeds}
-                      userSubscriptions={userSubscriptions}
-                    />
-                  ))}
-                </View>
-              )}
-
-              <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
-                {!channelTitle && (
-                  <>
-                    {searchResults.length === 0 && channelTitleWait ? (
-                      <ActivityIndicator
-                        color={`${Colors[colorScheme || "light"].buttonActive}`}
-                      />
-                    ) : (
-                      <>
-                        <View style={styles.noResultsHeader}>
-                          <Text style={styles.noResultsHeaderText}>
-                            Can't find your feed?
-                          </Text>
-                        </View>
-                        <View style={styles.noResultsTextWrapper}>
-                          <Text style={styles.noResultsText}>
-                            Simply enter your RSS Feed's URL to add it. For
-                            example:{" "}
-                            <Text style={styles.noResultsTextBold}>
-                              nasa.gov/rss/breaking_news.rss
-                            </Text>
-                          </Text>
-                        </View>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {searchResults.length === 0 &&
-                  !channelTitleWait &&
-                  channelTitle && (
-                    <FeedCardSearchPreview
-                      channelUrl={channelUrl}
-                      channelTitle={channelTitle}
-                      channelDescription={channelDescription}
-                      channelImageUrl={channelImageUrl}
-                      user={user}
-                    />
-                  )}
-              </View>
-            </View>
-          )}
-
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Random Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allRandomFeeds",
-                  params: {
-                    feed: randomFeeds,
-                    user: user,
-                  },
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
+      {isSearchInputSelected && searchInput !== "" && (
+        <View style={styles.searchContainer}>
+          <View style={styles.searchHeader}>
+            <Text style={styles.searchHeaderText}>
+              {searchResults.length > 0 || channelTitle
+                ? "Search Results"
+                : searchResults.length === 0 && channelTitleWait
+                ? "Searching..."
+                : "No Search Results Found"}
+            </Text>
           </View>
 
-          {randomFeeds.length > 0 ? (
-            <ScrollView
-              horizontal
+          {searchResults.length > 0 && (
+            <View
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.randomChannelList}
-              decelerationRate={0}
-              snapToInterval={CARD_WIDTH + 8} //your element width
-              snapToAlignment={"left"}
-            >
-              {randomFeeds.map((item) => (
-                <FeedCardFeatured
-                  key={item.id}
-                  item={item}
-                  user={user}
-                  subscribed={userSubscriptions.includes(item.id)}
-                  feeds={feeds}
-                  userSubscriptions={userSubscriptions}
-                />
-              ))}
-            </ScrollView>
-          ) : (
-            <Text>Loading...</Text>
-          )}
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Feeds</Text>
-            <TouchableOpacity style={styles.textButton}>
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-
-          {feeds ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[styles.randomChannelList]}
+              style={[styles.searchResultsList]}
               decelerationRate={0}
               snapToInterval={CARD_WIDTH + 8}
               snapToAlignment={"left"}
             >
-              {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    borderTopWidth: 1,
-                    borderColor: `${Colors[colorScheme || "light"].border}`,
-                  }}
-                >
-                  {chunk.map((item) => (
-                    <FeedCard
-                      key={item.id}
-                      item={item}
-                      user={user}
-                      feeds={feeds}
-                      userSubscriptions={userSubscriptions}
-                    />
-                  ))}
-                </View>
+              {searchResults.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  feeds={feeds}
+                  userSubscriptions={userSubscriptions}
+                />
               ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                size="large"
-                color={Colors[colorScheme || "light"].colorPrimary}
-              />
             </View>
           )}
-        </>
+
+          <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
+            {!channelTitle && (
+              <>
+                {searchResults.length === 0 && channelTitleWait ? (
+                  <ActivityIndicator
+                    color={`${Colors[colorScheme || "light"].buttonActive}`}
+                  />
+                ) : (
+                  <>
+                    <View style={styles.noResultsHeader}>
+                      <Text style={styles.noResultsHeaderText}>
+                        Can't find your feed?
+                      </Text>
+                    </View>
+                    <View style={styles.noResultsTextWrapper}>
+                      <Text style={styles.noResultsText}>
+                        Simply enter your RSS Feed's URL to add it. For example:{" "}
+                        <Text style={styles.noResultsTextBold}>
+                          nasa.gov/rss/breaking_news.rss
+                        </Text>
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </>
+            )}
+
+            {searchResults.length === 0 &&
+              !channelTitleWait &&
+              channelTitle && (
+                <FeedCardSearchPreview
+                  channelUrl={channelUrl}
+                  channelTitle={channelTitle}
+                  channelDescription={channelDescription}
+                  channelImageUrl={channelImageUrl}
+                  user={user}
+                />
+              )}
+          </View>
+        </View>
+      )}
+
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Random Feeds</Text>
+        <TouchableOpacity
+          style={styles.textButton}
+          onPress={() => {
+            router.push({
+              pathname: "/allRandomFeeds",
+              params: {
+                feed: randomFeeds,
+                user: user,
+              },
+            });
+          }}
+        >
+          <Text style={styles.textButtonText}>View more</Text>
+        </TouchableOpacity>
+      </View>
+
+      {randomFeeds.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.randomChannelList}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8} //your element width
+          snapToAlignment={"left"}
+        >
+          {randomFeeds.map((item) => (
+            <FeedCardFeatured
+              key={item.id}
+              item={item}
+              user={user}
+              subscribed={userSubscriptions.includes(item.id)}
+              feeds={feeds}
+              userSubscriptions={userSubscriptions}
+            />
+          ))}
+        </ScrollView>
+      ) : (
+        <Text>Loading...</Text>
+      )}
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Popular Feeds</Text>
+        <TouchableOpacity style={styles.textButton}>
+          <Text style={styles.textButtonText}>View more</Text>
+        </TouchableOpacity>
+      </View>
+
+      {feeds ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.randomChannelList]}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8}
+          snapToAlignment={"left"}
+        >
+          {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
+            <View
+              key={index}
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-start",
+                borderTopWidth: 1,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
+            >
+              {chunk.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  feeds={feeds}
+                  userSubscriptions={userSubscriptions}
+                />
+              ))}
+            </View>
+          ))}
+        </ScrollView>
       ) : (
         <View style={styles.loadingContainer}>
           <ActivityIndicator
