@@ -37,7 +37,7 @@ export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-  const { session, user, userSubscriptions } = useContext(AuthContext);
+  const { session, user, userSubscriptionIds } = useContext(AuthContext);
   const [feeds, setFeeds] = useState([]);
   const [randomFeeds, setRandomFeeds] = useState([]);
 
@@ -125,7 +125,6 @@ export default function Explore() {
 
     return () => clearTimeout(delayTimer);
   }, [parserInput]);
-
 
   // Fetches user information and all feed channels — sets [feeds]
   useEffect(() => {
@@ -430,6 +429,7 @@ export default function Explore() {
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
     >
+      <Text>{JSON.stringify(userSubscriptionIds)}</Text>
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Feed Search</Text>
       </View>
@@ -492,7 +492,7 @@ export default function Explore() {
                   item={item}
                   user={user}
                   feeds={feeds}
-                  userSubscriptions={userSubscriptions}
+                  userSubscriptionIds={userSubscriptionIds}
                 />
               ))}
             </View>

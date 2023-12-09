@@ -15,6 +15,7 @@ import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
+import { AuthContext } from "../app/_layout";
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -74,22 +75,22 @@ const colorArray = [
 ];
 
 export default function FeedCardListItem({ item }) {
-  const { user, userSubscriptions, updateUserSubscriptions } =
+  const { user, userSubscriptionIds, updateUserSubscriptions } =
     useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptions.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userSubscriptions.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
 
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptions.includes(item.id));
-    setIsOptimisticSubscribed(userSubscriptions.includes(item.id));
-  }, [userSubscriptions]);
+    setIsSubscribed(userSubscriptionIds.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(item.id));
+  }, [userSubscriptionIds]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -137,7 +138,7 @@ export default function FeedCardListItem({ item }) {
           (subscriber) => subscriber !== user.id
         );
         await updateChannelSubscribers(item.id, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       } else {
         // Subscribe
@@ -165,7 +166,7 @@ export default function FeedCardListItem({ item }) {
           user.id,
         ];
         await updateChannelSubscribers(item.id, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       }
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { TouchableOpacity, Alert, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";

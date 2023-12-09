@@ -77,22 +77,22 @@ const colorArray = [
 ];
 
 export default function FeedCardFeatured({ item }) {
-  const { user, userSubscriptions, updateUserSubscriptions } =
+  const { user, userSubscriptionIds, updateUserSubscriptions } =
     useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptions.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userSubscriptions.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
 
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptions.includes(item.id));
-    setIsOptimisticSubscribed(userSubscriptions.includes(item.id));
-  }, [userSubscriptions]);
+    setIsSubscribed(userSubscriptionIds.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(item.id));
+  }, [userSubscriptionIds]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -140,7 +140,7 @@ export default function FeedCardFeatured({ item }) {
           (subscriber) => subscriber !== user.id
         );
         await updateChannelSubscribers(item.id, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       } else {
         // Subscribe
@@ -168,7 +168,7 @@ export default function FeedCardFeatured({ item }) {
           user.id,
         ];
         await updateChannelSubscribers(item.id, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       }
 
@@ -316,8 +316,8 @@ export default function FeedCardFeatured({ item }) {
         //console.log("FEATURED ITEM:", item);
 
         const idNumber = Number(item.id);
-        console.log(idNumber)
-        console.log(item.id)
+        console.log(idNumber);
+        console.log(item.id);
 
         router.push({
           pathname: "/feedView",
@@ -331,7 +331,7 @@ export default function FeedCardFeatured({ item }) {
             user: user,
             userId: user.id,
             subscribed: isSubscribed,
-            userSubscriptions: userSubscriptions,
+            userSubscriptionIds: userSubscriptionIds,
           },
         });
       }}

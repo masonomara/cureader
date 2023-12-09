@@ -17,7 +17,7 @@ import { AuthContext } from "../_layout";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
-  const { session, user, userSubscriptions } = useContext(AuthContext);
+  const { session, user, userSubscriptionIds } = useContext(AuthContext);
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
 

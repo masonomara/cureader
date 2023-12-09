@@ -13,7 +13,7 @@ import Colors from "../constants/Colors";
 import { AuthContext } from "./_layout";
 
 export default function TabOneScreen() {
-  const { session, user, userSubscriptions } = useContext(AuthContext);
+  const { session, user, userSubscriptionIds } = useContext(AuthContext);
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
 

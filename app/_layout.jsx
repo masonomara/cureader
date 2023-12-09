@@ -9,7 +9,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { router } from "expo-router";
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
-import { Text, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 
 export const AuthContext = createContext({
   authInitialized: false,
@@ -17,7 +17,8 @@ export const AuthContext = createContext({
   session: null,
   user: null,
   userBookmarks: null,
-  userSubscriptions: null,
+  userSubscriptionIds: null,
+  userSubscriptionUrls: null,
   updateUserSubscriptions: () => {},
 });
 
@@ -68,12 +69,14 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   // Global Values
+
   const [authInitialized, setAuthInitialized] = useState(false);
   const [feeds, setFeeds] = useState(null);
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [userBookmarks, setUserBookmarks] = useState(null);
-  const [userSubscriptions, setUserSubscriptions] = useState(null);
+  const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
+  const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
 
   const colorScheme = useColorScheme();
 
@@ -91,8 +94,11 @@ function RootLayoutNav() {
           setSession(session);
 
           // Fetch user subscriptions in the background
-          const channelIds = await fetchUserSubscriptions(currentUser);
-          setUserSubscriptions(channelIds);
+          const { channelIds, channelUrls } = await fetchUserSubscriptions(
+            currentUser
+          );
+          setUserSubscriptionIds(channelIds);
+          setUserSubscriptionUrls(channelUrls);
 
           SplashScreen.hideAsync();
         } else {
@@ -105,10 +111,13 @@ function RootLayoutNav() {
               setSession(session);
 
               // Fetch user subscriptions in the background
-              fetchUserSubscriptions(currentUser).then((channelIds) => {
-                setUserSubscriptions(channelIds);
-                SplashScreen.hideAsync();
-              });
+              fetchUserSubscriptions(currentUser).then(
+                (channelIds, channelUrls) => {
+                  setUserSubscriptionIds(channelIds);
+                  setUserSubscriptionUrls(channelUrls);
+                  SplashScreen.hideAsync();
+                }
+              );
 
               router.replace("(home)");
             } else {
@@ -144,7 +153,6 @@ function RootLayoutNav() {
 
   const fetchUserSubscriptions = async (currentUser) => {
     try {
-      // console.log("Beginning fetch user subscriptions with:", currentUser);
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
@@ -152,27 +160,39 @@ function RootLayoutNav() {
 
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
-        return [];
+        return { channelIds: [], channelUrls: [] };
       }
 
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map(
-        (subscription) => subscription.channelId
+
+      const { channelIds, channelUrls } = channelSubscriptions.reduce(
+        (acc, subscription) => {
+          acc.channelIds.push(subscription.channelId);
+          acc.channelUrls.push(subscription.channelUrl);
+          return acc;
+        },
+        { channelIds: [], channelUrls: [] }
       );
-      return channelIds;
+
+      // console.log("CHANNELIDS:", channelIds);
+      // console.log("CHANNELURLS:", channelUrls);
+
+      return { channelIds, channelUrls };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return [];
+      return { channelIds: [], channelUrls: [] };
     }
   };
 
   const updateUserSubscriptions = async (updatedSubscriptions) => {
     try {
-      const currentUser = session.user;
-
-      const channelIds = await fetchUserSubscriptions(currentUser);
-      setUserSubscriptions(channelIds);
+      const { channelIds, channelUrls } = await fetchUserSubscriptions(
+        session.user
+      );
+      // Update local state
+      setUserSubscriptionIds(channelIds);
+      setUserSubscriptionUrls(channelUrls);
 
       // Update the user profile on Supabase
       await supabase
@@ -180,7 +200,7 @@ function RootLayoutNav() {
         .update({
           channel_subscriptions: updatedSubscriptions,
         })
-        .eq("id", currentUser.id);
+        .eq("id", session.user.id);
     } catch (error) {
       console.error("Error updating user subscriptions:", error);
     }
@@ -195,7 +215,8 @@ function RootLayoutNav() {
           session,
           user,
           userBookmarks,
-          userSubscriptions,
+          userSubscriptionIds,
+          userSubscriptionUrls,
           updateUserSubscriptions,
         }}
       >

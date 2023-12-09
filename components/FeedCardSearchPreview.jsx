@@ -68,10 +68,9 @@ export default function FeedCardSearchPreview({
   channelUrl,
   channelTitle,
   channelDescription,
-  channelImageUrl
+  channelImageUrl,
 }) {
-  const { user } =
-  useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 

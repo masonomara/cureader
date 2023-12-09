@@ -2,14 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import { Alert, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { supabase } from "../../config/initSupabase";
-import { Text, View } from "../../components/Themed";
+import { View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 import { AuthContext } from "../_layout";
 
 export default function Index() {
-  const { session, user, userSubscriptions } = useContext(AuthContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -20,50 +20,15 @@ export default function Index() {
     Alert.alert("Error", message);
   };
 
-  // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
-  const getFeedSubscriptions = async () => {
-    try {
-      if (user) {
-        // Check if user is defined and authenticated
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("channel_subscriptions")
-          .eq("id", user.id);
-
-        if (profileError) {
-          console.error("Error fetching user profile data:", profileError);
-          return [];
-        } else {
-          //console.log("USER CHANNEL URLS", profileData)
-          const channelSubscriptions =
-            profileData[0]?.channel_subscriptions || [];
-          const channelUrls = channelSubscriptions.map(
-            (subscription) => subscription.channelUrl
-          );
-          return channelUrls;
-        }
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching user profile data:", error);
-      return [];
-    }
-  };
-
   // Use the Supabase client to query the "channels" table and get the channel_image_url items
   const getFallbackImages = async () => {
     try {
       if (user) {
-        // Check if user is defined and authenticated
-        const feedUrls = await getFeedSubscriptions();
-
-
         const { data: fallbackImageData, error: fallbackImageError } =
           await supabase
             .from("channels")
             .select("channel_url, channel_image_url")
-            .in("channel_url", feedUrls);
+            .in("channel_url", userSubscriptionUrls);
 
         if (fallbackImageError) {
           console.error("Error fetching fallback images:", fallbackImageError);
@@ -84,7 +49,6 @@ export default function Index() {
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
       if (user) {
-        const feedUrls = await getFeedSubscriptions();
         const fallbackImages = await getFallbackImages();
 
         const allChannels = [];
@@ -126,7 +90,7 @@ export default function Index() {
           }
         };
 
-        await Promise.all(feedUrls.map(parseAndSort));
+        await Promise.all(userSubscriptionUrls.map(parseAndSort));
 
         // Sort items by publication date in descending order (most recent first)
         allItems.sort((a, b) => b.publicationDate - a.publicationDate);
@@ -138,13 +102,11 @@ export default function Index() {
 
     fetchAndParseFeeds();
     setIsRefreshing(false);
-  }, [session]);
+  }, [userSubscriptionUrls]);
 
   const fetchAndParseFeedsRefresh = async () => {
     if (user) {
-      const feedUrls = await getFeedSubscriptions();
       const fallbackImages = await getFallbackImages();
-
       const allChannels = [];
       const allItems = [];
 
@@ -184,7 +146,7 @@ export default function Index() {
         }
       };
 
-      await Promise.all(feedUrls.map(parseAndSort));
+      await Promise.all(userSubscriptionUrls.map(parseAndSort));
 
       // Sort items by publication date in descending order (most recent first)
       allItems.sort((a, b) => b.publicationDate - a.publicationDate);
@@ -201,9 +163,6 @@ export default function Index() {
     // and set isRefreshing to false at the end of your callApiMethod()
     setIsRefreshing(false);
   };
-
-  //console.log("USER SUBSCRITIONS:", userSubscriptions)
-  // console.log("USER CHANNEL URLS", channelUrls)
 
   // Styles
   const styles = {

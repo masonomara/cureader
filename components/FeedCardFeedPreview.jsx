@@ -71,22 +71,22 @@ export default function FeedCardFeedPreview({ params }) {
   console.log("FEED PREVIEW:", params.id);
   const paramsId = parseInt(params.id, 10);
 
-  const { user, userSubscriptions, updateUserSubscriptions } =
+  const { user, userSubscriptionIds, updateUserSubscriptions } =
     useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptions.includes(paramsId)
+    userSubscriptionIds.includes(paramsId)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userSubscriptions.includes(paramsId)
+    userSubscriptionIds.includes(paramsId)
   );
 
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptions.includes(paramsId));
-    setIsOptimisticSubscribed(userSubscriptions.includes(paramsId));
-  }, [userSubscriptions]);
+    setIsSubscribed(userSubscriptionIds.includes(paramsId));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(paramsId));
+  }, [userSubscriptionIds]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -134,7 +134,7 @@ export default function FeedCardFeedPreview({ params }) {
           (subscriber) => subscriber !== user.id
         );
         await updateChannelSubscribers(paramsId, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       } else {
         // Subscribe
@@ -162,7 +162,7 @@ export default function FeedCardFeedPreview({ params }) {
           user.id,
         ];
         await updateChannelSubscribers(paramsId, updatedSubscribers);
-        // Update userSubscriptions globally
+        // Update userSubscriptionIds globally
         updateUserSubscriptions(updatedSubscriptions);
       }
 

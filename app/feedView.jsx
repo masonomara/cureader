@@ -15,7 +15,7 @@ import { FlashList } from "@shopify/flash-list";
 import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
-  const { session, user, userSubscriptions } = useContext(AuthContext);
+  const { session, user, userSubscriptionIds } = useContext(AuthContext);
   const params = useLocalSearchParams();
 
   const colorScheme = useColorScheme();
@@ -29,10 +29,10 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptions.includes(user.id));
-    setIsOptimisticSubscribed(userSubscriptions.includes(user.id));
+    setIsSubscribed(userSubscriptionIds.includes(user.id));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(user.id));
     setSubscribeButtonLoading(false);
-  }, [userSubscriptions]);
+  }, [userSubscriptionIds]);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
