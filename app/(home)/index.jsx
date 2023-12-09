@@ -9,7 +9,7 @@ import Colors from "../../constants/Colors";
 import { AuthContext } from "../_layout";
 
 export default function Index() {
-  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const { user, feeds, userSubscriptionUrls } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -24,17 +24,18 @@ export default function Index() {
   const getFallbackImages = async () => {
     try {
       if (user) {
-        const { data: fallbackImageData, error: fallbackImageError } =
-          await supabase
-            .from("channels")
-            .select("channel_url, channel_image_url")
-            .in("channel_url", userSubscriptionUrls);
+        // Check if feeds data is available
+        if (feeds && feeds.length > 0) {
+          // Extract channel_url and channel_image_url from feeds
+          const fallbackImageData = feeds.map((feed) => ({
+            channel_url: feed.channel_url,
+            channel_image_url: feed.channel_image_url,
+          }));
 
-        if (fallbackImageError) {
-          console.error("Error fetching fallback images:", fallbackImageError);
-          return [];
+          console.log("FALLBACKIMAGEDATA", fallbackImageData);
+          return fallbackImageData;
         } else {
-          return fallbackImageData || [];
+          return [];
         }
       } else {
         return [];
@@ -49,7 +50,10 @@ export default function Index() {
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
       if (user) {
-        const fallbackImages = await getFallbackImages();
+        const fallbackImages = feeds.map((feed) => ({
+          channel_url: feed.channel_url,
+          channel_image_url: feed.channel_image_url,
+        }));
 
         const allChannels = [];
         const allItems = [];

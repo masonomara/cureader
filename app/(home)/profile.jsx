@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { TouchableOpacity, Alert, useColorScheme } from "react-native";
-import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
+import { FlashList } from "@shopify/flash-list";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
@@ -10,13 +10,23 @@ import { AuthContext } from "../_layout";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const { session, user } = useContext(AuthContext);
+  const { user, feeds, updateUserSubscriptions } = useContext(AuthContext);
 
-  const [feeds, setFeeds] = useState([]);
+  const [userFeeds, setUserFeeds] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
+
+  useEffect(() => {
+    // Filter channels on the client side
+    const filteredChannels = feeds.filter((feed) =>
+      feed.channel_subscribers.includes(user.id)
+    );
+
+    setUserFeeds(filteredChannels);
+  }, [feeds]);
 
   // Logout user
   const doLogout = async () => {
@@ -27,35 +37,6 @@ export default function Profile() {
     }
   };
 
-  // Fetches user information and all feed channels — sets [feeds] and [user]
-  // Filters out channels that user isn't subscribed to
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select();
-
-        if (error) {
-          console.error("Error fetching channels:", error);
-          // You might want to show a user-friendly error message here.
-          return;
-        }
-
-        // Filter channels on the client side
-        const filteredChannels = channelsData.filter((channel) =>
-          channel.channel_subscribers.includes(user.id)
-        );
-
-        setFeeds(filteredChannels);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
-      }
-    }
-
-    fetchData();
-  }, [user]);
 
   // Styles
   const styles = {
@@ -139,8 +120,9 @@ export default function Profile() {
       {/* List of feeds */}
       <View style={styles.articleList}>
         <FlashList
-          data={feeds}
+          data={userFeeds}
           estimatedItemSize={64}
+
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => {
