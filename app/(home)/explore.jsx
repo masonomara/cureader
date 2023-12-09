@@ -1,7 +1,7 @@
 import React, {
   useState,
   useEffect,
-  useCallback,
+  createContext,
   useRef,
   useContext,
 } from "react";
@@ -37,8 +37,8 @@ export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-  const { session, user, userSubscriptionIds } = useContext(AuthContext);
-  const [feeds, setFeeds] = useState([]);
+  const { session, user, userSubscriptionIds, feeds } = useContext(AuthContext);
+
   const [randomFeeds, setRandomFeeds] = useState([]);
 
   const textInputRef = useRef(null);
@@ -125,32 +125,6 @@ export default function Explore() {
 
     return () => clearTimeout(delayTimer);
   }, [parserInput]);
-
-  // Fetches user information and all feed channels — sets [feeds]
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select("*")
-          .order("channel_subscribers", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching channels:", error);
-          // You might want to show a user-friendly error message here.
-          return;
-        }
-
-        setFeeds(channelsData);
-        //console.log(feeds);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
-      }
-    }
-
-    fetchData();
-  }, []);
 
   // Creates search results that match the user's search input — sets [searchResults]
   useEffect(() => {
