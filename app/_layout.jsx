@@ -157,15 +157,19 @@ function RootLayoutNav() {
         .from("profiles")
         .select()
         .eq("id", currentUser.id);
-
+  
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
         return { channelIds: [], channelUrls: [] };
       }
-
+  
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
-
+  
+      if (!channelSubscriptions || channelSubscriptions.length === 0) {
+        return { channelIds: [], channelUrls: [] };
+      }
+  
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
           acc.channelIds.push(subscription.channelId);
@@ -174,16 +178,14 @@ function RootLayoutNav() {
         },
         { channelIds: [], channelUrls: [] }
       );
-
-      // console.log("CHANNELIDS:", channelIds);
-      // console.log("CHANNELURLS:", channelUrls);
-
+  
       return { channelIds, channelUrls };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
       return { channelIds: [], channelUrls: [] };
     }
   };
+  
 
   const updateUserSubscriptions = async (updatedSubscriptions) => {
     try {
@@ -205,6 +207,31 @@ function RootLayoutNav() {
       console.error("Error updating user subscriptions:", error);
     }
   };
+
+  // Fetches user information and all feed channels — sets [feeds]
+  useEffect(() => {
+    async function fetchFeeds() {
+      try {
+        const { data: channelsData, error } = await supabase
+          .from("channels")
+          .select("*");
+
+        if (error) {
+          console.error("Error fetching channels:", error);
+          // You might want to show a user-friendly error message here.
+          return;
+        }
+
+        setFeeds(channelsData);
+        console.log("FEEDS", channelsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle unexpected errors here, e.g., show a generic error message.
+      }
+    }
+
+    fetchFeeds();
+  }, []); // The empty dependency array ensures it runs only on mount
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
