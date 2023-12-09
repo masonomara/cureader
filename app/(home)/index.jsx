@@ -34,6 +34,7 @@ export default function Index() {
           console.error("Error fetching user profile data:", profileError);
           return [];
         } else {
+          //console.log("USER CHANNEL URLS", profileData)
           const channelSubscriptions =
             profileData[0]?.channel_subscriptions || [];
           const channelUrls = channelSubscriptions.map(
@@ -56,6 +57,7 @@ export default function Index() {
       if (user) {
         // Check if user is defined and authenticated
         const feedUrls = await getFeedSubscriptions();
+
 
         const { data: fallbackImageData, error: fallbackImageError } =
           await supabase
@@ -199,6 +201,9 @@ export default function Index() {
     // and set isRefreshing to false at the end of your callApiMethod()
     setIsRefreshing(false);
   };
+
+  //console.log("USER SUBSCRITIONS:", userSubscriptions)
+  // console.log("USER CHANNEL URLS", channelUrls)
 
   // Styles
   const styles = {
