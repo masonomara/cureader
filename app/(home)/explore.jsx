@@ -449,7 +449,6 @@ export default function Explore() {
           autoCorrect={false}
           onChangeText={handleSearchInput}
           onFocus={handleFocus}
-          onBlur={handleBlur}
         />
         <TouchableOpacity
           style={[
