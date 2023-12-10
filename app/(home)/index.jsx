@@ -103,7 +103,7 @@ export default function Index() {
 
     fetchAndParseFeeds();
     setIsRefreshing(false);
-  }, [userSubscriptionUrls]);
+  }, [user]);
 
   // Refresh and parse feeds
   const fetchAndParseFeedsRefresh = async () => {
