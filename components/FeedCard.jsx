@@ -103,12 +103,12 @@ export default function FeedCard({ item, user }) {
   }, [userSubscriptionIds]);
 
   const testHandleSubscribe = async () => {
-    // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    setIsOptimisticSubscribed(!isOptimisticSubscribed);
     console.log("isSubscribed:", isSubscribed);
     console.log("item", item);
     if (isSubscribed) {
       try {
-        // If user is already subscribed to feed
+        // If the user is already subscribed to the feed
 
         // Remove item.id from userSubscriptionIds
         const updatedUserSubscriptionIds = userSubscriptionIds.filter(
@@ -123,44 +123,48 @@ export default function FeedCard({ item, user }) {
         // Update the state with the new array
         setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-        // TODO: Add logic to update the user's subscriptions in the backend
+        // Update the user's subscriptions in the backend
         await updateUserSubscriptions(
           updatedUserSubscriptionIds,
           updatedUserSubscriptionUrls
         );
+
+        // Update channel subscribers count
+        await updateChannelSubscribers(item.id, -1);
       } catch (error) {
         console.error("Error handling unsubscription:", error);
         // Handle errors and revert the state if necessary
         setIsSubscribed(true); // Revert the state if an error occurs
-        // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+        setIsOptimisticSubscribed(true);
       }
     } else {
       try {
-        // if user is not subscribed to feed
+        // If the user is not subscribed to the feed
 
         // Add item.id to userSubscriptionIds
         setUserSubscriptionIds([...userSubscriptionIds, item.id]);
         // Add item.channel_url to userSubscriptionUrls
         setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
 
-        // TODO: Add logic to update the user's subscriptions in the backend
+        // Update the user's subscriptions in the backend
         await updateUserSubscriptions(
           [...userSubscriptionIds, item.id],
           [...userSubscriptionUrls, item.channel_url]
         );
+
+        // Update channel subscribers count
+        await updateChannelSubscribers(item.id, 1);
       } catch (error) {
         console.error("Error handling subscription:", error);
         // Handle errors and revert the state if necessary
         setIsSubscribed(false); // Revert the state if an error occurs
-        // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+        setIsOptimisticSubscribed(false);
       }
     }
   };
 
   const updateUserSubscriptions = async (updatedIds, updatedUrls) => {
     try {
-      // Make an API call to your server or Supabase to update subscriptions
-      // Example with Supabase:
       await supabase
         .from("profiles")
         .update({
@@ -171,18 +175,32 @@ export default function FeedCard({ item, user }) {
         })
         .eq("id", user.id);
     } catch (error) {
-      console.error("Error updating subscriptions:", error);
+      console.error("Error updating user profile:", error);
       throw error; // Rethrow the error to handle it elsewhere if needed
     }
   };
 
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
+  const updateChannelSubscribers = async (channelId, increment = 1) => {
+    try {
+      const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
+
+      if (channelIndex !== -1) {
+        const updatedFeeds = [...feeds];
+        updatedFeeds[channelIndex].subscribers += increment;
+
+        await supabase
+          .from("channels")
+          .update({
+            subscribers: updatedFeeds[channelIndex].subscribers,
+          })
+          .eq("id", channelId);
+      } else {
+        console.error("Channel not found in the feeds prop");
+      }
+    } catch (error) {
+      console.error("Error updating channel subscribers:", error);
+      throw error; // Rethrow the error to handle it elsewhere if needed
+    }
   };
 
   const handleSubscribe = async () => {
@@ -259,8 +277,6 @@ export default function FeedCard({ item, user }) {
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
   };
-
-
 
   // Function to get background color based on the first letter
   const getColorForLetter = (letter) => {
