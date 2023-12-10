@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useContext, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -9,9 +9,10 @@ import {
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
+import { AuthContext, FeedContext } from "../app/_layout";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -72,49 +73,134 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function FeedCard({ item, user, userChannelIds }) {
+export default function FeedCard({ item, user }) {
+  const { feeds } = useContext(FeedContext);
+  const {
+    session,
+    userSubscriptionUrls,
+    userSubscriptionIds,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
+
+  feedId = item.id;
+
   const [isSubscribed, setIsSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userChannelIds.includes(item.id));
-    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
+    setIsSubscribed(userSubscriptionIds.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(item.id));
     setSubscribeButtonLoading(false);
-  }, [userChannelIds]);
+  }, [userSubscriptionIds]);
+
+  const testHandleSubscribe = async () => {
+    // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    console.log("isSubscribed:", isSubscribed);
+    console.log("item", item);
+    if (isSubscribed) {
+      try {
+        // Remove item.id from userSubscriptionIds
+        const updatedUserSubscriptionIds = userSubscriptionIds.filter(
+          (id) => id !== item.id
+        );
+        // Update the state with the new array
+        setUserSubscriptionIds(updatedUserSubscriptionIds);
+        // Remove item.id from userSubscriptionIds
+        const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
+          (url) => url !== item.channel_url
+        );
+        // Update the state with the new array
+        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+
+        // TODO: Add logic to update the user's subscriptions in the backend
+        await updateUserSubscriptions(
+          [...userSubscriptionIds, item.id],
+          [...userSubscriptionUrls, item.channel_url]
+        );
+      } catch (error) {
+        console.error("Error handling unsubscription:", error);
+        // Handle errors and revert the state if necessary
+        setIsSubscribed(true); // Revert the state if an error occurs
+        // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      }
+    } else {
+      try {
+        // Add item.id to userSubscriptionIds
+        setUserSubscriptionIds([...userSubscriptionIds, item.id]);
+        // Add item.channel_url to userSubscriptionUrls
+        setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
+
+        // TODO: Add logic to update the user's subscriptions in the backend
+        await updateUserSubscriptions(
+          [...userSubscriptionIds, item.id],
+          [...userSubscriptionUrls, item.channel_url]
+        );
+      } catch (error) {
+        console.error("Error handling subscription:", error);
+        // Handle errors and revert the state if necessary
+        setIsSubscribed(false); // Revert the state if an error occurs
+        // setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      }
+    }
+  };
+
+  const updateUserSubscriptions = async (updatedIds, updatedUrls) => {
+    try {
+      // Make an API call to your server or Supabase to update subscriptions
+      // Example with Supabase:
+      await supabase
+        .from("profiles")
+        .update({
+          channel_subscriptions: updatedIds.map((id, index) => ({
+            channelId: id,
+            channelUrl: updatedUrls[index],
+          })),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating subscriptions:", error);
+      throw error; // Rethrow the error to handle it elsewhere if needed
+    }
+  };
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
     try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
+      // const { data: userProfileData, error: userProfileError } = await supabase
+      //   .from("profiles")
+      //   .select()
+      //   .eq("id", user.id);
 
-      if (userProfileError) {
-        console.log("Error fetching user profile data:", userProfileError);
-        return;
-      }
+      // if (userProfileError) {
+      //   console.log("Error fetching user profile data:", userProfileError);
+      //   return;
+      // }
 
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const itemChannelId = item.id;
-      const isAlreadySubscribed = channelSubscriptions.some(
-        (subscription) => subscription.channelId === itemChannelId
+      // const channelSubscriptions =
+      //   userProfileData[0].channel_subscriptions || [];
+
+      // console.log("channelSubscriptions:", channelSubscriptions);
+      // const itemChannelId = item.id;
+      // console.log("itemChannelId:", itemChannelId);
+
+      const isAlreadySubscribed = userSubscriptionIds.some(
+        (subscription) => subscription === feedId
       );
+      console.log("isAlreadySubscribed:", isAlreadySubscribed);
 
       if (isSubscribed && isAlreadySubscribed) {
         // Unsubscribe
-        const updatedSubscriptions = channelSubscriptions.filter(
-          (subscription) => subscription.channelId !== itemChannelId
+        const updatedSubscriptions = userSubscriptionIds.filter(
+          (subscription) => subscription !== feedId
         );
         await updateSubscriptions(user.id, updatedSubscriptions);
 
@@ -159,13 +245,6 @@ export default function FeedCard({ item, user, userChannelIds }) {
       console.error("Error handling subscription:", error);
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
-  };
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
   };
 
   const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
@@ -326,7 +405,7 @@ export default function FeedCard({ item, user, userChannelIds }) {
             user: user,
             userId: user.id,
             subscribed: isSubscribed,
-            userChannelIds: userChannelIds,
+            userSubscriptionIds: userSubscriptionIds,
           },
         });
       }}
@@ -379,6 +458,16 @@ export default function FeedCard({ item, user, userChannelIds }) {
           )}
         </View>
         <View style={styles.cardControls}>
+          <TouchableOpacity
+            style={
+              isOptimisticSubscribed
+                ? styles.subscribedButton
+                : styles.subscribeButton
+            }
+            onPress={testHandleSubscribe}
+          >
+            <Text>TestHandleSubscribe</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={
               isOptimisticSubscribed
