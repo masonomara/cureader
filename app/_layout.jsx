@@ -159,8 +159,8 @@ function RootLayoutNav() {
     });
   }, [feedsFetched]);
 
+  // Listen for changes in the authentication state
   useEffect(() => {
-    // Listen for changes in the authentication state
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         console.log("Starting scenario 4");
@@ -188,8 +188,11 @@ function RootLayoutNav() {
         console.log("Finished scenario 4");
       } else {
         console.log("Finished scenario 5");
-        // If a session is not present, navigate to the login screen
         router.replace("(login)");
+        setSession(null);
+        setUser(null);
+        setUserSubscriptionIds(null);
+        setUserSubscriptionUrls(null);
         console.log("Finished scenario 5");
       }
     });
@@ -232,7 +235,6 @@ function RootLayoutNav() {
   };
 
   return (
-    // <AuthProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <FeedContext.Provider
         value={{
@@ -271,6 +273,5 @@ function RootLayoutNav() {
         </AuthContext.Provider>
       </FeedContext.Provider>
     </ThemeProvider>
-    // </AuthProvider>
   );
 }
