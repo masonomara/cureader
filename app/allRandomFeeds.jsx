@@ -11,7 +11,7 @@ import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
-import ChannelCardList from "../components/ChannelCardList";
+import FeedCardListItem from "../components/FeedCardListItem";
 import { FeedContext } from "./_layout";
 
 export default function TabOneScreen() {
@@ -231,7 +231,7 @@ export default function TabOneScreen() {
           return (
             <>
               <Text>{item.channel_title}</Text>
-              {/* <ChannelCardList key={item.id} item={item} user={user} /> */}
+              {/* <FeedCardListItem key={item.id} item={item} user={user} /> */}
             </>
           );
         }}

@@ -17,14 +17,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
-import ChannelCardFeatured from "../../components/ChannelCardFeatured";
-import ChannelCard from "../../components/ChannelCard";
+import FeedCardFeatured from "../../components/FeedCardFeatured";
+import FeedCard from "../../components/FeedCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
-import ChannelCardSearchPreview from "../../components/ChannelCardSearchPreview";
+import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -188,271 +188,271 @@ export default function Explore() {
 
   //// Old stuff
 
-  // Submit channel URL to Supabase
-  const handleSubmitUrl = async (e) => {
-    e.preventDefault();
+  // // Submit channel URL to Supabase
+  // const handleSubmitUrl = async (e) => {
+  //   e.preventDefault();
 
-    if (!channelUrl) {
-      showErrorAlert("Please fill in the field correctly");
-      return;
-    }
+  //   if (!channelUrl) {
+  //     showErrorAlert("Please fill in the field correctly");
+  //     return;
+  //   }
 
-    try {
-      // Fetch the channel title
-      const response = await fetch(channelUrl);
+  //   try {
+  //     // Fetch the channel title
+  //     const response = await fetch(channelUrl);
 
-      if (!response.ok) {
-        throw new Error(
-          "Network response was not ok, could not fetch channelUrl"
-        );
-      }
+  //     if (!response.ok) {
+  //       throw new Error(
+  //         "Network response was not ok, could not fetch channelUrl"
+  //       );
+  //     }
 
-      // Check if the channel already exists
-      const { data: existingChannelData, error: existingChannelError } =
-        await supabase.from("channels").select().eq("channel_url", channelUrl);
+  //     // Check if the channel already exists
+  //     const { data: existingChannelData, error: existingChannelError } =
+  //       await supabase.from("channels").select().eq("channel_url", channelUrl);
 
-      if (existingChannelError) {
-        showErrorAlert("Error checking channel data. Please try again.");
-        return;
-      }
+  //     if (existingChannelError) {
+  //       showErrorAlert("Error checking channel data. Please try again.");
+  //       return;
+  //     }
 
-      if (existingChannelData.length > 0) {
-        const existingChannel = existingChannelData[0];
-        if (!existingChannel.channel_subscribers) {
-          existingChannel.channel_subscribers = []; // Create an empty subscribers array
-        }
+  //     if (existingChannelData.length > 0) {
+  //       const existingChannel = existingChannelData[0];
+  //       if (!existingChannel.channel_subscribers) {
+  //         existingChannel.channel_subscribers = []; // Create an empty subscribers array
+  //       }
 
-        if (existingChannel.channel_subscribers.includes(user.id)) {
-          showErrorAlert("You are already subscribed to this channel.");
-        } else {
-          const newSubscribers = [
-            ...existingChannel.channel_subscribers,
-            user.id,
-          ];
-          const { data: updateData, error: updateError } = await supabase
-            .from("channels")
-            .upsert([
-              {
-                id: existingChannel.id,
-                channel_subscribers: newSubscribers,
-              },
-            ]);
+  //       if (existingChannel.channel_subscribers.includes(user.id)) {
+  //         showErrorAlert("You are already subscribed to this channel.");
+  //       } else {
+  //         const newSubscribers = [
+  //           ...existingChannel.channel_subscribers,
+  //           user.id,
+  //         ];
+  //         const { data: updateData, error: updateError } = await supabase
+  //           .from("channels")
+  //           .upsert([
+  //             {
+  //               id: existingChannel.id,
+  //               channel_subscribers: newSubscribers,
+  //             },
+  //           ]);
 
-          if (updateError) {
-            showErrorAlert("Error updating channel data. Please try again.");
-          } else {
-            //showErrorAlert("Success", "You have subscribed to the channel.");
+  //         if (updateError) {
+  //           showErrorAlert("Error updating channel data. Please try again.");
+  //         } else {
+  //           //showErrorAlert("Success", "You have subscribed to the channel.");
 
-            const channelId = existingChannel.id;
-            const channelUrl = existingChannel.channel_url;
+  //           const channelId = existingChannel.id;
+  //           const channelUrl = existingChannel.channel_url;
 
-            // Fetch the user's existing channel subscriptions
+  //           // Fetch the user's existing channel subscriptions
 
-            const { data: userProfileData, error: userProfileError } =
-              await supabase
-                .from("profiles")
-                .select("channel_subscriptions")
-                .eq("id", user.id);
+  //           const { data: userProfileData, error: userProfileError } =
+  //             await supabase
+  //               .from("profiles")
+  //               .select("channel_subscriptions")
+  //               .eq("id", user.id);
 
-            if (userProfileError) {
-              showErrorAlert(
-                "Error fetching user profile data. Please try again."
-              );
-            } else {
-              const existingSubscriptions =
-                userProfileData[0].channel_subscriptions || [];
+  //           if (userProfileError) {
+  //             showErrorAlert(
+  //               "Error fetching user profile data. Please try again."
+  //             );
+  //           } else {
+  //             const existingSubscriptions =
+  //               userProfileData[0].channel_subscriptions || [];
 
-              // Create a new subscription object with channelId and channelUrl
-              const newSubscription = { channelId, channelUrl };
+  //             // Create a new subscription object with channelId and channelUrl
+  //             const newSubscription = { channelId, channelUrl };
 
-              // Add the new subscription to the existing subscriptions
-              const newSubscriptions = [
-                ...existingSubscriptions,
-                newSubscription,
-              ];
+  //             // Add the new subscription to the existing subscriptions
+  //             const newSubscriptions = [
+  //               ...existingSubscriptions,
+  //               newSubscription,
+  //             ];
 
-              // Update the user profile with the updated subscriptions
-              const { data: updatedProfileData, error: updatedProfileError } =
-                await supabase.from("profiles").upsert([
-                  {
-                    id: user.id,
-                    channel_subscriptions: newSubscriptions,
-                  },
-                ]);
+  //             // Update the user profile with the updated subscriptions
+  //             const { data: updatedProfileData, error: updatedProfileError } =
+  //               await supabase.from("profiles").upsert([
+  //                 {
+  //                   id: user.id,
+  //                   channel_subscriptions: newSubscriptions,
+  //                 },
+  //               ]);
 
-              if (updatedProfileError) {
-                showErrorAlert(
-                  "Error updating user profile. Please try again."
-                );
-              } else {
-                //showErrorAlert("Success", "Profile subscription successfully updated");
-              }
-            }
-          }
-        }
-      } else {
-        // Create a new channel entry
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .upsert([
-            {
-              channel_url: channelUrl,
-              channel_title: channelTitle,
-              channel_subscribers: [user.id], // Create an array with the user's ID
-              channel_image_url: channelImageUrl,
-              channel_description: channelDescription,
-            },
-          ])
-          .select()
-          .single();
+  //             if (updatedProfileError) {
+  //               showErrorAlert(
+  //                 "Error updating user profile. Please try again."
+  //               );
+  //             } else {
+  //               //showErrorAlert("Success", "Profile subscription successfully updated");
+  //             }
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       // Create a new channel entry
+  //       const { data: channelData, error: channelError } = await supabase
+  //         .from("channels")
+  //         .upsert([
+  //           {
+  //             channel_url: channelUrl,
+  //             channel_title: channelTitle,
+  //             channel_subscribers: [user.id], // Create an array with the user's ID
+  //             channel_image_url: channelImageUrl,
+  //             channel_description: channelDescription,
+  //           },
+  //         ])
+  //         .select()
+  //         .single();
 
-        if (channelError) {
-          showErrorAlert("Error uploading channel data. Please try again.");
-        } else {
-          // showErrorAlert("Success", "Channel data uploaded successfully.");
+  //       if (channelError) {
+  //         showErrorAlert("Error uploading channel data. Please try again.");
+  //       } else {
+  //         // showErrorAlert("Success", "Channel data uploaded successfully.");
 
-          const channelId = channelData.id;
-          const channelUrl = channelData.channel_url;
+  //         const channelId = channelData.id;
+  //         const channelUrl = channelData.channel_url;
 
-          // Fetch the user's existing channel subscriptions
+  //         // Fetch the user's existing channel subscriptions
 
-          const { data: userProfileData, error: userProfileError } =
-            await supabase
-              .from("profiles")
-              .select("channel_subscriptions")
-              .eq("id", user.id);
+  //         const { data: userProfileData, error: userProfileError } =
+  //           await supabase
+  //             .from("profiles")
+  //             .select("channel_subscriptions")
+  //             .eq("id", user.id);
 
-          if (userProfileError) {
-            showErrorAlert(
-              "Error fetching user profile data. Please try again."
-            );
-          } else {
-            const existingSubscriptions =
-              userProfileData[0].channel_subscriptions || [];
+  //         if (userProfileError) {
+  //           showErrorAlert(
+  //             "Error fetching user profile data. Please try again."
+  //           );
+  //         } else {
+  //           const existingSubscriptions =
+  //             userProfileData[0].channel_subscriptions || [];
 
-            // Create a new subscription object with channelId and channelUrl
-            const newSubscription = { channelId, channelUrl };
+  //           // Create a new subscription object with channelId and channelUrl
+  //           const newSubscription = { channelId, channelUrl };
 
-            // Add the new subscription to the existing subscriptions
-            const newSubscriptions = [
-              ...existingSubscriptions,
-              newSubscription,
-            ];
+  //           // Add the new subscription to the existing subscriptions
+  //           const newSubscriptions = [
+  //             ...existingSubscriptions,
+  //             newSubscription,
+  //           ];
 
-            // Update the user profile with the updated subscriptions
-            const { data: updatedProfileData, error: updatedProfileError } =
-              await supabase.from("profiles").upsert([
-                {
-                  id: user.id,
-                  channel_subscriptions: newSubscriptions,
-                },
-              ]);
+  //           // Update the user profile with the updated subscriptions
+  //           const { data: updatedProfileData, error: updatedProfileError } =
+  //             await supabase.from("profiles").upsert([
+  //               {
+  //                 id: user.id,
+  //                 channel_subscriptions: newSubscriptions,
+  //               },
+  //             ]);
 
-            if (updatedProfileError) {
-              showErrorAlert("Error updating user profile. Please try again.");
-            } else {
-              // showErrorAlert("Success", "Profile subscription successfully updated");
-            }
-          }
-        }
-      }
+  //           if (updatedProfileError) {
+  //             showErrorAlert("Error updating user profile. Please try again.");
+  //           } else {
+  //             // showErrorAlert("Success", "Profile subscription successfully updated");
+  //           }
+  //         }
+  //       }
+  //     }
 
-      setChannelUrl("");
-      setChannelTitle("");
-      setChannelDescription("");
-      setChannelImageUrl("");
-      setParserInput("");
-      setSearchInput("");
-      setChannelTitleWait(false);
-      setChannelUrlError(null);
-    } catch (error) {
-      console.error("Error fetching or uploading channel data:", error);
+  //     setChannelUrl("");
+  //     setChannelTitle("");
+  //     setChannelDescription("");
+  //     setChannelImageUrl("");
+  //     setParserInput("");
+  //     setSearchInput("");
+  //     setChannelTitleWait(false);
+  //     setChannelUrlError(null);
+  //   } catch (error) {
+  //     console.error("Error fetching or uploading channel data:", error);
 
-      if (error.message.includes("suitable URL request handler found")) {
-        console.log(
-          "Ignoring the 'no suitable URL request handler found' error."
-        );
-        // Optionally display a user-friendly message to the user or take appropriate action.
-      } else {
-        showErrorAlert(
-          "Error fetching or uploading channel data. Please try again."
-        );
-      }
-    }
-  };
+  //     if (error.message.includes("suitable URL request handler found")) {
+  //       console.log(
+  //         "Ignoring the 'no suitable URL request handler found' error."
+  //       );
+  //       // Optionally display a user-friendly message to the user or take appropriate action.
+  //     } else {
+  //       showErrorAlert(
+  //         "Error fetching or uploading channel data. Please try again."
+  //       );
+  //     }
+  //   }
+  // };
 
-  // Fetches user information and all feed channels — sets [feeds] and [user]
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
+  // // Fetches user information and all feed channels — sets [feeds] and [user]
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const { data: userResponse } = await supabase.auth.getUser();
+  //       const user = userResponse ? userResponse.user : null;
+  //       setUser(user);
 
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select("*")
-          .order("channel_subscribers", { ascending: false });
+  //       const { data: channelsData, error } = await supabase
+  //         .from("channels")
+  //         .select("*")
+  //         .order("channel_subscribers", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching channels:", error);
-          // You might want to show a user-friendly error message here.
-          return;
-        }
+  //       if (error) {
+  //         console.error("Error fetching channels:", error);
+  //         // You might want to show a user-friendly error message here.
+  //         return;
+  //       }
 
-        if (user) {
-          const channelIds = await fetchUserChannels(user);
-          setUserChannelIds(channelIds);
-        }
+  //       if (user) {
+  //         const channelIds = await fetchUserChannels(user);
+  //         setUserChannelIds(channelIds);
+  //       }
 
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
-      }
-    }
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //       // Handle unexpected errors here, e.g., show a generic error message.
+  //     }
+  //   }
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
-  // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userChannelIds]
-  useFocusEffect(
-    useCallback(() => {
-      if (user) {
-        fetchUserChannels(user).then((channelIds) => {
-          setUserChannelIds(channelIds);
-          setFocusEffectCompleted(true);
-        });
-      }
-    }, [user])
-  );
+  // // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userChannelIds]
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (user) {
+  //       fetchUserChannels(user).then((channelIds) => {
+  //         setUserChannelIds(channelIds);
+  //         setFocusEffectCompleted(true);
+  //       });
+  //     }
+  //   }, [user])
+  // );
 
-  // Function to fetch user channels
-  const fetchUserChannels = async (user) => {
-    try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
+  // // Function to fetch user channels
+  // const fetchUserChannels = async (user) => {
+  //   try {
+  //     const { data: userProfileData, error: userProfileError } = await supabase
+  //       .from("profiles")
+  //       .select()
+  //       .eq("id", user.id);
 
-      if (userProfileError) {
-        console.error("Error fetching user profile data:", userProfileError);
-        // Handle specific error cases, show user-friendly messages.
-        return [];
-      }
+  //     if (userProfileError) {
+  //       console.error("Error fetching user profile data:", userProfileError);
+  //       // Handle specific error cases, show user-friendly messages.
+  //       return [];
+  //     }
 
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const channelIds = channelSubscriptions.map(
-        (subscription) => subscription.channelId
-      );
-      return channelIds;
-    } catch (error) {
-      console.error("Error fetching subscriptions 2:", error);
-      // Handle unexpected errors here, e.g., show a generic error message.
-      return [];
-    }
-  };
+  //     const channelSubscriptions =
+  //       userProfileData[0].channel_subscriptions || [];
+  //     const channelIds = channelSubscriptions.map(
+  //       (subscription) => subscription.channelId
+  //     );
+  //     return channelIds;
+  //   } catch (error) {
+  //     console.error("Error fetching subscriptions 2:", error);
+  //     // Handle unexpected errors here, e.g., show a generic error message.
+  //     return [];
+  //   }
+  // };
 
   const styles = {
     container: {
@@ -806,7 +806,13 @@ export default function Explore() {
           snapToAlignment={"left"}
         >
           {randomFeeds.map((item) => (
-            <FeedCardFeatured key={item.id} item={item} />
+            <FeedCardFeatured
+              key={item.id}
+              item={item}
+              user={user}
+              feeds={feeds}
+              userChannelIds={userSubscriptionIds}
+            />
           ))}
         </ScrollView>
       ) : (
@@ -840,7 +846,13 @@ export default function Explore() {
               }}
             >
               {chunk.map((item) => (
-                <FeedCard key={item.id} item={item} />
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  feeds={feeds}
+                  userChannelIds={userSubscriptionIds}
+                />
               ))}
             </View>
           ))}

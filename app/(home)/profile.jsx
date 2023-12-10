@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
-import ChannelCardList from "../../components/ChannelCardList";
+import FeedCardListItem from "../../components/FeedCardListItem";
 import { FeedContext } from "../_layout";
 
 export default function Profile() {
@@ -150,7 +150,7 @@ export default function Profile() {
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
           renderItem={({ item }) => {
-            return <ChannelCardList key={item.id} item={item} user={user} />;
+            return <FeedCardListItem key={item.id} item={item} user={user} />;
           }}
         />
       </View>

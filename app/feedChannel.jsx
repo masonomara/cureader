@@ -12,7 +12,7 @@ import { Text, View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
-import ChannelCardFeedPreview from "../components/ChannelCardFeedPreview";
+import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -463,7 +463,7 @@ export default function TabOneScreen() {
     </View>
   ) : (
     <>
-      <ChannelCardFeedPreview params={params} />
+      <FeedCardFeedPreview params={params} />
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
