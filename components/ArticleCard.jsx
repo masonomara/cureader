@@ -5,7 +5,6 @@ import {
   Pressable,
   useColorScheme,
   Share,
-  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import React, { useState } from "react";
@@ -55,8 +54,6 @@ export default function ArticleCard({
 
   // Extract the captured URL or provide a default value if not found
   const imageUrl = match ? match[1] : "";
-
-  // console.log("item description:", item.description);
 
   const _handlePressButtonAsync = async () => {
     try {
@@ -144,8 +141,6 @@ export default function ArticleCard({
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      // borderWidth: 1,
-      // borderColor: 'green',
     },
     articleDate: {
       color: `${Colors[colorScheme || "light"].textLow}`,
@@ -245,12 +240,6 @@ export default function ArticleCard({
       )}
 
       <View style={styles.cardContent}>
-        {/*
-        <View style={styles.iconWrapper}>
-          <View style={styles.icon}></View>
-        </View>
-          */}
-        {/* <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text> */}
         <View style={styles.cardContentWrapper}>
           <Text style={styles.publicationWrapper}>
             {publication}&nbsp;&nbsp;
