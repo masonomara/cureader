@@ -325,7 +325,7 @@ export default function FeedCard({ item, user }) {
             user: user,
             userId: user.id,
             subscribed: isSubscribed,
-            userChannelIds: userChannelIds,
+            userSubscriptionIds: userSubscriptionIds,
           },
         })
       }
