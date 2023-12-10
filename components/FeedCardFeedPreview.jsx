@@ -82,9 +82,6 @@ export default function FeedCardFeedPreview({ item }) {
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
-  console.log(itemId);
-  console.log(userSubscriptionIds);
-
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(itemId)
   );
