@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
@@ -10,13 +16,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { FeedContext } from "../_layout";
+import { AuthContext, FeedContext } from "../_layout";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
 import ChannelCardSearchPreview from "../../components/ChannelCardSearchPreview";
 
@@ -29,15 +35,10 @@ function CloseIcon({ size, ...props }) {
 }
 
 export default function Explore() {
-
-  const { feeds } = useContext(FeedContext)
+  const { feeds } = useContext(FeedContext);
+  const { user, userSubscriptionIds } = useContext(AuthContext);
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
-  const [focusEffectCompleted, setFocusEffectCompleted] = useState(false); // Track if useFocusEffect has completed
-
-  const [user, setUser] = useState(null);
-  const [userChannelIds, setUserChannelIds] = useState([]);
 
   const [randomFeeds, setRandomFeeds] = useState([]);
 
@@ -58,11 +59,6 @@ export default function Explore() {
   // Function for handling search input focus
   const handleFocus = () => {
     setIsSearchInputSelected(true);
-  };
-
-  // Function for handling seach input blur
-  const handleBlur = () => {
-    setIsSearchInputSelected(false);
   };
 
   // Function for clearing the search input
@@ -125,6 +121,72 @@ export default function Explore() {
 
     return () => clearTimeout(delayTimer);
   }, [parserInput]);
+
+  // Creates search results that match the user's search input — sets [searchResults]
+  useEffect(() => {
+    const filterResults = () => {
+      if (searchInput !== "") {
+        const lowercasedInput = searchInput.toLowerCase();
+
+        const filteredFeeds = feeds.filter((feed) => {
+          const titleMatch = feed.channel_title
+            .toLowerCase()
+            .includes(lowercasedInput);
+          const urlMatch = feed.channel_url
+            .toLowerCase()
+            .includes(lowercasedInput);
+          const descriptionMatch = feed.channel_description
+            ? feed.channel_description.toLowerCase().includes(lowercasedInput)
+            : "";
+
+          return titleMatch || urlMatch || descriptionMatch;
+        });
+
+        setSearchResults(filteredFeeds.slice(0, 3));
+      } else {
+        setSearchResults([]);
+      }
+    };
+
+    filterResults();
+  }, [searchInput, feeds]);
+
+  // Creates random feeds — sets [randomFeeds]
+  useEffect(() => {
+    if (feeds.length > 33) {
+      const randomFeedsSlice = shuffleArray(feeds.slice(33));
+      setRandomFeeds(randomFeedsSlice.slice(0, 34));
+    }
+  }, [feeds]);
+
+  // Function to chunk an array
+  const chunkArray = (arr, chunkSize) => {
+    const chunkedArray = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      chunkedArray.push(arr.slice(i, i + chunkSize));
+    }
+    return chunkedArray;
+  };
+
+  // Function to shuffle an array randomly
+  const shuffleArray = (array) => {
+    let currentIndex = array.length,
+      randomIndex,
+      temporaryValue;
+
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  };
+
+  //// Old stuff
 
   // Submit channel URL to Supabase
   const handleSubmitUrl = async (e) => {
@@ -353,43 +415,6 @@ export default function Explore() {
     fetchData();
   }, []);
 
-  // Creates search results that match the user's search input — sets [searchResults]
-  useEffect(() => {
-    const filterResults = () => {
-      if (searchInput !== "") {
-        const lowercasedInput = searchInput.toLowerCase();
-
-        const filteredFeeds = feeds.filter((feed) => {
-          const titleMatch = feed.channel_title
-            .toLowerCase()
-            .includes(lowercasedInput);
-          const urlMatch = feed.channel_url
-            .toLowerCase()
-            .includes(lowercasedInput);
-          const descriptionMatch = feed.channel_description
-            ? feed.channel_description.toLowerCase().includes(lowercasedInput)
-            : "";
-
-          return titleMatch || urlMatch || descriptionMatch;
-        });
-
-        setSearchResults(filteredFeeds.slice(0, 3));
-      } else {
-        setSearchResults([]);
-      }
-    };
-
-    filterResults();
-  }, [searchInput, feeds]);
-
-  // Creates random feeds — sets [randomFeeds]
-  useEffect(() => {
-    if (feeds.length > 33) {
-      const randomFeedsSlice = shuffleArray(feeds.slice(33));
-      setRandomFeeds(randomFeedsSlice.slice(0, 34));
-    }
-  }, [feeds]);
-
   // Fetches user channels when the screen comes into focus and marks useFocusEffect as completed — sets [userChannelIds]
   useFocusEffect(
     useCallback(() => {
@@ -423,37 +448,10 @@ export default function Explore() {
       );
       return channelIds;
     } catch (error) {
-      console.error("Error fetching subscriptions:", error);
+      console.error("Error fetching subscriptions 2:", error);
       // Handle unexpected errors here, e.g., show a generic error message.
       return [];
     }
-  };
-
-  // Function to chunk an array
-  const chunkArray = (arr, chunkSize) => {
-    const chunkedArray = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-      chunkedArray.push(arr.slice(i, i + chunkSize));
-    }
-    return chunkedArray;
-  };
-
-  // Function to shuffle an array randomly
-  const shuffleArray = (array) => {
-    let currentIndex = array.length,
-      randomIndex,
-      temporaryValue;
-
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-
-    return array;
   };
 
   const styles = {
@@ -502,11 +500,32 @@ export default function Explore() {
       flex: 1,
       borderRadius: 20,
       height: 56,
+      minHeight: 56,
       paddingLeft: 52,
       paddingRight: 52,
       borderWidth: 1,
       flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].border}`,
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+      alignContent: "center",
+      justifyContent: "space-between",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterRegular",
+      fontWeight: "500",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0,
+    },
+    inputSelected: {
+      flex: 1,
+      borderRadius: 20,
+      height: 56,
+      paddingLeft: 52,
+      paddingRight: 52,
+      minHeight: 56,
+      borderWidth: 1,
+      flexDirection: "row",
+      borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       alignContent: "center",
       justifyContent: "space-between",
@@ -643,222 +662,189 @@ export default function Explore() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Conditionally render content based on focusEffectCompleted */}
-      {focusEffectCompleted ? (
-        <>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Feed Search</Text>
-          </View>
-          <View style={styles.inputWrapper}>
-            <SearchIcon
-              name="search"
-              color={`${Colors[colorScheme || "light"].textPlaceholder}`}
-              style={styles.searchIcon}
-            />
-            <TextInput
-              ref={textInputRef}
-              style={styles.input}
-              value={searchInput}
-              label="Channel Url Text"
-              placeholder="Search for feed"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onChangeText={handleSearchInput}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-            />
-            <TouchableOpacity
-              style={[
-                styles.closeIconWrapper,
-                isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
-              ]}
-              onPress={handleClearInput}
-            >
-              <CloseIcon
-                name="x-circle"
-                color={`${Colors[colorScheme || "light"].buttonActive}`}
-                style={styles.closeIcon}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/*
-                          <Text>Search Input: {searchInput}</Text>
-                          <Text>Parser Input: {parserInput}</Text>
-                          <Text>Channel Url: {channelUrl}</Text>
-                          <Text>Channel Title: {channelTitle}</Text>
-                          <Text numberOfLines={1}>
-                            Channel Description: {channelDescription}
-                          </Text>
-                          <Text numberOfLines={1}>
-                            Channel Image URL: {channelImageUrl}
-                          </Text>
-                        */}
-
-          {isSearchInputSelected && searchInput !== "" && (
-            <View style={styles.searchContainer}>
-              <View style={styles.searchHeader}>
-                <Text style={styles.searchHeaderText}>
-                  {searchResults.length > 0 || channelTitle
-                    ? "Search Results"
-                    : searchResults.length === 0 && channelTitleWait
-                    ? "Searching..."
-                    : "No Search Results Found"}
-                </Text>
-              </View>
-
-              {searchResults.length > 0 && (
-                <View
-                  showsHorizontalScrollIndicator={false}
-                  style={[styles.searchResultsList]}
-                  decelerationRate={0}
-                  snapToInterval={CARD_WIDTH + 8}
-                  snapToAlignment={"left"}
-                >
-                  {searchResults.map((item) => (
-                    <ChannelCard
-                      key={item.id}
-                      item={item}
-                      user={user}
-                      feeds={feeds}
-                      userChannelIds={userChannelIds}
-                    />
-                  ))}
-                </View>
-              )}
-
-              <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
-                {!channelTitle && (
-                  <>
-                    {searchResults.length === 0 && channelTitleWait ? (
-                      <ActivityIndicator
-                        color={`${Colors[colorScheme || "light"].buttonActive}`}
-                      />
-                    ) : (
-                      <>
-                        <View style={styles.noResultsHeader}>
-                          <Text style={styles.noResultsHeaderText}>
-                            Can't find your feed?
-                          </Text>
-                        </View>
-                        <View style={styles.noResultsTextWrapper}>
-                          <Text style={styles.noResultsText}>
-                            Simply enter your RSS Feed's URL to add it. For
-                            example:{" "}
-                            <Text style={styles.noResultsTextBold}>
-                              nasa.gov/rss/breaking_news.rss
-                            </Text>
-                          </Text>
-                        </View>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {searchResults.length === 0 &&
-                  !channelTitleWait &&
-                  channelTitle && (
-                    <ChannelCardSearchPreview
-                      channelUrl={channelUrl}
-                      channelTitle={channelTitle}
-                      channelDescription={channelDescription}
-                      channelImageUrl={channelImageUrl}
-                      user={user}
-                    />
-                  )}
-              </View>
-            </View>
-          )}
-
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Random Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allRandomFeeds",
-                  params: {
-                    feed: randomFeeds,
-                    user: user,
-                  },
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+    >
+      <Text>{JSON.stringify(userSubscriptionIds)}</Text>
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Feed Search</Text>
+      </View>
+      <View style={styles.inputWrapper}>
+        <SearchIcon
+          name="search"
+          color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          ref={textInputRef}
+          style={[styles.input, isSearchInputSelected && styles.inputSelected]}
+          value={searchInput}
+          label="Channel Url Text"
+          placeholder="Search for feed"
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={handleSearchInput}
+          onFocus={handleFocus}
+        />
+        <TouchableOpacity
+          style={[
+            styles.closeIconWrapper,
+            isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
+          ]}
+          onPress={handleClearInput}
+        >
+          <CloseIcon
+            name="x-circle"
+            color={`${Colors[colorScheme || "light"].buttonActive}`}
+            style={styles.closeIcon}
+          />
+        </TouchableOpacity>
+      </View>
+      {isSearchInputSelected && searchInput !== "" && (
+        <View style={styles.searchContainer}>
+          <View style={styles.searchHeader}>
+            <Text style={styles.searchHeaderText}>
+              {searchResults.length > 0 || channelTitle
+                ? "Search Results"
+                : searchResults.length === 0 && channelTitleWait
+                ? "Searching..."
+                : "No Search Results Found"}
+            </Text>
           </View>
 
-          {randomFeeds.length > 0 ? (
-            <ScrollView
-              horizontal
+          {searchResults.length > 0 && (
+            <View
+              showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.randomChannelList}
-              decelerationRate={0}
-              snapToInterval={CARD_WIDTH + 8} //your element width
-              snapToAlignment={"left"}
-            >
-              {randomFeeds.map((item) => (
-                <ChannelCardFeatured
-                  key={item.id}
-                  item={item}
-                  user={user}
-                  subscribed={userChannelIds.includes(item.id)}
-                  feeds={feeds}
-                  userChannelIds={userChannelIds}
-                />
-              ))}
-            </ScrollView>
-          ) : (
-            <Text>Loading...</Text>
-          )}
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Feeds</Text>
-            <TouchableOpacity style={styles.textButton}>
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-
-          {feeds ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[styles.randomChannelList]}
+              style={[styles.searchResultsList]}
               decelerationRate={0}
               snapToInterval={CARD_WIDTH + 8}
               snapToAlignment={"left"}
             >
-              {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
-                <View
-                  key={index}
-                  style={{
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    borderTopWidth: 1,
-                    borderColor: `${Colors[colorScheme || "light"].border}`,
-                  }}
-                >
-                  {chunk.map((item) => (
-                    <ChannelCard
-                      key={item.id}
-                      item={item}
-                      user={user}
-                      feeds={feeds}
-                      userChannelIds={userChannelIds}
-                    />
-                  ))}
-                </View>
+              {searchResults.map((item) => (
+                <FeedCard
+                  key={item.id}
+                  item={item}
+                  user={user}
+                  feeds={feeds}
+                  userSubscriptionIds={userSubscriptionIds}
+                />
               ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                size="large"
-                color={Colors[colorScheme || "light"].colorPrimary}
-              />
             </View>
           )}
-        </>
+
+          <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
+            {!channelTitle && (
+              <>
+                {searchResults.length === 0 && channelTitleWait ? (
+                  <ActivityIndicator
+                    color={`${Colors[colorScheme || "light"].buttonActive}`}
+                  />
+                ) : (
+                  <>
+                    <View style={styles.noResultsHeader}>
+                      <Text style={styles.noResultsHeaderText}>
+                        Can't find your feed?
+                      </Text>
+                    </View>
+                    <View style={styles.noResultsTextWrapper}>
+                      <Text style={styles.noResultsText}>
+                        Simply enter your RSS Feed's URL to add it. For example:{" "}
+                        <Text style={styles.noResultsTextBold}>
+                          nasa.gov/rss/breaking_news.rss
+                        </Text>
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </>
+            )}
+
+            {searchResults.length === 0 &&
+              !channelTitleWait &&
+              channelTitle && (
+                <FeedCardSearchPreview
+                  channelUrl={channelUrl}
+                  channelTitle={channelTitle}
+                  channelDescription={channelDescription}
+                  channelImageUrl={channelImageUrl}
+                />
+              )}
+          </View>
+        </View>
+      )}
+
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Random Feeds</Text>
+        <TouchableOpacity
+          style={styles.textButton}
+          onPress={() => {
+            console.log("RANDOMFEEDS:", randomFeeds);
+            router.push({
+              pathname: "/allRandomFeeds",
+              params: {
+                feed: [...randomFeeds], // Convert to array
+                user: user,
+              },
+            });
+          }}
+        >
+          <Text style={styles.textButtonText}>View more</Text>
+        </TouchableOpacity>
+      </View>
+
+      {randomFeeds.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.randomChannelList}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8} //your element width
+          snapToAlignment={"left"}
+        >
+          {randomFeeds.map((item) => (
+            <FeedCardFeatured key={item.id} item={item} />
+          ))}
+        </ScrollView>
+      ) : (
+        <Text>Loading...</Text>
+      )}
+      <View style={styles.titleWrapper}>
+        <Text style={styles.title}>Popular Feeds</Text>
+        <TouchableOpacity style={styles.textButton}>
+          <Text style={styles.textButtonText}>View more</Text>
+        </TouchableOpacity>
+      </View>
+
+      {feeds ? (
+        <ScrollView
+          horizontal
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.randomChannelList]}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8}
+          snapToAlignment={"left"}
+        >
+          {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
+            <View
+              key={index}
+              style={{
+                flexDirection: "column",
+                alignItems: "flex-start",
+                borderTopWidth: 1,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
+            >
+              {chunk.map((item) => (
+                <FeedCard key={item.id} item={item} />
+              ))}
+            </View>
+          ))}
+        </ScrollView>
       ) : (
         <View style={styles.loadingContainer}>
           <ActivityIndicator
