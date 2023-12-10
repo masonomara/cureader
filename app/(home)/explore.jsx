@@ -36,7 +36,8 @@ function CloseIcon({ size, ...props }) {
 
 export default function Explore() {
   const { feeds } = useContext(FeedContext);
-  const { user, userSubscriptionIds } = useContext(AuthContext);
+  const { user, userSubscriptionIds, userSubscriptionUrls } =
+    useContext(AuthContext);
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -667,6 +668,7 @@ export default function Explore() {
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
     >
+
       <Text>{JSON.stringify(userSubscriptionIds)}</Text>
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Feed Search</Text>
@@ -818,6 +820,16 @@ export default function Explore() {
       ) : (
         <Text>Loading...</Text>
       )}
+            <View>
+        <Text numberOfLines={1}>User: {JSON.stringify(user)}</Text>
+        <Text numberOfLines={1}>
+          userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
+        </Text>
+        <Text numberOfLines={1}>
+          useerSubscriptionUrls: {JSON.stringify(userSubscriptionUrls)}
+        </Text>
+        <Text numberOfLines={1}>Feeds: {JSON.stringify(feeds)}</Text>
+      </View>
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Popular Feeds</Text>
         <TouchableOpacity style={styles.textButton}>
