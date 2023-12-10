@@ -205,7 +205,7 @@ export default function FeedCardListItem({ item, user }) {
       flexDirection: "row",
       display: "flex",
       flex: 1,
-      width: '100%',
+      width: "100%",
       paddingHorizontal: 16,
       gap: 0,
       paddingVertical: 12,

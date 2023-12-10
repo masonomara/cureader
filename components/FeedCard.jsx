@@ -320,7 +320,7 @@ export default function FeedCard({ item, user }) {
       style={styles.card}
       onPress={() => {
         router.push({
-          pathname: "/feedChannel",
+          pathname: "/feedView",
           params: {
             title: item.channel_title,
             description: item.channel_description,

@@ -261,7 +261,7 @@ function RootLayoutNav() {
               options={{ presentation: "modal", title: "Add Channel" }}
             />
             <Stack.Screen
-              name="feedChannel"
+              name="feedView"
               options={({ route }) => ({
                 title: route.params.title || "Default Title",
                 headerStyle: {
