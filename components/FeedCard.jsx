@@ -98,12 +98,10 @@ export default function FeedCard({ item, user }) {
     // Update state when the subscribed prop changes
     setIsSubscribed(userSubscriptionIds.includes(item.id));
     setIsOptimisticSubscribed(userSubscriptionIds.includes(item.id));
-    setSubscribeButtonLoading(false);
-  }, [userSubscriptionIds]);
+  }, [userSubscriptionIds.includes(item.id)]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
-    setSubscribeButtonLoading(true);
 
     try {
       if (isSubscribed) {
