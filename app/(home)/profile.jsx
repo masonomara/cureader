@@ -7,13 +7,13 @@ import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
 import FeedCardListItem from "../../components/FeedCardListItem";
-import { FeedContext } from "../_layout";
+import { FeedContext, AuthContext } from "../_layout";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const [user, setUser] = useState(null);
 
   const { feeds } = useContext(FeedContext);
+  const { user } = useContext(AuthContext);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -28,39 +28,7 @@ export default function Profile() {
     }
   };
 
-  // Fetches user information and all feed channels — sets [feeds] and [user]
-  // Filters out channels that user isn't subscribed to
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
 
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select();
-
-        if (error) {
-          console.error("Error fetching channels:", error);
-          // You might want to show a user-friendly error message here.
-          return;
-        }
-
-        // Filter channels on the client side
-        const filteredChannels = channelsData.filter((channel) =>
-          channel.channel_subscribers.includes(user.id)
-        );
-
-        setFeeds(filteredChannels);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
-      }
-    }
-
-    fetchData();
-  }, []);
 
   // Styles
   const styles = {
@@ -145,7 +113,7 @@ export default function Profile() {
       {/* List of feeds */}
       <View style={styles.articleList}>
         <FlashList
-          data={feeds}
+          data={userFeeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
