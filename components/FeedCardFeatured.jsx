@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   Image,
   Dimensions,
   Pressable,
-  ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { router, useNavigation } from "expo-router";
@@ -72,47 +71,75 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCard({ item, user, userChannelIds }) {
+export default function FeedCardFeatured({
+  item,
+  user,
+  feeds,
+  userChannelIds,
+}) {
   const [isSubscribed, setIsSubscribed] = useState(
     userChannelIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     userChannelIds.includes(item.id)
   );
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
-
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Update state when the subscribed prop changes
     setIsSubscribed(userChannelIds.includes(item.id));
     setIsOptimisticSubscribed(userChannelIds.includes(item.id));
-    setSubscribeButtonLoading(false);
-  }, [userChannelIds]);
+  }, [userChannelIds.includes(item.id)]);
+
+  const updateSubscriptions = async (userId, updatedSubscriptions) => {
+    await supabase
+      .from("profiles")
+      .update({ channel_subscriptions: updatedSubscriptions })
+      .eq("id", userId);
+  };
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    console.log("Beginning subscribe");
+
     try {
+      // Fetch user profile data
+      console.log("Fetching user profile data...");
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
         .eq("id", user.id);
 
+      console.log("Fetched user profile data:", userProfileData);
+
       if (userProfileError) {
-        console.log("Error fetching user profile data:", userProfileError);
+        console.error("Error fetching user profile data:", userProfileError);
+        // Optionally, show a user-friendly error message
+        alert("Failed to fetch user profile data. Please try again later.");
         return;
       }
 
+      console.log("Fetching channel subscriptions...");
       const channelSubscriptions =
         userProfileData[0].channel_subscriptions || [];
+      console.log("Fetched channel subscriptions:", channelSubscriptions);
+      console.log("Fetching channel id...");
       const itemChannelId = item.id;
+      console.log("Fetched channel id:", itemChannelId);
+      console.log("Fetching isAlreadySubscribed...");
       const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
       );
 
+      console.log("Fetched alreadySubscribed:", isAlreadySubscribed);
+      console.log("CHECK: do we have isSubscribed and isAlreadySubscribed...");
+      console.log("isSubscribed:", isSubscribed);
+      console.log("isAlreadySubscribed:", isAlreadySubscribed);
+
       if (isSubscribed && isAlreadySubscribed) {
         // Unsubscribe
+        console.log("Unsubscribing...");
         const updatedSubscriptions = channelSubscriptions.filter(
           (subscription) => subscription.channelId !== itemChannelId
         );
@@ -123,49 +150,80 @@ export default function ChannelCard({ item, user, userChannelIds }) {
           .select()
           .eq("id", item.id);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== user.id
-          );
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          // Optionally, show a user-friendly error message
+          alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        const channel = channelData[0];
+        const updatedSubscribers = channel.channel_subscribers.filter(
+          (subscriber) => subscriber !== user.id
+        );
+        await updateChannelSubscribers(item.id, updatedSubscribers);
       } else {
         // Subscribe
+        console.log("Subscribing...");
+        console.log("CHECK: do we have channelId and channelUrl...");
+        console.log("channelId:", item.id);
+        console.log("channelUrl:", item.channel_url);
+        console.log("Fetching newSubscription...");
         const newSubscription = {
           channelId: item.id,
           channelUrl: item.channel_url,
         };
+        console.log("Fetched newSubscription:", newSubscription);
+        console.log("Fetching updatedSubscriptions...");
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
+        console.log("Fetched updatedSubscriptions:", updatedSubscriptions);
+
+        console.log("About to perform updateSubscriptions...");
+        console.log("CHECK: do we have channelId and channelUrl...");
+        console.log("user.id:", user.id);
+        console.log("updatedSubscriptions:", updatedSubscriptions);
         await updateSubscriptions(user.id, updatedSubscriptions);
+
+        console.log("Performed updateSubscriptions");
+
+        console.log("Fetching channel data...");
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
           .eq("id", item.id);
 
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = [
-            ...(channel.channel_subscribers ?? []),
-            user.id,
-          ];
-          await updateChannelSubscribers(item.id, updatedSubscribers);
+        console.log("Fetched channel data:", channelData);
+
+        if (channelError) {
+          console.error("Error fetching channel data:", channelError);
+          // Optionally, show a user-friendly error message
+          alert("Failed to fetch channel data. Please try again later.");
+          return;
         }
+
+        console.log("CHECK: do we have channelData[0]...");
+        console.log("channelData[0]:", channelData[0]);
+        console.log("Fetching channel...");
+        const channel = channelData[0];
+
+        console.log("Fetched channel:", channel);
+        console.log("Fetching updatedSubscribers...");
+        const updatedSubscribers = [
+          ...(channel.channel_subscribers ?? []),
+          user.id,
+        ];
+        console.log("Fetched updatedSubscribers:", updatedSubscribers);
+        await updateChannelSubscribers(item.id, updatedSubscribers);
       }
 
       setIsSubscribed(!isSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
+      // Optionally, show a user-friendly error message
+      alert("Failed to handle subscription. Please try again later.");
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
-  };
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
   };
 
   const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
@@ -190,36 +248,27 @@ export default function ChannelCard({ item, user, userChannelIds }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
+      borderWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "center",
-      flexDirection: "row",
+      alignItems: "flex-start",
+      flexDirection: "column",
       display: "flex",
-      flex: 1,
       width: CARD_WIDTH,
+      borderRadius: 12,
+      overflow: "hidden",
       gap: 0,
-      paddingVertical: 12,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
+      height: "auto",
     },
     cardContent: {
       display: "flex",
-      alignItems: "center",
-      flexDirection: "row",
-      flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
-      gap: 8,
-    },
-    cardInfo: {
-      flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
-      overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
+      flexDirection: "column",
+      width: "100%",
+      padding: 12,
+      paddingVertical: 16,
+      flex: 1,
+      borderTopWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     title: {
       display: "flex",
@@ -233,19 +282,20 @@ export default function ChannelCard({ item, user, userChannelIds }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
+      flex: 1,
     },
     cardControls: {
+      marginTop: 2,
       flexDirection: "row",
-      gap: 12,
+      gap: 8,
       alignItems: "flex-end",
+      flex: 1,
     },
     description: {
       flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -287,9 +337,11 @@ export default function ChannelCard({ item, user, userChannelIds }) {
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
+      aspectRatio: "5/3",
+      width: "100%",
+      overflow: "hidden",
+      borderTopEndRadius: 12,
+      borderTopStartRadius: 12,
       backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
       alignItems: "center",
@@ -299,10 +351,10 @@ export default function ChannelCard({ item, user, userChannelIds }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 23,
-      lineHeight: 26,
-      letterSpacing: -0.173,
-      height: 26,
+      fontSize: 72,
+      lineHeight: 75,
+      letterSpacing: -0.54,
+      height: 75,
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -313,7 +365,7 @@ export default function ChannelCard({ item, user, userChannelIds }) {
   return (
     <Pressable
       style={styles.card}
-      onPress={() => {
+      onPress={() =>
         router.push({
           pathname: "/feedChannel",
           params: {
@@ -328,28 +380,47 @@ export default function ChannelCard({ item, user, userChannelIds }) {
             subscribed: isSubscribed,
             userChannelIds: userChannelIds,
           },
-        });
-      }}
+        })
+      }
     >
       {!item.channel_image_url ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title} {item.channel_title}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title}
+          </Text>
+          <Text style={styles.noImageContainerText}>
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+          </Text>
+          <Text style={styles.noImageContainerText}>
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title}
+          </Text>
+          <Text style={styles.noImageContainerText}>
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
+            {item.channel_title} {item.channel_title} {item.channel_title}{" "}
           </Text>
         </View>
       ) : (
         <View
           style={{
-            aspectRatio: "1/1",
-            width: 64,
+            aspectRatio: "5/3",
+            width: "100%",
             overflow: "hidden",
-            borderRadius: 10,
+            borderTopEndRadius: 12,
+            borderTopStartRadius: 12,
           }}
         >
           <Image
@@ -357,19 +428,16 @@ export default function ChannelCard({ item, user, userChannelIds }) {
               flex: 1,
               width: "100%",
               height: "100%",
-              borderRadius: 10,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             source={{ uri: item.channel_image_url }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
-        <View style={styles.cardInfo}>
-          <Text style={styles.title} numberOfLines={2}>
-            {item.channel_title}
-          </Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {item.channel_title}
+        </Text>
+        <View style={styles.cardControls}>
           {item.channel_description ? (
             <Text numberOfLines={2} style={styles.description}>
               {item.channel_description.replace(/<[^>]*>/g, "").trim()}
@@ -377,8 +445,6 @@ export default function ChannelCard({ item, user, userChannelIds }) {
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
           )}
-        </View>
-        <View style={styles.cardControls}>
           <TouchableOpacity
             style={
               isOptimisticSubscribed
@@ -387,24 +453,15 @@ export default function ChannelCard({ item, user, userChannelIds }) {
             }
             onPress={handleSubscribe}
           >
-            {subscribeButtonLoading === true ? (
-              <ActivityIndicator
-                size="small"
-                color={Colors[colorScheme || "light"].colorOn}
-              />
-            ) : (
-              <Text
-                style={
-                  isOptimisticSubscribed.toString() === "true"
-                    ? styles.subscribedButtonText
-                    : styles.subscribeButtonText
-                }
-              >
-                {isOptimisticSubscribed.toString() === "true"
-                  ? "Following"
-                  : "Follow"}
-              </Text>
-            )}
+            <Text
+              style={
+                isOptimisticSubscribed
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
+              {isOptimisticSubscribed ? "Following" : "Follow"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

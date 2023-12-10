@@ -73,7 +73,7 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCardSearchPreview({
+export default function FeedCardSearchPreview({
   channelUrl,
   channelTitle,
   channelDescription,

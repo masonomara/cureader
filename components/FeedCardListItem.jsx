@@ -72,24 +72,26 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function ChannelCardFeedPreview({ params }) {
-  const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
+export default function FeedCardListItem({ item, user }) {
+  const feedChannelSubscribers = item.channel_subscribers;
+
+  const [isSubscribed, setIsSubscribed] = useState(
+    feedChannelSubscribers.includes(user.id)
+  );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    params.subscribed
+    feedChannelSubscribers.includes(user.id)
   );
   const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
-  const paramsId = params.id;
-
   useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(params.userChannelIds.includes(params.id));
-    setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
+    setIsSubscribed(feedChannelSubscribers.includes(user.id));
+    setIsOptimisticSubscribed(feedChannelSubscribers.includes(user.id));
     setSubscribeButtonLoading(false);
-  }, [params.userChannelIds]);
+  }, [feedChannelSubscribers]);
 
   // Function to calculate subscription button style
   const getSubscribeButtonStyle = () => {
@@ -98,15 +100,13 @@ export default function ChannelCardFeedPreview({ params }) {
       : styles.subscribeButton;
   };
 
-  // Function to handle subscription logic
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
-
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
-        .eq("id", params.userId);
+        .eq("id", user.id);
 
       if (userProfileError) {
         console.log("Error fetching user profile data:", userProfileError);
@@ -115,21 +115,9 @@ export default function ChannelCardFeedPreview({ params }) {
 
       const channelSubscriptions =
         userProfileData[0].channel_subscriptions || [];
-
-      console.log(
-        "(handleSubscribe) 3 channelSubscriptions:",
-        channelSubscriptions
-      );
-
-      const itemChannelId = parseInt(paramsId, 10); // Ensure channelId is a number
-
+      const itemChannelId = item.id;
       const isAlreadySubscribed = channelSubscriptions.some(
         (subscription) => subscription.channelId === itemChannelId
-      );
-
-      console.log(
-        "(handleSubscribe) 4 isAlreadySubscribed:",
-        isAlreadySubscribed
       );
 
       if (isSubscribed && isAlreadySubscribed) {
@@ -137,53 +125,41 @@ export default function ChannelCardFeedPreview({ params }) {
         const updatedSubscriptions = channelSubscriptions.filter(
           (subscription) => subscription.channelId !== itemChannelId
         );
-
-        console.log(
-          "(handleSubscribe) 5 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
-        await updateSubscriptions(params.userId, updatedSubscriptions);
+        await updateSubscriptions(user.id, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
-          .eq("id", paramsId);
+          .eq("id", item.id);
 
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== params.userId
+            (subscriber) => subscriber !== user.id
           );
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
+          await updateChannelSubscribers(item.id, updatedSubscribers);
         }
       } else {
         // Subscribe
-
-        console.log(
-          "(handleSubscribe) 6 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
         const newSubscription = {
-          channelId: itemChannelId,
-          channelUrl: params.url,
+          channelId: item.id,
+          channelUrl: item.channel_url,
         };
         const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        await updateSubscriptions(params.userId, updatedSubscriptions);
+        await updateSubscriptions(user.id, updatedSubscriptions);
 
         const { data: channelData, error: channelError } = await supabase
           .from("channels")
           .select()
-          .eq("id", paramsId);
+          .eq("id", item.id);
 
         if (!channelError) {
           const channel = channelData[0];
           const updatedSubscribers = [
-            ...channel.channel_subscribers,
-            params.userId,
+            ...(channel.channel_subscribers ?? []),
+            user.id,
           ];
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
+          await updateChannelSubscribers(item.id, updatedSubscribers);
         }
       }
 
@@ -230,9 +206,9 @@ export default function ChannelCardFeedPreview({ params }) {
       display: "flex",
       flex: 1,
       width: '100%',
+      paddingHorizontal: 16,
       gap: 0,
       paddingVertical: 12,
-      paddingHorizontal: 16,
       height: 89,
       minHeight: 89,
       maxHeight: 89,
@@ -324,7 +300,7 @@ export default function ChannelCardFeedPreview({ params }) {
       height: 64,
       width: 64,
       borderRadius: 10,
-      backgroundColor: getColorForLetter(params.title[0]),
+      backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -337,7 +313,7 @@ export default function ChannelCardFeedPreview({ params }) {
       lineHeight: 26,
       letterSpacing: -0.173,
       height: 26,
-      color: getTextColorForLetter(params.title[0]),
+      color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
       width: "1000%",
@@ -345,17 +321,36 @@ export default function ChannelCardFeedPreview({ params }) {
   };
 
   return (
-    <View style={styles.card}>
-      {!params.image ? (
+    <Pressable
+      style={styles.card}
+      onPress={() => {
+        router.push({
+          pathname: "/feedChannel",
+          params: {
+            title: item.channel_title,
+            description: item.channel_description,
+            image: item.channel_image_url,
+            subscribers: item.channel_subscribers,
+            url: item.channel_url,
+            id: item.id,
+            user: user,
+            userId: user.id,
+            subscribed: isSubscribed,
+            feedChannelSubscribers: feedChannelSubscribers,
+          },
+        });
+      }}
+    >
+      {!item.channel_image_url ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title}
+            {item.channel_title} {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title} {params.title}
+            {item.channel_title} {item.channel_title} {item.channel_title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title}
+            {item.channel_title} {item.channel_title}
           </Text>
         </View>
       ) : (
@@ -376,18 +371,18 @@ export default function ChannelCardFeedPreview({ params }) {
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
-            source={{ uri: params.image }}
+            source={{ uri: item.channel_image_url }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.title} numberOfLines={2}>
-            {params.title}
+            {item.channel_title}
           </Text>
-          {params.description ? (
-            <Text style={styles.description} numberOfLines={2}>
-              {params.description.replace(/<[^>]*>/g, "").trim()}
+          {item.channel_description ? (
+            <Text numberOfLines={2} style={styles.description}>
+              {item.channel_description.replace(/<[^>]*>/g, "").trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
@@ -419,6 +414,6 @@ export default function ChannelCardFeedPreview({ params }) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
