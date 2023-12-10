@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FlatList,
   TouchableOpacity,
@@ -13,8 +13,10 @@ import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
+import { FeedContext } from "../_layout";
 
 export default function Bookmarks() {
+  const { feeds } = useContext(FeedContext)
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
@@ -144,7 +146,7 @@ export default function Bookmarks() {
         autoCorrect={false}
       />
       <FlatList
-        data={rssItems}
+        data={feeds}
         keyExtractor={(item, index) => index.toString()}
         style={styles.articleList}
         renderItem={({ item }) => {

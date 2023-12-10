@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FlatList,
   TouchableOpacity,
@@ -10,12 +10,13 @@ import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import Colors from "../../constants/Colors";
 import ChannelCardList from "../../components/ChannelCardList";
+import { FeedContext } from "../_layout";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState(null);
 
-  const [feeds, setFeeds] = useState([]);
+  const { feeds } = useContext(FeedContext)
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);

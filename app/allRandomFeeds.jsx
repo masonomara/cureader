@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import {
   FlatList,
@@ -12,8 +12,12 @@ import { supabase } from "../config/initSupabase";
 import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
 import ChannelCardList from "../components/ChannelCardList";
+import { FeedContext } from "./_layout";
 
 export default function TabOneScreen() {
+
+  const { feeds } = useContext(FeedContext)
+
   const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const [user, setUser] = useState(null);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import {
   ScrollView,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { FeedContext } from "../_layout";
 import ChannelCardFeatured from "../../components/ChannelCardFeatured";
 import ChannelCard from "../../components/ChannelCard";
 import { supabase } from "../../config/initSupabase";
@@ -28,6 +29,8 @@ function CloseIcon({ size, ...props }) {
 }
 
 export default function Explore() {
+
+  const { feeds } = useContext(FeedContext)
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
   const [isLoading, setIsLoading] = useState(true); // Add loading state
@@ -35,7 +38,7 @@ export default function Explore() {
 
   const [user, setUser] = useState(null);
   const [userChannelIds, setUserChannelIds] = useState([]);
-  const [feeds, setFeeds] = useState([]);
+
   const [randomFeeds, setRandomFeeds] = useState([]);
 
   const textInputRef = useRef(null);
@@ -334,9 +337,6 @@ export default function Explore() {
           // You might want to show a user-friendly error message here.
           return;
         }
-
-        setFeeds(channelsData);
-        console.log(feeds);
 
         if (user) {
           const channelIds = await fetchUserChannels(user);
