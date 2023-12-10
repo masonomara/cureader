@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-} from "react-native";
+import { TouchableOpacity, Alert, useColorScheme } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
@@ -16,7 +13,7 @@ export default function Profile() {
   const colorScheme = useColorScheme();
   const [user, setUser] = useState(null);
 
-  const { feeds } = useContext(FeedContext)
+  const { feeds } = useContext(FeedContext);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -74,6 +71,7 @@ export default function Profile() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -145,15 +143,17 @@ export default function Profile() {
       </View>
 
       {/* List of feeds */}
-      <FlatList
-        data={feeds}
-        ƒ
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return <ChannelCardList key={item.id} item={item} user={user} />;
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={feeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return <ChannelCardList key={item.id} item={item} user={user} />;
+          }}
+        />
+      </View>
     </View>
   );
 }

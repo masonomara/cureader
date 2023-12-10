@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { FlashList } from "@shopify/flash-list";
 
 import {
-  FlatList,
-  TouchableOpacity,
   Alert,
   useColorScheme,
-  Image,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -279,6 +276,7 @@ export default function TabOneScreen() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -466,20 +464,23 @@ export default function TabOneScreen() {
   ) : (
     <>
       <ChannelCardFeedPreview params={params} />
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => (
-          <ArticleCard
-            item={item}
-            publication={item.channel}
-            fallbackImage={params.image}
-            channelUrl={item.channelUrl}
-            user={params.user}
-          />
-        )}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={rssItems}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => (
+            <ArticleCard
+              item={item}
+              publication={item.channel}
+              fallbackImage={params.image}
+              channelUrl={item.channelUrl}
+              user={params.user}
+            />
+          )}
+        />
+      </View>
     </>
   );
 }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-  FlatList,
   TouchableOpacity,
   Alert,
   useColorScheme,
   TextInput,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
@@ -16,7 +17,7 @@ import Colors from "../../constants/Colors";
 import { FeedContext } from "../_layout";
 
 export default function Bookmarks() {
-  const { feeds } = useContext(FeedContext)
+  const { feeds } = useContext(FeedContext);
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
@@ -97,6 +98,7 @@ export default function Bookmarks() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -145,22 +147,25 @@ export default function Bookmarks() {
         autoCapitalize={"none"}
         autoCorrect={false}
       />
-      <FlatList
-        data={feeds}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              image={item.image}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={feeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return (
+              <ArticleCard
+                item={item}
+                publication={item.channel}
+                image={item.image}
+                channelUrl={item.channelUrl}
+                user={user}
+              />
+            );
+          }}
+        />
+      </View>
     </View>
   );
 }

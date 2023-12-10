@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-  FlatList,
   TouchableOpacity,
   Alert,
   useColorScheme,
 } from "react-native";
 import { router } from "expo-router";
+import { FlashList } from "@shopify/flash-list";
 import { AuthContext, FeedContext } from "../_layout";
 import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
@@ -208,6 +208,7 @@ export default function Index() {
     },
     articleList: {
       width: "100%",
+      flex: 1,
     },
     input: {
       width: "100%",
@@ -334,22 +335,25 @@ export default function Index() {
       */}
 
       {/* List of articles */}
-      <FlatList
-        data={rssItems}
-        keyExtractor={(item, index) => index.toString()}
-        style={styles.articleList}
-        renderItem={({ item }) => {
-          return (
-            <ArticleCard
-              item={item}
-              publication={item.channel}
-              fallbackImage={item.fallbackImage}
-              channelUrl={item.channelUrl}
-              user={user}
-            />
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={rssItems}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return (
+              <ArticleCard
+                item={item}
+                publication={item.channel}
+                fallbackImage={item.fallbackImage}
+                channelUrl={item.channelUrl}
+                user={user}
+              />
+            );
+          }}
+        />
+      </View>
     </View>
   );
 }
