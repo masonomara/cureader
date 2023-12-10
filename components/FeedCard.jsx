@@ -125,8 +125,8 @@ export default function FeedCard({ item, user }) {
 
         // TODO: Add logic to update the user's subscriptions in the backend
         await updateUserSubscriptions(
-          [...userSubscriptionIds, item.id],
-          [...userSubscriptionUrls, item.channel_url]
+          updatedUserSubscriptionIds,
+          updatedUserSubscriptionUrls
         );
       } catch (error) {
         console.error("Error handling unsubscription:", error);
@@ -174,6 +174,15 @@ export default function FeedCard({ item, user }) {
       console.error("Error updating subscriptions:", error);
       throw error; // Rethrow the error to handle it elsewhere if needed
     }
+  };
+
+  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
+    await supabase.from("channels").upsert([
+      {
+        id: channelId,
+        channel_subscribers: updatedSubscribers,
+      },
+    ]);
   };
 
   const handleSubscribe = async () => {
@@ -251,14 +260,7 @@ export default function FeedCard({ item, user }) {
     }
   };
 
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
-  };
+
 
   // Function to get background color based on the first letter
   const getColorForLetter = (letter) => {
