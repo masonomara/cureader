@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-} from "react-native";
+import { TouchableOpacity, Alert, useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext, FeedContext } from "../_layout";
@@ -21,6 +17,7 @@ export default function Index() {
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // State for handling channel URL input
   const [userInput, setUserInput] = useState("");
@@ -37,39 +34,6 @@ export default function Index() {
     Alert.alert("Error", message);
   };
 
-  // Handles API request for channel information
-  useEffect(() => {
-    const delayTimer = setTimeout(async () => {
-      try {
-        const response = await Promise.race([
-          fetch(parserInput), //change: parserInput
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Request Timeout")), 10000)
-          ),
-        ]);
-        if (!response.ok) {
-          throw new Error("API Request - Network response was not ok");
-        }
-        const responseData = await response.text();
-        const parsedRss = await rssParser.parse(responseData);
-        setChannelTitle(parsedRss.title);
-        console.log("channelTitle:", channelTitle);
-        setChannelUrl(parserInput);
-        setChannelDescription(parsedRss.description);
-        setChannelImageUrl(parsedRss.image.url);
-        setChannelTitleWait(false);
-      } catch (error) {
-        console.log(error);
-        setChannelTitle(null);
-        setChannelTitleWait(false);
-        setChannelDescription(null);
-        setChannelImageUrl(null);
-      }
-    }, 150);
-
-    return () => clearTimeout(delayTimer);
-  }, [parserInput]);
-
   // Logout user
   const doLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -79,70 +43,14 @@ export default function Index() {
     }
   };
 
-  // Use the Supabase client to query the "profiles" table and get the channel_subscriptions array
-  const getChannelSubscriptions = async () => {
-    try {
-      if (user) {
-        // Check if user is defined and authenticated
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("channel_subscriptions")
-          .eq("id", user.id);
-
-        if (profileError) {
-          console.error("Error fetching user profile data:", profileError);
-          return [];
-        } else {
-          const channelSubscriptions =
-            profileData[0]?.channel_subscriptions || [];
-          const channelUrls = channelSubscriptions.map(
-            (subscription) => subscription.channelUrl
-          );
-          return channelUrls;
-        }
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching user profile data:", error);
-      return [];
-    }
-  };
-
-  // Use the Supabase client to query the "channels" table and get the channel_image_url items
-  const getFallbackImages = async () => {
-    try {
-      if (user) {
-        // Check if user is defined and authenticated
-        const feedUrls = await getChannelSubscriptions();
-
-        const { data: fallbackImageData, error: fallbackImageError } =
-          await supabase
-            .from("channels")
-            .select("channel_url, channel_image_url")
-            .in("channel_url", feedUrls);
-
-        if (fallbackImageError) {
-          console.error("Error fetching fallback images:", fallbackImageError);
-          return [];
-        } else {
-          return fallbackImageData || [];
-        }
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching fallback images:", error);
-      return [];
-    }
-  };
-
   // Parse feeds
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
-      if (user) {
-        const feedUrls = await getChannelSubscriptions();
-        const fallbackImages = await getFallbackImages();
+      if (feeds && userSubscriptionUrls) {
+        const fallbackImages = feeds.map((feed) => ({
+          channel_url: feed.channel_url,
+          channel_image_url: feed.channel_image_url,
+        }));
 
         const allChannels = [];
         const allItems = [];
@@ -155,9 +63,6 @@ export default function Index() {
             }
             const responseData = await response.text();
             const parsedRss = await rssParser.parse(responseData);
-
-            // console.log("FALLBACKIMAGES:", fallbackImages)
-            // console.log("FEEDURLS:", feedUrls)
 
             const channelImage = fallbackImages.find(
               (image) => image.channel_url === url
@@ -186,7 +91,7 @@ export default function Index() {
           }
         };
 
-        await Promise.all(feedUrls.map(parseAndSort));
+        await Promise.all(userSubscriptionUrls.map(parseAndSort));
 
         // Sort items by publication date in descending order (most recent first)
         allItems.sort((a, b) => b.publicationDate - a.publicationDate);
@@ -197,7 +102,73 @@ export default function Index() {
     };
 
     fetchAndParseFeeds();
-  }, [user]);
+    setIsRefreshing(false);
+  }, [userSubscriptionUrls]);
+
+  // Refresh and parse feeds
+  const fetchAndParseFeedsRefresh = async () => {
+    if (feeds && userSubscriptionUrls) {
+      const fallbackImages = feeds.map((feed) => ({
+        channel_url: feed.channel_url,
+        channel_image_url: feed.channel_image_url,
+      }));
+
+      const allChannels = [];
+      const allItems = [];
+
+      const parseAndSort = async (url) => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const responseData = await response.text();
+          const parsedRss = await rssParser.parse(responseData);
+
+          const channelImage = fallbackImages.find(
+            (image) => image.channel_url === url
+          );
+
+          allChannels.push({
+            title: parsedRss.title,
+            description: parsedRss.description,
+          });
+
+          allItems.push(
+            ...parsedRss.items.map((item) => ({
+              ...item,
+              publicationDate: new Date(item.published),
+              channel: parsedRss.title,
+              image: parsedRss.image,
+              fallbackImage: channelImage
+                ? channelImage.channel_image_url
+                : null,
+              channelUrl: parsedRss.links[0].url,
+            }))
+          );
+        } catch (error) {
+          console.error(error);
+          showErrorAlert("Error refreshing RSS feeds. Please try again.");
+        }
+      };
+
+      await Promise.all(userSubscriptionUrls.map(parseAndSort));
+
+      // Sort items by publication date in descending order (most recent first)
+      allItems.sort((a, b) => b.publicationDate - a.publicationDate);
+
+      setRssChannels(allChannels);
+      setRssItems(allItems);
+    }
+  };
+
+  const onRefresh = () => {
+    // set isRefreshing to true
+    setIsRefreshing(true);
+    fetchAndParseFeedsRefresh();
+    // and set isRefreshing to false at the end of your callApiMethod()
+    setIsRefreshing(false);
+  };
 
   // Styles
   const styles = {
@@ -284,62 +255,13 @@ export default function Index() {
           <Text>Log out</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Input for channel URL */}
-
-      {/*<TextInput
-        style={styles.input}
-        label="Channel Url Text"
-        onChangeText={handleUserInput}
-        value={userInput}
-        placeholder="https://"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-  /> */}
-
-      {/* Channel title and submit button */}
-      {/*
-      {!channelTitleWait ? (
-        <>
-          {channelTitle ? (
-            <>
-              <Text>{channelTitle}</Text>
-              <Text>{channelUrl}</Text>
-            </>
-          ) : channelUrl ? (
-            <Text>Channel not found</Text>
-          ) : (
-            <></>
-          )}
-        </>
-      ) : (
-        <ActivityIndicator
-          color={`${Colors[colorScheme || "light"].buttonActive}`}
-        />
-      )}
-
-      <TouchableOpacity
-        onPress={handleSubmitUrl}
-        disabled={!channelTitle}
-        style={channelTitle ? styles.button : styles.buttonDisabled}
-      >
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-
-      <Text>User Input: {userInput}</Text>
-      <Text>Parser Input: {parserInput}</Text>
-      <Text>Channel Url: {channelUrl}</Text>
-      <Text>Channel Title: {channelTitle}</Text>
-      <Text numberOfLines={1}>Channel Description: {channelDescription}</Text>
-      <Text numberOfLines={1}>Channel Image URL: {channelImageUrl}</Text>
-      */}
-
-      {/* List of articles */}
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
+          refreshing={isRefreshing} // Add this line to pass the refreshing state
+          onRefresh={onRefresh}
           estimatedItemSize={200}
           renderItem={({ item }) => {
             return (
