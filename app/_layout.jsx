@@ -91,6 +91,7 @@ function RootLayoutNav() {
       else
         supabase.auth.onAuthStateChange((_event, session) => {
           if (session) {
+            
             // If a session is present, navigate to the main screen
             router.replace("(home)");
             SplashScreen.hideAsync();
