@@ -46,63 +46,79 @@ export default function Index() {
   // Parse feeds
   useEffect(() => {
     const fetchAndParseFeeds = async () => {
-      if (feeds && userSubscriptionUrls) {
-        const fallbackImages = feeds.map((feed) => ({
-          channel_url: feed.channel_url,
-          channel_image_url: feed.channel_image_url,
-        }));
+      try {
+        if (feeds && userSubscriptionUrls) {
+          const fallbackImages = feeds.map((feed) => ({
+            channel_url: feed.channel_url,
+            channel_image_url: feed.channel_image_url,
+          }));
 
-        const allChannels = [];
-        const allItems = [];
+          const allChannels = [];
+          const allItems = [];
 
-        const parseAndSort = async (url) => {
-          try {
-            const response = await fetch(url);
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
+          const parseAndSort = async (url) => {
+            try {
+              const response = await fetch(url);
+
+              if (!response.ok) {
+                throw new Error(
+                  `Network response not OK. Status: ${response.status}`
+                );
+              }
+
+              const responseData = await response.text();
+              const parsedRss = await rssParser.parse(responseData);
+
+              const channelImage = fallbackImages.find(
+                (image) => image.channel_url === url
+              );
+
+              allChannels.push({
+                title: parsedRss.title,
+                description: parsedRss.description,
+              });
+
+              allItems.push(
+                ...parsedRss.items.map((item) => ({
+                  ...item,
+                  publicationDate: new Date(item.published),
+                  channel: parsedRss.title,
+                  image: parsedRss.image,
+                  fallbackImage: channelImage
+                    ? channelImage.channel_image_url
+                    : null,
+                  channelUrl: parsedRss.links[0].url,
+                }))
+              );
+            } catch (error) {
+              console.error(`Error parsing URL: ${url}`, error);
+              // Log or display more information about the error if needed
+              showErrorAlert(
+                `Error fetching RSS feed from ${url}. Please try again.`
+              );
             }
-            const responseData = await response.text();
-            const parsedRss = await rssParser.parse(responseData);
+          };
 
-            const channelImage = fallbackImages.find(
-              (image) => image.channel_url === url
-            );
+          await Promise.all(userSubscriptionUrls.map(parseAndSort));
 
-            allChannels.push({
-              title: parsedRss.title,
-              description: parsedRss.description,
-            });
+          // Sort items by publication date in descending order (most recent first)
+          allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
-            allItems.push(
-              ...parsedRss.items.map((item) => ({
-                ...item,
-                publicationDate: new Date(item.published),
-                channel: parsedRss.title,
-                image: parsedRss.image,
-                fallbackImage: channelImage
-                  ? channelImage.channel_image_url
-                  : null,
-                channelUrl: parsedRss.links[0].url,
-              }))
-            );
-          } catch (error) {
-            console.error(error);
-            showErrorAlert("Error fetching RSS feeds. Please try again.");
-          }
-        };
-
-        await Promise.all(userSubscriptionUrls.map(parseAndSort));
-
-        // Sort items by publication date in descending order (most recent first)
-        allItems.sort((a, b) => b.publicationDate - a.publicationDate);
-
-        setRssChannels(allChannels);
-        setRssItems(allItems);
+          setRssChannels(allChannels);
+          setRssItems(allItems);
+        }
+      } catch (error) {
+        console.error("Error in fetchAndParseFeeds:", error);
+        // Log or display more information about the error if needed
+        showErrorAlert(
+          "Error fetching and parsing RSS feeds. Please try again."
+        );
+      } finally {
+        setIsRefreshing(false);
       }
     };
 
     fetchAndParseFeeds();
-    setIsRefreshing(false);
   }, [user]);
 
   // Refresh and parse feeds
