@@ -108,13 +108,15 @@ export default function FeedCard({ item, user }) {
     console.log("item", item);
     if (isSubscribed) {
       try {
+        // If user is already subscribed to feed
+
         // Remove item.id from userSubscriptionIds
         const updatedUserSubscriptionIds = userSubscriptionIds.filter(
           (id) => id !== item.id
         );
         // Update the state with the new array
         setUserSubscriptionIds(updatedUserSubscriptionIds);
-        // Remove item.id from userSubscriptionIds
+        // Remove item.channel_url from userSubscriptionUrls
         const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
           (url) => url !== item.channel_url
         );
@@ -134,6 +136,8 @@ export default function FeedCard({ item, user }) {
       }
     } else {
       try {
+        // if user is not subscribed to feed
+
         // Add item.id to userSubscriptionIds
         setUserSubscriptionIds([...userSubscriptionIds, item.id]);
         // Add item.channel_url to userSubscriptionUrls
