@@ -360,7 +360,13 @@ export default function FeedCardFeedPreview({ item }) {
           </Text>
           {item.description ? (
             <Text style={styles.description} numberOfLines={2}>
-              {item.description.replace(/<[^>]*>/g, "").trim()}
+              {item.description
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

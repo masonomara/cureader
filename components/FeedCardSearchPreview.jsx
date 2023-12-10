@@ -456,7 +456,13 @@ export default function FeedCardSearchPreview({
           </Text>
           {channelDescription ? (
             <Text numberOfLines={2} style={styles.description}>
-              {channelDescription.replace(/<[^>]*>/g, "").trim()}
+              {channelDescription
+                .replace(/<[^>]*>/g, "")
+                .replace(/&#8217;/g, "'")
+                .replace(/&#160;/g, " ")
+                .replace(/&#8220;/g, "“")
+                .replace(/&#8221;/g, "”")
+                .trim()}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
