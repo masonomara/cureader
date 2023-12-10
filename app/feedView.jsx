@@ -1,220 +1,25 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { FlashList } from "@shopify/flash-list";
-
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "./_layout";
 import {
   Alert,
   useColorScheme,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { supabase } from "../config/initSupabase";
-import { Text, View } from "../components/Themed";
+import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
-import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
+import { FlashList } from "@shopify/flash-list";
 
-const textColorArray = [
-  "#E75450", // Red (Main Color)
-  "#66C0A9", // Green
-  "#FADA65", // Yellow
-  "#7929B2", // Purple
-  "#FF8C69", // Salmon
-  "#00B3A9", // Teal
-  "#E6532D", // Orange
-  "#3CB8B2", // Teal
-  "#FF7B00", // Orange
-  "#1A9E95", // Teal
-  "#E64400", // Red
-  "#2DC82D", // Green
-  "#FFD3A3", // Pale
-  "#00EB8F", // Green
-  "#E76E3F", // Orange
-  "#00ADC4", // Blue
-  "#FF9400", // Orange
-  "#6D5DC8", // Purple
-  "#FF8C69", // Salmon
-  "#7AC3D4", // Blue
-  "#C7132D", // Pink
-  "#8FEB8D", // Green
-  "#E64400", // Red
-  "#8560C1", // Purple
-  "#FFC800", // Gold
-  "#6988EF", // Blue
-];
-const colorArray = [
-  "#FF6961", // Red (Main Color)
-  "#78D2B2", // Green
-  "#FAEA96", // Yellow
-  "#8A2BE2", // Purple
-  "#FFA07A", // Salmon
-  "#00CED1", // Teal
-  "#FF6347", // Orange
-  "#48D1CC", // Teal
-  "#FF8C00", // Orange
-  "#20B2AA", // Teal
-  "#FF4500", // Red
-  "#74D674", // Green
-  "#FFDAB9", // Pale
-  "#00FA9A", // Green
-  "#FF7F50", // Orange
-  "#00BFFF", // Blue
-  "#FFA500", // Orange
-  "#7B68EE", // Purple
-  "#FFA07A", // Salmon
-  "#87CEEB", // Blue
-  "#DC143C", // Pink
-  "#98FB98", // Green
-  "#FF4500", // Red
-  "#9370DB", // Purple
-  "#FFD700", // Gold
-  "#849BE9", // Blue
-];
+import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
   const params = useLocalSearchParams();
+
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
-  const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    params.subscribed
-  );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
-
-  console.log("params.userChannelIds:", params.userChannelIds);
-  console.log("params.id:", params.id);
-
-  useEffect(() => {
-    // Update state when the subscribed prop changes
-    setIsSubscribed(params.userChannelIds.includes(params.id));
-    setIsOptimisticSubscribed(params.userChannelIds.includes(params.id));
-    setSubscribeButtonLoading(false);
-  }, [params.userChannelIds]);
-
-  console.log("isSubscribed:", isSubscribed);
-  console.log("userId", params.userId);
-
-  const paramsId = params.id;
-
-  // Function to calculate subscription button style
-  const getSubscribeButtonStyle = () => {
-    return isOptimisticSubscribed
-      ? styles.subscribedButton
-      : styles.subscribeButton;
-  };
-
-  // Function to handle subscription logic
-  const handleSubscribe = async () => {
-    setIsOptimisticSubscribed(!isOptimisticSubscribed);
-
-    try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", params.userId);
-
-      if (userProfileError) {
-        console.log("Error fetching user profile data:", userProfileError);
-        return;
-      }
-
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-
-      console.log(
-        "(handleSubscribe) 3 channelSubscriptions:",
-        channelSubscriptions
-      );
-
-      const itemChannelId = parseInt(paramsId, 10); // Ensure channelId is a number
-
-      const isAlreadySubscribed = channelSubscriptions.some(
-        (subscription) => subscription.channelId === itemChannelId
-      );
-
-      console.log(
-        "(handleSubscribe) 4 isAlreadySubscribed:",
-        isAlreadySubscribed
-      );
-
-      if (isSubscribed && isAlreadySubscribed) {
-        // Unsubscribe
-        const updatedSubscriptions = channelSubscriptions.filter(
-          (subscription) => subscription.channelId !== itemChannelId
-        );
-
-        console.log(
-          "(handleSubscribe) 5 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
-        await updateSubscriptions(params.userId, updatedSubscriptions);
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", paramsId);
-
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = channel.channel_subscribers.filter(
-            (subscriber) => subscriber !== params.userId
-          );
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
-        }
-      } else {
-        // Subscribe
-
-        console.log(
-          "(handleSubscribe) 6 updatedSubscriptions:",
-          updatedSubscriptions
-        );
-
-        const newSubscription = {
-          channelId: itemChannelId,
-          channelUrl: params.url,
-        };
-        const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        await updateSubscriptions(params.userId, updatedSubscriptions);
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", paramsId);
-
-        if (!channelError) {
-          const channel = channelData[0];
-          const updatedSubscribers = [
-            ...channel.channel_subscribers,
-            params.userId,
-          ];
-          await updateChannelSubscribers(paramsId, updatedSubscribers);
-        }
-      }
-
-      setIsSubscribed(!isSubscribed);
-    } catch (error) {
-      console.error("Error handling subscription:", error);
-      setIsOptimisticSubscribed(!isOptimisticSubscribed);
-    }
-  };
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
-  };
-
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
-  };
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -256,16 +61,6 @@ export default function TabOneScreen() {
 
     parseFeed();
   }, [params.url]);
-
-  // Function to get background color based on the first letter
-  const getColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
-    return colorArray[index];
-  };
-  const getTextColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
-    return textColorArray[index];
-  };
 
   // Styles
   const styles = {
@@ -424,28 +219,6 @@ export default function TabOneScreen() {
       lineHeight: 20,
       letterSpacing: -0.15,
     },
-    noImageContainer: {
-      height: 96,
-      width: 96,
-      overflow: "hidden",
-      backgroundColor: getColorForLetter(params.title[0]),
-      borderRadius: 14,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    noImageContainerText: {
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 36,
-      lineHeight: 39,
-      letterSpacing: -0.27,
-      height: 39,
-      color: getTextColorForLetter(params.title[0]),
-      textAlignVertical: "center",
-      textAlign: "center",
-      width: "1000%",
-    },
     loadingContainer: {
       flex: 1,
       display: "flex",
@@ -454,16 +227,9 @@ export default function TabOneScreen() {
     },
   };
 
-  return isLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator
-        size="large"
-        color={Colors[colorScheme || "light"].colorPrimary}
-      />
-    </View>
-  ) : (
+  return (
     <>
-      <FeedCardFeedPreview params={params} />
+      <FeedCardFeedPreview item={params} />
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
