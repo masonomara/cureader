@@ -242,7 +242,14 @@ function RootLayoutNav() {
         }}
       >
         <AuthContext.Provider
-          value={{ session, user, userSubscriptionIds, userSubscriptionUrls }}
+          value={{
+            session,
+            user,
+            userSubscriptionIds,
+            userSubscriptionUrls,
+            setUserSubscriptionIds,
+            setUserSubscriptionUrls,
+          }}
         >
           <Stack>
             <Stack.Screen name="(home)" options={{ headerShown: false }} />
