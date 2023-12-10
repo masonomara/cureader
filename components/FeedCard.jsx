@@ -6,7 +6,6 @@ import {
   Image,
   Dimensions,
   Pressable,
-  ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
@@ -82,15 +81,12 @@ export default function FeedCard({ item, user }) {
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
-  feedId = item.id;
-
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(false);
 
   const colorScheme = useColorScheme();
 
@@ -143,9 +139,6 @@ export default function FeedCard({ item, user }) {
       console.error("Error handling subscription:", error);
       // Handle errors and revert the state if necessary
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
-    } finally {
-      // Reset loading state
-      setSubscribeButtonLoading(false);
     }
   };
 
@@ -399,26 +392,15 @@ export default function FeedCard({ item, user }) {
             }
             onPress={handleSubscribe}
           >
-            {subscribeButtonLoading === true ? (
-              <ActivityIndicator
-                size="small"
-                color={Colors[colorScheme || "light"].colorOn}
-              />
-            ) : (
-              <Text
-                style={
-                  isOptimisticSubscribed.toString() === "true"
-                    ? styles.subscribedButtonText
-                    : styles.subscribeButtonText
-                }
-              >
-                {subscribeButtonLoading
-                  ? "Loading"
-                  : isOptimisticSubscribed
-                  ? "Following"
-                  : "Follow"}
-              </Text>
-            )}
+            <Text
+              style={
+                isOptimisticSubscribed.toString() === "true"
+                  ? styles.subscribedButtonText
+                  : styles.subscribeButtonText
+              }
+            >
+              {isOptimisticSubscribed ? "Following" : "Follow"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

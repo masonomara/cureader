@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useContext, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -8,9 +8,10 @@ import {
   Pressable,
 } from "react-native";
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
+import { AuthContext, FeedContext } from "../app/_layout";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -71,168 +72,114 @@ const colorArray = [
   "#849BE9", // Blue
 ];
 
-export default function FeedCardFeatured({
-  item,
-  user,
-  feeds,
-  userChannelIds,
-}) {
+export default function FeedCard({ item, user }) {
+  const { feeds } = useContext(FeedContext);
+  const {
+    userSubscriptionUrls,
+    userSubscriptionIds,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
+
   const [isSubscribed, setIsSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userChannelIds.includes(item.id)
+    userSubscriptionIds.includes(item.id)
   );
-  const navigation = useNavigation();
+
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Update state when the subscribed prop changes
-    setIsSubscribed(userChannelIds.includes(item.id));
-    setIsOptimisticSubscribed(userChannelIds.includes(item.id));
-  }, [userChannelIds.includes(item.id)]);
-
-  const updateSubscriptions = async (userId, updatedSubscriptions) => {
-    await supabase
-      .from("profiles")
-      .update({ channel_subscriptions: updatedSubscriptions })
-      .eq("id", userId);
-  };
+    setIsSubscribed(userSubscriptionIds.includes(item.id));
+    setIsOptimisticSubscribed(userSubscriptionIds.includes(item.id));
+  }, [userSubscriptionIds.includes(item.id)]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
-    console.log("Beginning subscribe");
 
     try {
-      // Fetch user profile data
-      console.log("Fetching user profile data...");
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
-
-      console.log("Fetched user profile data:", userProfileData);
-
-      if (userProfileError) {
-        console.error("Error fetching user profile data:", userProfileError);
-        // Optionally, show a user-friendly error message
-        alert("Failed to fetch user profile data. Please try again later.");
-        return;
-      }
-
-      console.log("Fetching channel subscriptions...");
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      console.log("Fetched channel subscriptions:", channelSubscriptions);
-      console.log("Fetching channel id...");
-      const itemChannelId = item.id;
-      console.log("Fetched channel id:", itemChannelId);
-      console.log("Fetching isAlreadySubscribed...");
-      const isAlreadySubscribed = channelSubscriptions.some(
-        (subscription) => subscription.channelId === itemChannelId
-      );
-
-      console.log("Fetched alreadySubscribed:", isAlreadySubscribed);
-      console.log("CHECK: do we have isSubscribed and isAlreadySubscribed...");
-      console.log("isSubscribed:", isSubscribed);
-      console.log("isAlreadySubscribed:", isAlreadySubscribed);
-
-      if (isSubscribed && isAlreadySubscribed) {
-        // Unsubscribe
-        console.log("Unsubscribing...");
-        const updatedSubscriptions = channelSubscriptions.filter(
-          (subscription) => subscription.channelId !== itemChannelId
+      if (isSubscribed) {
+        // If the user is already subscribed to the feed
+        const updatedUserSubscriptionIds = userSubscriptionIds.filter(
+          (id) => id !== item.id
         );
-        await updateSubscriptions(user.id, updatedSubscriptions);
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", item.id);
-
-        if (channelError) {
-          console.error("Error fetching channel data:", channelError);
-          // Optionally, show a user-friendly error message
-          alert("Failed to fetch channel data. Please try again later.");
-          return;
-        }
-
-        const channel = channelData[0];
-        const updatedSubscribers = channel.channel_subscribers.filter(
-          (subscriber) => subscriber !== user.id
+        const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
+          (url) => url !== item.channel_url
         );
-        await updateChannelSubscribers(item.id, updatedSubscribers);
+
+        // Update the state with the new arrays
+        setUserSubscriptionIds(updatedUserSubscriptionIds);
+        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+
+        // Update the user's subscriptions in supabase
+        await updateUserSubscriptions(
+          updatedUserSubscriptionIds,
+          updatedUserSubscriptionUrls
+        );
+
+        // Update channel subscribers count in supabase
+        await updateChannelSubscribers(item.id, -1);
       } else {
-        // Subscribe
-        console.log("Subscribing...");
-        console.log("CHECK: do we have channelId and channelUrl...");
-        console.log("channelId:", item.id);
-        console.log("channelUrl:", item.channel_url);
-        console.log("Fetching newSubscription...");
-        const newSubscription = {
-          channelId: item.id,
-          channelUrl: item.channel_url,
-        };
-        console.log("Fetched newSubscription:", newSubscription);
-        console.log("Fetching updatedSubscriptions...");
-        const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        console.log("Fetched updatedSubscriptions:", updatedSubscriptions);
+        // If the user is not subscribed to the feed
+        setUserSubscriptionIds([...userSubscriptionIds, item.id]);
+        setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
 
-        console.log("About to perform updateSubscriptions...");
-        console.log("CHECK: do we have channelId and channelUrl...");
-        console.log("user.id:", user.id);
-        console.log("updatedSubscriptions:", updatedSubscriptions);
-        await updateSubscriptions(user.id, updatedSubscriptions);
+        // Update the user's subscriptions in supabase
+        await updateUserSubscriptions(
+          [...userSubscriptionIds, item.id],
+          [...userSubscriptionUrls, item.channel_url]
+        );
 
-        console.log("Performed updateSubscriptions");
-
-        console.log("Fetching channel data...");
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", item.id);
-
-        console.log("Fetched channel data:", channelData);
-
-        if (channelError) {
-          console.error("Error fetching channel data:", channelError);
-          // Optionally, show a user-friendly error message
-          alert("Failed to fetch channel data. Please try again later.");
-          return;
-        }
-
-        console.log("CHECK: do we have channelData[0]...");
-        console.log("channelData[0]:", channelData[0]);
-        console.log("Fetching channel...");
-        const channel = channelData[0];
-
-        console.log("Fetched channel:", channel);
-        console.log("Fetching updatedSubscribers...");
-        const updatedSubscribers = [
-          ...(channel.channel_subscribers ?? []),
-          user.id,
-        ];
-        console.log("Fetched updatedSubscribers:", updatedSubscribers);
-        await updateChannelSubscribers(item.id, updatedSubscribers);
+        // Update channel subscribers count in supabase
+        await updateChannelSubscribers(item.id, 1);
       }
-
-      setIsSubscribed(!isSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
-      // Optionally, show a user-friendly error message
-      alert("Failed to handle subscription. Please try again later.");
+      // Handle errors and revert the state if necessary
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
   };
 
-  const updateChannelSubscribers = async (channelId, updatedSubscribers) => {
-    await supabase.from("channels").upsert([
-      {
-        id: channelId,
-        channel_subscribers: updatedSubscribers,
-      },
-    ]);
+  const updateUserSubscriptions = async (updatedIds, updatedUrls) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          channel_subscriptions: updatedIds.map((id, index) => ({
+            channelId: id,
+            channelUrl: updatedUrls[index],
+          })),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error; // Rethrow the error to handle it elsewhere if needed
+    }
+  };
+
+  const updateChannelSubscribers = async (channelId, increment = 1) => {
+    try {
+      const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
+
+      if (channelIndex !== -1) {
+        const updatedFeeds = [...feeds];
+        updatedFeeds[channelIndex].subscribers += increment;
+
+        await supabase
+          .from("channels")
+          .update({
+            subscribers: updatedFeeds[channelIndex].subscribers,
+          })
+          .eq("id", channelId);
+      } else {
+        console.error("Channel not found in the feeds prop");
+      }
+    } catch (error) {
+      console.error("Error updating channel subscribers:", error);
+      throw error; // Rethrow the error to handle it elsewhere if needed
+    }
   };
 
   // Function to get background color based on the first letter
@@ -455,7 +402,7 @@ export default function FeedCardFeatured({
           >
             <Text
               style={
-                isOptimisticSubscribed
+                isOptimisticSubscribed.toString() === "true"
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
