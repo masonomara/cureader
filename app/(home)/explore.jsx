@@ -467,7 +467,7 @@ export default function Explore() {
             </View>
           )}
 
-          <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
+          <View style={styles.noResultsWrapper}>
             {searchResults.length == 0 && !channelTitleWait && channelTitle && (
               <FeedCardSearchPreview
                 channelUrl={channelUrl}
@@ -498,7 +498,9 @@ export default function Explore() {
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        style={searchResults.length > 0 ? { display: "none" } : {}}
+        style={
+          isSearchInputSelected && searchInput !== "" ? { display: "none" } : {}
+        }
       >
         <View style={styles.titleWrapper}>
           <Text style={styles.title}>Random Feeds</Text>
