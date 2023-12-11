@@ -134,7 +134,7 @@ export default function Explore() {
           return titleMatch || urlMatch || descriptionMatch;
         });
 
-        setSearchResults(filteredFeeds.slice(0, 3));
+        setSearchResults(filteredFeeds.slice(0, 5));
       } else {
         setSearchResults([]);
       }
@@ -180,12 +180,19 @@ export default function Explore() {
 
   const styles = {
     container: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    scrollViewContainer: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       display: "flex",
       alignItems: "flex-start",
       justifyContent: "flex-start",
       flexDirection: "column",
       width: "100%",
+      maxWidth: "100%",
     },
     randomChannelList: {
       gap: 8,
@@ -198,16 +205,21 @@ export default function Explore() {
       flexDirection: "column",
       width: "100%",
     },
+
     inputWrapper: {
       paddingHorizontal: 16,
       width: "100%",
-      paddingBottom: 16,
-      marginTop: -3,
+      paddingBottom: 12,
+      paddingTop: 8,
+      // borderWidth: 1,
+      // borderColor: "green",
+      height: 76,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     searchIcon: {
       position: "absolute",
       left: 32,
-      top: 16,
+      top: 24,
       zIndex: 2,
       pointerEvents: "none",
     },
@@ -217,6 +229,7 @@ export default function Explore() {
       zIndex: 2,
       height: 56,
       width: 44,
+      top: 8,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -273,8 +286,11 @@ export default function Explore() {
       paddingHorizontal: 16,
       width: "100%",
       zIndex: 1,
+      // borderWidth: 1,
+      // borderColor: "red",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      flex: 1,
     },
-
     searchHeader: {
       borderBottomWidth: 1,
       paddingBottom: 7,
@@ -386,15 +402,8 @@ export default function Explore() {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-    >
+    <View style={styles.container}>
       {/* <Text>{JSON.stringify(userSubscriptionIds)}</Text> */}
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>Feed Search</Text>
-      </View>
       <View style={styles.inputWrapper}>
         <SearchIcon
           name="search"
@@ -427,7 +436,7 @@ export default function Explore() {
         </TouchableOpacity>
       </View>
       {isSearchInputSelected && searchInput !== "" && (
-        <View style={styles.searchContainer}>
+        <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
               {searchResults.length > 0 || channelTitle
@@ -461,7 +470,7 @@ export default function Explore() {
                     color={`${Colors[colorScheme || "light"].buttonActive}`}
                   />
                 ) : (
-                  <>
+                  <View style={[styles.searchResultsList]}>
                     <View style={styles.noResultsHeader}>
                       <Text style={styles.noResultsHeaderText}>
                         Can't find your feed?
@@ -475,7 +484,7 @@ export default function Explore() {
                         </Text>
                       </Text>
                     </View>
-                  </>
+                  </View>
                 )}
               </>
             )}
@@ -491,41 +500,46 @@ export default function Explore() {
                 />
               )}
           </View>
-        </View>
-      )}
-
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>Random Feeds</Text>
-        <TouchableOpacity
-          style={styles.textButton}
-          onPress={() => {
-            router.push({
-              pathname: "/allRandomFeeds",
-            });
-          }}
-        >
-          <Text style={styles.textButtonText}>View more</Text>
-        </TouchableOpacity>
-      </View>
-
-      {randomFeeds.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.randomChannelList}
-          decelerationRate={0}
-          snapToInterval={CARD_WIDTH + 8} //your element width
-          snapToAlignment={"left"}
-        >
-          {randomFeeds.map((item) => (
-            <FeedCardFeatured key={item.id} item={item} user={user} />
-          ))}
         </ScrollView>
-      ) : (
-        <Text>Loading...</Text>
       )}
-      {/* <View>
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContainer}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        style={searchResults.length > 0 ? { display: "none" } : {}}
+      >
+        <View style={styles.titleWrapper}>
+          <Text style={styles.title}>Random Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allRandomFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View more</Text>
+          </TouchableOpacity>
+        </View>
+
+        {randomFeeds ? (
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.randomChannelList}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8} //your element width
+            snapToAlignment={"left"}
+          >
+            {randomFeeds.map((item) => (
+              <FeedCardFeatured key={item.id} item={item} user={user} />
+            ))}
+          </ScrollView>
+        ) : (
+          <Text>Loading...</Text>
+        )}
+        {/* <View>
         <Text numberOfLines={1}>User: {JSON.stringify(user)}</Text>
         <Text numberOfLines={1}>
           userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
@@ -535,54 +549,55 @@ export default function Explore() {
         </Text>
         <Text numberOfLines={1}>Feeds: {JSON.stringify(feeds)}</Text>
       </View> */}
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>Popular Feeds</Text>
-        <TouchableOpacity
-          style={styles.textButton}
-          onPress={() => {
-            router.push({
-              pathname: "/allPopularFeeds",
-            });
-          }}
-        >
-          <Text style={styles.textButtonText}>View more</Text>
-        </TouchableOpacity>
-      </View>
-
-      {feeds ? (
-        <ScrollView
-          horizontal
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[styles.randomChannelList]}
-          decelerationRate={0}
-          snapToInterval={CARD_WIDTH + 8}
-          snapToAlignment={"left"}
-        >
-          {chunkArray(popularFeeds.slice(0, 33), 3).map((chunk, index) => (
-            <View
-              key={index}
-              style={{
-                flexDirection: "column",
-                alignItems: "flex-start",
-                borderTopWidth: 1,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
-              }}
-            >
-              {chunk.map((item) => (
-                <FeedCard key={item.id} item={item} user={user} />
-              ))}
-            </View>
-          ))}
-        </ScrollView>
-      ) : (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={Colors[colorScheme || "light"].colorPrimary}
-          />
+        <View style={styles.titleWrapper}>
+          <Text style={styles.title}>Popular Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allPopularFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View more</Text>
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+
+        {feeds ? (
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.randomChannelList]}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8}
+            snapToAlignment={"left"}
+          >
+            {chunkArray(popularFeeds, 4).map((chunk, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  borderTopWidth: 1,
+                  borderColor: `${Colors[colorScheme || "light"].border}`,
+                }}
+              >
+                {chunk.map((item) => (
+                  <FeedCard key={item.id} item={item} user={user} />
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+        ) : (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={Colors[colorScheme || "light"].colorPrimary}
+            />
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }

@@ -126,7 +126,7 @@ function RootLayoutNav() {
 
       // Sort feeds and set popularFeeds state
       const sortedFeeds = sortFeedsBySubscribers(feeds);
-      const popularFeeds = sortedFeeds.slice(0, 33);
+      const popularFeeds = sortedFeeds.slice(0, 24);
       console.log(
         "Popular Feeds:",
         popularFeeds.map((feed) => feed.channel_title)
@@ -134,7 +134,7 @@ function RootLayoutNav() {
       setPopularFeeds(popularFeeds);
 
       // Get the rest of the feeds excluding those in popularFeeds
-      const remainingFeeds = sortedFeeds.slice(33);
+      const remainingFeeds = sortedFeeds.slice(24);
       const remainingFeedsExcludingPopular = remainingFeeds.filter(
         (feed) =>
           !popularFeeds.some((popularFeed) => popularFeed.id === feed.id)
@@ -161,7 +161,7 @@ function RootLayoutNav() {
       // Shuffle remaining feeds randomly and set randomFeeds state
       const randomFeeds = shuffleArray(remainingFeedsExcludingPopular).slice(
         0,
-        34
+        25
       );
 
       console.log(
