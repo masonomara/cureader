@@ -3,10 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   Dimensions,
   Pressable,
 } from "react-native";
+import { Image } from "expo-image";
+
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";
@@ -371,12 +372,11 @@ export default function FeedCard({ item, user }) {
           <Image
             style={{
               flex: 1,
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
+              borderRadius: 12,
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
+            contentFit="cover"
             source={{ uri: item.channel_image_url }}
           />
         </View>

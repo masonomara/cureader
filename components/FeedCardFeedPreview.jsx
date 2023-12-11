@@ -1,14 +1,8 @@
 import { useState, useContext, useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  Pressable,
-} from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
+
 import { useColorScheme } from "react-native";
-import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
@@ -354,13 +348,12 @@ export default function FeedCardFeedPreview({ item }) {
           <Image
             style={{
               flex: 1,
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
+              borderRadius: 12,
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
-            source={{ uri: item.image }}
+            contentFit="cover"
+            source={{ uri: params.image }}
           />
         </View>
       )}
