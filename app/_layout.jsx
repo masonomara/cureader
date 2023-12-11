@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
+import { MenuProvider } from "react-native-popup-menu";
 
 export const FeedContext = createContext({
   feeds: null,
@@ -307,51 +308,60 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <FeedContext.Provider
-        value={{
-          feeds,
-          popularFeeds,
-          randomFeeds,
+      <MenuProvider
+        customStyles={{
+          backdrop: {
+            backgroundColor: "#181818",
+            opacity: .8,
+          },
         }}
       >
-        <AuthContext.Provider
+        <FeedContext.Provider
           value={{
-            session,
-            user,
-            userSubscriptionIds,
-            userSubscriptionUrls,
-            setUserSubscriptionIds,
-            setUserSubscriptionUrls,
+            feeds,
+            popularFeeds,
+            randomFeeds,
           }}
         >
-          <Stack>
-            <Stack.Screen name="(home)" options={{ headerShown: false }} />
-            <Stack.Screen name="(login)" options={{ headerShown: false }} />
-            <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-            <Stack.Screen
-              name="addChannel"
-              options={{ presentation: "modal", title: "Add Channel" }}
-            />
-            <Stack.Screen
-              name="feedView"
-              options={({ route }) => ({
-                title: route.params.title || "Default Title",
-                headerStyle: {
-                  headerTransparent: true,
-                  shadowColor: "transparent", // Remove shadow on iOS
-                  backgroundColor: Colors[colorScheme || "light"].background,
-                },
-                headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
-                headerBackTitle: "Explore",
-                headerTitleStyle: {
-                  color: Colors[colorScheme || "light"].textHigh, // Set header title color
-                },
-              })}
-            />
-          </Stack>
-        </AuthContext.Provider>
-      </FeedContext.Provider>
+          <AuthContext.Provider
+            value={{
+              session,
+              user,
+              userSubscriptionIds,
+              userSubscriptionUrls,
+              setUserSubscriptionIds,
+              setUserSubscriptionUrls,
+            }}
+          >
+            <Stack>
+              <Stack.Screen name="(home)" options={{ headerShown: false }} />
+              <Stack.Screen name="(login)" options={{ headerShown: false }} />
+              <Stack.Screen name="(signup)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+              <Stack.Screen
+                name="addChannel"
+                options={{ presentation: "modal", title: "Add Channel" }}
+              />
+              <Stack.Screen
+                name="feedView"
+                options={({ route }) => ({
+                  title: route.params.title || "Default Title",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent", // Remove shadow on iOS
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh, // Set header title color
+                  },
+                })}
+              />
+            </Stack>
+          </AuthContext.Provider>
+        </FeedContext.Provider>
+      </MenuProvider>
     </ThemeProvider>
   );
 }
