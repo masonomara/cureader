@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { TouchableOpacity, Alert, useColorScheme } from "react-native";
+import {
+  TouchableOpacity,
+  Alert,
+  useColorScheme,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext, FeedContext } from "../_layout";
@@ -8,9 +14,12 @@ import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
+import FeedCard from "../../components/FeedCard";
 
 export default function Index() {
-  const { feeds } = useContext(FeedContext);
+  const CARD_WIDTH = Dimensions.get("window").width - 32;
+
+  const { feeds, popularFeeds } = useContext(FeedContext);
   const {
     session,
     user,
@@ -28,6 +37,15 @@ export default function Index() {
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
+  };
+
+  // Function to chunk an array
+  const chunkArray = (arr, chunkSize) => {
+    const chunkedArray = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+      chunkedArray.push(arr.slice(i, i + chunkSize));
+    }
+    return chunkedArray;
   };
 
   // Parse feeds
@@ -243,6 +261,42 @@ export default function Index() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
+    titleWrapper: {
+      marginTop: 0,
+      flex: 1,
+      padding: 16,
+      paddingVertical: 12,
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+    },
+    title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
+    },
+    textButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    textButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+    },
+    randomChannelList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 24,
+    },
   };
 
   return (
@@ -270,7 +324,75 @@ export default function Index() {
                 />
               );
             }}
-            ListEmptyComponent={() => <Text>Empty</Text>}
+            ListEmptyComponent={() => (
+              <>
+                <View style={styles.titleWrapper}>
+                  <Text style={styles.title}>Your Feeds are empty</Text>
+                  <TouchableOpacity
+                    style={styles.textButton}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/(home)/explore",
+                      });
+                    }}
+                  >
+                    <Text style={styles.textButtonText}>
+                      Go to Explore Page
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.titleWrapper}>
+                  <Text style={styles.title}>Popular Feeds</Text>
+                  <TouchableOpacity
+                    style={styles.textButton}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/allPopularFeeds",
+                      });
+                    }}
+                  >
+                    <Text style={styles.textButtonText}>View more</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {feeds ? (
+                  <ScrollView
+                    horizontal
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[styles.randomChannelList]}
+                    decelerationRate={0}
+                    snapToInterval={CARD_WIDTH + 8}
+                    snapToAlignment={"left"}
+                  >
+                    {chunkArray(popularFeeds, 4).map((chunk, index) => (
+                      <View
+                        key={index}
+                        style={{
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                          borderTopWidth: 1,
+                          borderColor: `${
+                            Colors[colorScheme || "light"].border
+                          }`,
+                        }}
+                      >
+                        {chunk.map((item) => (
+                          <FeedCard key={item.id} item={item} user={user} />
+                        ))}
+                      </View>
+                    ))}
+                  </ScrollView>
+                ) : (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator
+                      size="large"
+                      color={Colors[colorScheme || "light"].colorPrimary}
+                    />
+                  </View>
+                )}
+              </>
+            )}
           />
         </View>
       ) : (

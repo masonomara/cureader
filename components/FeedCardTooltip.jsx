@@ -74,7 +74,6 @@ const colorArray = [
 ];
 
 export default function FeedCardToolTip({ item }) {
-  console.log("tooltip item:", item);
   const { feeds } = useContext(FeedContext);
   const {
     user,
@@ -86,8 +85,6 @@ export default function FeedCardToolTip({ item }) {
 
   const [isSubscribed, setIsSubscribed] = useState(true);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(true);
-
-  console.log("tooltip userSubscriptionIds:", userSubscriptionIds);
 
   const colorScheme = useColorScheme();
 
