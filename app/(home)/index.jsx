@@ -19,16 +19,7 @@ export default function Index() {
   const [rssItems, setRssItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // State for handling channel URL input
-  const [userInput, setUserInput] = useState("");
-  const [parserInput, setParserInput] = useState("");
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelTitle, setChannelTitle] = useState("");
-  const [channelDescription, setChannelDescription] = useState("");
-  const [channelImageUrl, setChannelImageUrl] = useState("");
-
-  const [channelTitleWait, setChannelTitleWait] = useState(false);
-  const [channelUrlError, setChannelUrlError] = useState(null);
+  const [feedsParsed, setFeedsParsed] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -104,8 +95,8 @@ export default function Index() {
           // Sort items by publication date in descending order (most recent first)
           allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
-          setRssChannels(allChannels);
           setRssItems(allItems);
+          setFeedsParsed(true);
         }
       } catch (error) {
         console.error("Error in fetchAndParseFeeds:", error);
@@ -175,6 +166,7 @@ export default function Index() {
 
       setRssChannels(allChannels);
       setRssItems(allItems);
+      setFeedsParsed(true);
     }
   };
 
@@ -257,6 +249,33 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      {feedsParsed ? (
+        <View style={styles.articleList}>
+          <FlashList
+            data={rssItems}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            refreshing={isRefreshing} // Add this line to pass the refreshing state
+            onRefresh={onRefresh}
+            estimatedItemSize={200}
+            renderItem={({ item }) => {
+              return (
+                <ArticleCard
+                  item={item}
+                  publication={item.channel}
+                  fallbackImage={item.fallbackImage}
+                  channelUrl={item.channelUrl}
+                  user={user}
+                />
+              );
+            }}
+          />
+        </View>
+      ) : (
+        <>
+        <Text>Loading...</Text>
+        </>
+      )}
       {/* User info and logout */}
       {/* <View>
         <Text numberOfLines={4}>User: {JSON.stringify(user)}</Text>
@@ -271,27 +290,6 @@ export default function Index() {
           <Text>Log out</Text>
         </TouchableOpacity>
       </View> */}
-      <View style={styles.articleList}>
-        <FlashList
-          data={rssItems}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          refreshing={isRefreshing} // Add this line to pass the refreshing state
-          onRefresh={onRefresh}
-          estimatedItemSize={200}
-          renderItem={({ item }) => {
-            return (
-              <ArticleCard
-                item={item}
-                publication={item.channel}
-                fallbackImage={item.fallbackImage}
-                channelUrl={item.channelUrl}
-                user={user}
-              />
-            );
-          }}
-        />
-      </View>
     </View>
   );
 }
