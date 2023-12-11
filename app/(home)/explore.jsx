@@ -499,13 +499,8 @@ export default function Explore() {
         <TouchableOpacity
           style={styles.textButton}
           onPress={() => {
-            console.log("RANDOMFEEDS:", randomFeeds);
             router.push({
               pathname: "/allRandomFeeds",
-              params: {
-                feed: [...randomFeeds], // Convert to array
-                user: user,
-              },
             });
           }}
         >
@@ -542,7 +537,14 @@ export default function Explore() {
       </View> */}
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Popular Feeds</Text>
-        <TouchableOpacity style={styles.textButton}>
+        <TouchableOpacity
+          style={styles.textButton}
+          onPress={() => {
+            router.push({
+              pathname: "/allPopularFeeds",
+            });
+          }}
+        >
           <Text style={styles.textButtonText}>View more</Text>
         </TouchableOpacity>
       </View>

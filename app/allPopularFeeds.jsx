@@ -1,31 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
-import { TouchableOpacity, Alert, useColorScheme, Text, View } from "react-native";
+import React, { useContext } from "react";
+import { useColorScheme, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import Colors from "../constants/Colors";
+import FeedCardListItem from "../components/FeedCardListItem";
+import { AuthContext, FeedContext } from "./_layout";
 
-import { router } from "expo-router";
-import { supabase } from "../../config/initSupabase";
-import Colors from "../../constants/Colors";
-import FeedCardListItem from "../../components/FeedCardListItem";
-import { FeedContext, AuthContext } from "../_layout";
-
-export default function Profile() {
-  const colorScheme = useColorScheme();
-
-  const { feeds } = useContext(FeedContext);
+export default function TabOneScreen() {
+  const { popularFeeds } = useContext(FeedContext);
   const { user } = useContext(AuthContext);
 
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
-
-  // Logout user
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      showErrorAlert("Error signing out: " + error.message);
-    }
-  };
+  const colorScheme = useColorScheme();
 
   // Styles
   const styles = {
@@ -98,19 +82,9 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {/* User info and logout */}
-      <View>
-        {/* <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text> */}
-
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* List of feeds */}
       <View style={styles.articleList}>
         <FlashList
-          data={feeds}
+          data={popularFeeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}

@@ -1,26 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-  TextInput,
-} from "react-native";
+import { Alert, useColorScheme, TextInput } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-
 import { router } from "expo-router";
 import { supabase } from "../../config/initSupabase";
-import { Text, View } from "../../components/Themed";
+import { View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
-import { Input } from "react-native-elements";
 import Colors from "../../constants/Colors";
 import { FeedContext } from "../_layout";
 
 export default function Bookmarks() {
   const { feeds } = useContext(FeedContext);
   const colorScheme = useColorScheme();
-  const [rssChannels, setRssChannels] = useState([]);
-  const [rssItems, setRssItems] = useState([]);
   const [user, setUser] = useState(null);
 
   // redirect based on if user exists
@@ -31,14 +22,6 @@ export default function Bookmarks() {
       }
     });
   }, []);
-
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      Alert.alert("Error Signing Out User", error.message);
-    }
-  };
 
   // parse feeds
   useEffect(() => {

@@ -1,50 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
-
-import {
-  Alert,
-  useColorScheme,
-  ActivityIndicator,
-  Text, // Import ActivityIndicator
-} from "react-native";
+import React, { useContext } from "react";
+import { useColorScheme, View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
-import { supabase } from "../config/initSupabase";
-import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
 import FeedCardListItem from "../components/FeedCardListItem";
-import { FeedContext } from "./_layout";
+import { AuthContext, FeedContext } from "./_layout";
 
 export default function TabOneScreen() {
+  const { randomFeeds } = useContext(FeedContext);
+  const { user } = useContext(AuthContext);
 
-  const { feeds } = useContext(FeedContext)
-
-  const params = useLocalSearchParams();
   const colorScheme = useColorScheme();
-  const [user, setUser] = useState(null);
-
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
-
-  console.log("params.feed:", params.feed);
-
-  // Parse feed channel for articles in the feed
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: userResponse } = await supabase.auth.getUser();
-        const user = userResponse ? userResponse.user : null;
-        setUser(user);
-      } catch (error) {
-        console.error(error);
-        showErrorAlert(
-          "Error fetching or parsing the RSS feed. Please try again."
-        );
-      } finally {
-        setIsLoading(false); // Set loading to false after the effect is done firing
-      }
-    };
-
-    getUser();
-  }, []);
 
   // Styles
   const styles = {
@@ -113,129 +78,20 @@ export default function TabOneScreen() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
-    subscriptionText: {
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 20,
-      lineHeight: 26,
-      letterSpacing: -0,
-      marginTop: 10,
-    },
-    card: {
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
-      flexDirection: "row",
-      display: "flex",
-      width: "100%",
-      gap: 12,
-      padding: 16,
-    },
-    cardContent: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 0,
-      flex: 1,
-    },
-    title: {
-      display: "flex",
-      flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-      marginBottom: 2,
-    },
-    description: {
-      display: "flex",
-      flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-      marginBottom: 10,
-    },
-    subscribeButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 100,
-      width: 88,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: 34,
-    },
-    subscribedButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      borderRadius: 100,
-      width: 88,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: 34,
-      opacity: 0.87,
-    },
-    subscribeButtonText: {
-      color: `${Colors[colorScheme || "light"].colorOn}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
-    subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
-
-    loadingContainer: {
-      flex: 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
   };
 
-  return isLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator
-        size="large"
-        color={Colors[colorScheme || "light"].colorPrimary}
-      />
-    </View>
-  ) : (
+  return (
     <View style={styles.container}>
-      <View>
-      <FlashList
-        data={params.feed}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        estimatedItemSize={200}
-        renderItem={({ item }) => {
-          return (
-            <>
-              <Text>{item.channel_title}</Text>
-              {/* <FeedCardListItem key={item.id} item={item} user={user} /> */}
-            </>
-          );
-        }}
-      />
+      <View style={styles.articleList}>
+        <FlashList
+          data={randomFeeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => {
+            return <FeedCardListItem key={item.id} item={item} user={user} />;
+          }}
+        />
       </View>
     </View>
   );

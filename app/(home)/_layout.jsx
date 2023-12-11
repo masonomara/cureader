@@ -24,7 +24,7 @@ export default function TabLayout() {
             shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
           },
-          title: "Home",
+          title: "Feed",
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
             <Link href="/addChannel" asChild>
