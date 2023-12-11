@@ -13,6 +13,8 @@ import { useColorScheme } from "react-native";
 
 export const FeedContext = createContext({
   feeds: null,
+  popularFeeds: null,
+  randomFeeds: null,
 });
 export const AuthContext = createContext({
   session: null,
@@ -68,6 +70,8 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [feeds, setFeeds] = useState(null);
+  const [popularFeeds, setPopularFeeds] = useState(null);
+  const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
@@ -91,6 +95,7 @@ function RootLayoutNav() {
         }
 
         setFeeds(feedsData);
+
         setFeedsFetched(true);
       } catch (error) {
         console.error("Error fetching feeds:", error);
@@ -100,6 +105,72 @@ function RootLayoutNav() {
 
     fetchFeeds();
   }, []);
+
+  // Updated useEffect to set popular and random feeds
+  useEffect(() => {
+    if (feeds) {
+      // Function to sort feeds by the number of subscribers
+      const sortFeedsBySubscribers = (feeds) => {
+        return feeds.slice().sort((a, b) => {
+          const subscribersA = a.channel_subscribers
+            ? a.channel_subscribers.length
+            : 0;
+          const subscribersB = b.channel_subscribers
+            ? b.channel_subscribers.length
+            : 0;
+
+          // Sort in descending order
+          return subscribersB - subscribersA;
+        });
+      };
+
+      // Sort feeds and set popularFeeds state
+      const sortedFeeds = sortFeedsBySubscribers(feeds);
+      const popularFeeds = sortedFeeds.slice(0, 33);
+      console.log(
+        "Popular Feeds:",
+        popularFeeds.map((feed) => feed.channel_title)
+      );
+      setPopularFeeds(popularFeeds);
+
+      // Get the rest of the feeds excluding those in popularFeeds
+      const remainingFeeds = sortedFeeds.slice(33);
+      const remainingFeedsExcludingPopular = remainingFeeds.filter(
+        (feed) =>
+          !popularFeeds.some((popularFeed) => popularFeed.id === feed.id)
+      );
+
+      // Function to shuffle an array randomly
+      const shuffleArray = (array) => {
+        let currentIndex = array.length,
+          randomIndex,
+          temporaryValue;
+
+        while (currentIndex !== 0) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+      };
+
+      // Shuffle remaining feeds randomly and set randomFeeds state
+      const randomFeeds = shuffleArray(remainingFeedsExcludingPopular).slice(
+        0,
+        34
+      );
+
+      console.log(
+        "Random Feeds:",
+        randomFeeds.map((feed) => feed.channel_title)
+      );
+      setRandomFeeds(randomFeeds);
+    }
+  }, [feeds]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -239,6 +310,8 @@ function RootLayoutNav() {
       <FeedContext.Provider
         value={{
           feeds,
+          popularFeeds,
+          randomFeeds,
         }}
       >
         <AuthContext.Provider

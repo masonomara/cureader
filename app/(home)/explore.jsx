@@ -27,13 +27,11 @@ function CloseIcon({ size, ...props }) {
 }
 
 export default function Explore() {
-  const { feeds } = useContext(FeedContext);
+  const { feeds, popularFeeds, randomFeeds } = useContext(FeedContext);
   const { user, userSubscriptionIds, userSubscriptionUrls } =
     useContext(AuthContext);
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
-
-  const [randomFeeds, setRandomFeeds] = useState([]);
 
   const textInputRef = useRef(null);
   const [searchInput, setSearchInput] = useState("");
@@ -60,7 +58,6 @@ export default function Explore() {
     setParserInput("");
     setIsSearchInputSelected(false);
   };
-
 
   // Function for handling when there is search input change
   const handleSearchInput = (searchInput) => {
@@ -147,12 +144,12 @@ export default function Explore() {
   }, [searchInput, feeds]);
 
   // Creates random feeds — sets [randomFeeds]
-  useEffect(() => {
-    if (feeds.length > 33) {
-      const randomFeedsSlice = shuffleArray(feeds.slice(33));
-      setRandomFeeds(randomFeedsSlice.slice(0, 34));
-    }
-  }, [feeds]);
+  // useEffect(() => {
+  //   if (feeds.length > 33) {
+  //     const randomFeedsSlice = shuffleArray(feeds.slice(33));
+  //     setRandomFeeds(randomFeedsSlice.slice(0, 34));
+  //   }
+  // }, [feeds]);
 
   // Function to chunk an array
   const chunkArray = (arr, chunkSize) => {
@@ -560,7 +557,7 @@ export default function Explore() {
           snapToInterval={CARD_WIDTH + 8}
           snapToAlignment={"left"}
         >
-          {chunkArray(feeds.slice(0, 33), 3).map((chunk, index) => (
+          {chunkArray(popularFeeds.slice(0, 33), 3).map((chunk, index) => (
             <View
               key={index}
               style={{
