@@ -101,7 +101,7 @@ export default function Profile() {
     <View style={styles.container}>
       {/* User info and logout */}
       <View>
-        <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text>
+        {/* <Text numberOfLines={4}>{JSON.stringify(user, null, 2)}</Text> */}
 
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>

@@ -391,7 +391,7 @@ export default function Explore() {
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
     >
-      <Text>{JSON.stringify(userSubscriptionIds)}</Text>
+      {/* <Text>{JSON.stringify(userSubscriptionIds)}</Text> */}
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Feed Search</Text>
       </View>
@@ -530,7 +530,7 @@ export default function Explore() {
       ) : (
         <Text>Loading...</Text>
       )}
-      <View>
+      {/* <View>
         <Text numberOfLines={1}>User: {JSON.stringify(user)}</Text>
         <Text numberOfLines={1}>
           userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
@@ -539,7 +539,7 @@ export default function Explore() {
           useerSubscriptionUrls: {JSON.stringify(userSubscriptionUrls)}
         </Text>
         <Text numberOfLines={1}>Feeds: {JSON.stringify(feeds)}</Text>
-      </View>
+      </View> */}
       <View style={styles.titleWrapper}>
         <Text style={styles.title}>Popular Feeds</Text>
         <TouchableOpacity style={styles.textButton}>

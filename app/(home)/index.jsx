@@ -258,7 +258,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       {/* User info and logout */}
-      <View>
+      {/* <View>
         <Text numberOfLines={4}>User: {JSON.stringify(user)}</Text>
         <Text numberOfLines={4}>
           userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
@@ -270,7 +270,7 @@ export default function Index() {
         <TouchableOpacity onPress={doLogout}>
           <Text>Log out</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
