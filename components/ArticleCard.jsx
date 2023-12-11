@@ -22,6 +22,63 @@ import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import Colors from "../constants/Colors";
 import { AuthContext } from "../app/_layout";
 
+const textColorArray = [
+  "#E75450", // Red (Main Color)
+  "#66C0A9", // Green
+  "#FADA65", // Yellow
+  "#7929B2", // Purple
+  "#FF8C69", // Salmon
+  "#00B3A9", // Teal
+  "#E6532D", // Orange
+  "#3CB8B2", // Teal
+  "#FF7B00", // Orange
+  "#1A9E95", // Teal
+  "#E64400", // Red
+  "#2DC82D", // Green
+  "#FFD3A3", // Pale
+  "#00EB8F", // Green
+  "#E76E3F", // Orange
+  "#00ADC4", // Blue
+  "#FF9400", // Orange
+  "#6D5DC8", // Purple
+  "#FF8C69", // Salmon
+  "#7AC3D4", // Blue
+  "#C7132D", // Pink
+  "#8FEB8D", // Green
+  "#E64400", // Red
+  "#8560C1", // Purple
+  "#FFC800", // Gold
+  "#6988EF", // Blue
+];
+const colorArray = [
+  "#FF6961", // Red (Main Color)
+  "#78D2B2", // Green
+  "#FAEA96", // Yellow
+  "#8A2BE2", // Purple
+  "#FFA07A", // Salmon
+  "#00CED1", // Teal
+  "#FF6347", // Orange
+  "#48D1CC", // Teal
+  "#FF8C00", // Orange
+  "#20B2AA", // Teal
+  "#FF4500", // Red
+  "#74D674", // Green
+  "#FFDAB9", // Pale
+  "#00FA9A", // Green
+  "#FF7F50", // Orange
+  "#00BFFF", // Blue
+  "#FFA500", // Orange
+  "#7B68EE", // Purple
+  "#FFA07A", // Salmon
+  "#87CEEB", // Blue
+  "#DC143C", // Pink
+  "#98FB98", // Green
+  "#FF4500", // Red
+  "#9370DB", // Purple
+  "#FFD700", // Gold
+  "#849BE9", // Blue
+];
+
 function formatPublicationDate(published) {
   const publicationDate = new Date(published);
   const now = new Date();
@@ -48,6 +105,7 @@ function formatPublicationDate(published) {
 export default function ArticleCard({
   fallbackImage,
   feeds,
+  feed,
   item,
   publication,
   user,
@@ -176,6 +234,16 @@ export default function ArticleCard({
       console.error("Error updating channel subscribers:", error);
       throw error;
     }
+  };
+
+  // Function to get background color based on the first letter
+  const getColorForLetter = (letter) => {
+    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
+    return colorArray[index];
+  };
+  const getTextColorForLetter = (letter) => {
+    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
+    return textColorArray[index];
   };
 
   const styles = {
@@ -312,11 +380,40 @@ export default function ArticleCard({
     },
     tooptipPublicationWrapper: {
       borderBottomWidth: 1,
-      paddingTop: 16,
-      paddingBottom: 12,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      borderBottomWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
+      alignItems: "center",
+      flexDirection: "row",
+      display: "flex",
+      flex: 1,
+      width: "100%",
+      gap: 0,
+      paddingVertical: 12,
+      paddingBottom: 16,
+      height: 89,
+      minHeight: 89,
+      maxHeight: 89,
     },
-    tooltipPublicationTitle: {
+    tooltipContent: {
+      display: "flex",
+      alignItems: "center",
+      flexDirection: "row",
+      flex: 1,
+      paddingLeft: 12,
+      paddingRight: 0,
+      gap: 8,
+    },
+    tooltipInfo: {
+      flex: 1,
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      overflow: "hidden",
+      height: 64,
+      marginTop: -2,
+      arginBottom: -2,
+    },
+    tooltipTitle: {
       display: "flex",
       flexDirection: "row",
       width: "100%",
@@ -330,10 +427,43 @@ export default function ArticleCard({
       letterSpacing: -0.17,
       marginBottom: 2,
     },
+    tooltipDescription: {
+      flex: 1,
+      maxHeight: 38,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+      height: "100%",
+    },
     tooltipDivider: {
       height: 1,
       width: "100%",
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
+    },
+    noImageContainer: {
+      height: 64,
+      width: 64,
+      borderRadius: 10,
+      backgroundColor: getColorForLetter(item.title[0]),
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    noImageContainerText: {
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 23,
+      lineHeight: 26,
+      letterSpacing: -0.173,
+      height: 26,
+      color: getTextColorForLetter(item.title[0]),
+      textAlignVertical: "center",
+      textAlign: "center",
+      width: "1000%",
     },
   };
 
@@ -484,9 +614,61 @@ export default function ArticleCard({
             }}
           >
             <View style={styles.tooptipPublicationWrapper}>
-              <Text style={styles.tooltipPublicationTitle} numberOfLines={2}>
-                {publication}
-              </Text>
+              {!feed.channel_image_url ? (
+                <View style={styles.noImageContainer}>
+                  <Text style={styles.noImageContainerText}>
+                    {feed.channel_title} {feed.channel_title}
+                  </Text>
+                  <Text style={styles.noImageContainerText}>
+                    {feed.channel_title} {feed.channel_title}{" "}
+                    {feed.channel_title}
+                  </Text>
+                  <Text style={styles.noImageContainerText}>
+                    {feed.channel_title} {feed.channel_title}
+                  </Text>
+                </View>
+              ) : (
+                <View
+                  style={{
+                    aspectRatio: "1/1",
+                    width: 64,
+                    overflow: "hidden",
+                    borderRadius: 10,
+                  }}
+                >
+                  <Image
+                    style={{
+                      flex: 1,
+                      borderRadius: 12,
+                      borderWidth: 0.67,
+                      borderColor: `${Colors[colorScheme || "light"].border}`,
+                    }}
+                    contentFit="cover"
+                    source={{ uri: feed.channel_image_url }}
+                  />
+                </View>
+              )}
+              <View style={styles.tooltipContent}>
+                <View style={styles.tooltipInfo}>
+                  <Text style={styles.tooltipTitle} numberOfLines={2}>
+                    {feed.channel_title}
+                  </Text>
+                  {feed.channel_description ? (
+                    <Text style={styles.tooltipDescription} numberOfLines={2}>
+                      {feed.channel_description
+                        .replace(/<[^>]*>/g, "")
+                        .replace(/&#8216;/g, "‘")
+                        .replace(/&#8217;/g, "’")
+                        .replace(/&#160;/g, " ")
+                        .replace(/&#8220;/g, "“")
+                        .replace(/&#8221;/g, "”")
+                        .trim()}
+                    </Text>
+                  ) : (
+                    <Text numberOfLines={2} style={styles.description}></Text>
+                  )}
+                </View>
+              </View>
             </View>
             {/* <View style={styles.tooltipDivider}></View> */}
             <MenuOption

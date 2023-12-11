@@ -69,6 +69,7 @@ export default function Index() {
               const channelImage = fallbackImages.find(
                 (image) => image.channel_url === url
               );
+              const feed = feeds.find((feed) => feed.channel_url === url);
 
               allChannels.push({
                 title: parsedRss.title,
@@ -79,7 +80,7 @@ export default function Index() {
                 ...parsedRss.items.map((item) => ({
                   ...item,
                   publicationDate: new Date(item.published),
-                  channel: parsedRss.title,
+                  feed: feed,
                   image: parsedRss.image,
                   fallbackImage: channelImage
                     ? channelImage.channel_image_url
@@ -141,6 +142,7 @@ export default function Index() {
           const channelImage = fallbackImages.find(
             (image) => image.channel_url === url
           );
+          const feed = feeds.find((feed) => feed.channel_url === url);
 
           allChannels.push({
             title: parsedRss.title,
@@ -151,7 +153,7 @@ export default function Index() {
             ...parsedRss.items.map((item) => ({
               ...item,
               publicationDate: new Date(item.published),
-              channel: parsedRss.title,
+              feed: feed,
               image: parsedRss.image,
               fallbackImage: channelImage
                 ? channelImage.channel_image_url
@@ -270,7 +272,8 @@ export default function Index() {
                   fallbackImage={item.fallbackImage}
                   feeds={feeds}
                   item={item}
-                  publication={item.channel}
+                  feed={item.feed}
+                  publication={item.feed.channel_title}
                   user={user}
                   userSubscriptionIds={userSubscriptionIds}
                   userSubscriptionUrls={userSubscriptionUrls}
