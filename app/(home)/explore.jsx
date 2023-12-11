@@ -457,13 +457,7 @@ export default function Explore() {
               snapToAlignment={"left"}
             >
               {searchResults.map((item) => (
-                <FeedCard
-                  key={item.id}
-                  item={item}
-                  user={user}
-                  feeds={feeds}
-                  userChannelIds={userSubscriptionIds}
-                />
+                <FeedCard key={item.id} item={item} user={user} />
               ))}
             </View>
           )}
@@ -539,13 +533,7 @@ export default function Explore() {
           snapToAlignment={"left"}
         >
           {randomFeeds.map((item) => (
-            <FeedCardFeatured
-              key={item.id}
-              item={item}
-              user={user}
-              feeds={feeds}
-              userChannelIds={userSubscriptionIds}
-            />
+            <FeedCardFeatured key={item.id} item={item} user={user} />
           ))}
         </ScrollView>
       ) : (
@@ -589,13 +577,7 @@ export default function Explore() {
               }}
             >
               {chunk.map((item) => (
-                <FeedCard
-                  key={item.id}
-                  item={item}
-                  user={user}
-                  feeds={feeds}
-                  userChannelIds={userSubscriptionIds}
-                />
+                <FeedCard key={item.id} item={item} user={user} />
               ))}
             </View>
           ))}
