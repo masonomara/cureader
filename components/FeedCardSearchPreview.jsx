@@ -72,7 +72,6 @@ export default function FeedCardSearchPreview({
   channelImageUrl,
 }) {
   const { user } = useContext(AuthContext);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
   const colorScheme = useColorScheme();
@@ -84,7 +83,6 @@ export default function FeedCardSearchPreview({
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
 
-    
     if (!channelUrl) {
       showErrorAlert("Please fill in the field correctly");
       return;
