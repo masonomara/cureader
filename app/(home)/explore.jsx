@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useContext,
-} from "react";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   ScrollView,
   Text,
@@ -19,7 +12,6 @@ import {
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
 import FeedCard from "../../components/FeedCard";
-import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
@@ -66,7 +58,9 @@ export default function Explore() {
   const handleClearInput = () => {
     setSearchInput("");
     setParserInput("");
+    setIsSearchInputSelected(false);
   };
+
 
   // Function for handling when there is search input change
   const handleSearchInput = (searchInput) => {
