@@ -24,20 +24,10 @@ export default function Index() {
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
   const [feedsParsed, setFeedsParsed] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
-  };
-
-  // Logout user
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      showErrorAlert("Error signing out: " + error.message);
-    }
   };
 
   // Parse feeds
@@ -280,6 +270,7 @@ export default function Index() {
                 />
               );
             }}
+            ListEmptyComponent={() => <Text>Empty</Text>}
           />
         </View>
       ) : (

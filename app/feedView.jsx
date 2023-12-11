@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from "./_layout";
+import { AuthContext, FeedContext } from "./_layout";
 import {
   Alert,
   useColorScheme,
+  Text,
   ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -15,11 +16,22 @@ import { FlashList } from "@shopify/flash-list";
 import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
+  const { feeds } = useContext(FeedContext);
+  const {
+    session,
+    user,
+    userSubscriptionIds,
+    userSubscriptionUrls,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
+
   const params = useLocalSearchParams();
 
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
+  const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -28,8 +40,13 @@ export default function TabOneScreen() {
   // Parse feed channel for articles in the feed
   useEffect(() => {
     const parseFeed = async () => {
-      if (params.url) {
+      if (params.url && feeds && userSubscriptionUrls) {
         try {
+          const fallbackImages = feeds.map((feed) => ({
+            channel_url: feed.channel_url,
+            channel_image_url: feed.channel_image_url,
+          }));
+
           const response = await fetch(params.url);
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -37,11 +54,17 @@ export default function TabOneScreen() {
           const responseData = await response.text();
           const parsedRss = await rssParser.parse(responseData);
 
+          const channelImage = fallbackImages.find(
+            (image) => image.channel_url === params.url
+          );
+          const feed = feeds.find((feed) => feed.channel_url === params.url);
+
           const allItems = parsedRss.items.map((item) => ({
             ...item,
             publicationDate: new Date(item.published),
-            channel: parsedRss.title,
+            feed: feed,
             image: parsedRss.image,
+            fallbackImage: channelImage ? channelImage.channel_image_url : null,
             channelUrl: parsedRss.links[0].url,
           }));
 
@@ -238,13 +261,17 @@ export default function TabOneScreen() {
           estimatedItemSize={200}
           renderItem={({ item }) => (
             <ArticleCard
+              fallbackImage={item.fallbackImage}
+              feeds={feeds}
               item={item}
-              publication={item.channel}
-              fallbackImage={params.image}
-              channelUrl={item.channelUrl}
-              user={params.user}
+              feed={item.feed}
+              publication={item.feed.channel_title}
+              user={user}
+              userSubscriptionIds={userSubscriptionIds}
+              userSubscriptionUrls={userSubscriptionUrls}
             />
           )}
+          ListEmptyComponent={() => <Text>Empty</Text>}
         />
       </View>
     </>
