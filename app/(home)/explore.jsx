@@ -134,7 +134,7 @@ export default function Explore() {
           return titleMatch || urlMatch || descriptionMatch;
         });
 
-        setSearchResults(filteredFeeds.slice(0, 5));
+        setSearchResults(filteredFeeds);
       } else {
         setSearchResults([]);
       }
@@ -294,6 +294,7 @@ export default function Explore() {
     searchHeader: {
       borderBottomWidth: 1,
       paddingBottom: 7,
+      paddingTop: 8,
       borderBottomColor: `${Colors[colorScheme || "light"].border}`,
     },
     searchHeaderText: {
@@ -377,17 +378,17 @@ export default function Explore() {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterBold",
       fontWeight: "700",
-      fontSize: 22,
-      lineHeight: 28,
-      letterSpacing: -0.22,
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
     },
     textButton: {
       paddingHorizontal: 8,
       paddingVertical: 3,
     },
     textButtonText: {
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
@@ -396,6 +397,10 @@ export default function Explore() {
     loadingContainer: {
       flex: 1,
       display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    searchResultsList: {
       alignItems: "center",
       justifyContent: "center",
     },
@@ -440,7 +445,7 @@ export default function Explore() {
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
               {searchResults.length > 0 || channelTitle
-                ? "Search Results"
+                ? `Search Results (${searchResults.length})`
                 : searchResults.length === 0 && channelTitleWait
                 ? "Searching..."
                 : "No Search Results Found"}
@@ -463,42 +468,29 @@ export default function Explore() {
           )}
 
           <View style={!channelTitle ? styles.noResultsWrapper : undefined}>
-            {!channelTitle && (
-              <>
-                {searchResults.length === 0 && channelTitleWait ? (
-                  <ActivityIndicator
-                    color={`${Colors[colorScheme || "light"].buttonActive}`}
-                  />
-                ) : (
-                  <View style={[styles.searchResultsList]}>
-                    <View style={styles.noResultsHeader}>
-                      <Text style={styles.noResultsHeaderText}>
-                        Can't find your feed?
-                      </Text>
-                    </View>
-                    <View style={styles.noResultsTextWrapper}>
-                      <Text style={styles.noResultsText}>
-                        Simply enter your RSS Feed's URL to add it. For example:{" "}
-                        <Text style={styles.noResultsTextBold}>
-                          nasa.gov/rss/breaking_news.rss
-                        </Text>
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              </>
+            {searchResults.length == 0 && !channelTitleWait && channelTitle && (
+              <FeedCardSearchPreview
+                channelUrl={channelUrl}
+                channelTitle={channelTitle}
+                channelDescription={channelDescription}
+                channelImageUrl={channelImageUrl}
+              />
             )}
-
-            {searchResults.length === 0 &&
-              !channelTitleWait &&
-              channelTitle && (
-                <FeedCardSearchPreview
-                  channelUrl={channelUrl}
-                  channelTitle={channelTitle}
-                  channelDescription={channelDescription}
-                  channelImageUrl={channelImageUrl}
-                />
-              )}
+            <View style={[styles.searchResultsList]}>
+              <View style={styles.noResultsHeader}>
+                <Text style={styles.noResultsHeaderText}>
+                  Can't find your feed?
+                </Text>
+              </View>
+              <View style={styles.noResultsTextWrapper}>
+                <Text style={styles.noResultsText}>
+                  Simply enter your RSS Feed's URL to add it. For example:{" "}
+                  <Text style={styles.noResultsTextBold}>
+                    nasa.gov/rss/breaking_news.rss
+                  </Text>
+                </Text>
+              </View>
+            </View>
           </View>
         </ScrollView>
       )}
