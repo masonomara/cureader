@@ -352,7 +352,7 @@ export default function FeedCardSearchPreview({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 34,
+      height: 32,
     },
     subscribedButton: {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
@@ -361,7 +361,7 @@ export default function FeedCardSearchPreview({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 34,
+      height: 32,
       opacity: 0.87,
     },
     subscribeButtonText: {

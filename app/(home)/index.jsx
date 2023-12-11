@@ -11,8 +11,14 @@ import Colors from "../../constants/Colors";
 
 export default function Index() {
   const { feeds } = useContext(FeedContext);
-  const { session, user, userSubscriptionIds, userSubscriptionUrls } =
-    useContext(AuthContext);
+  const {
+    session,
+    user,
+    userSubscriptionIds,
+    userSubscriptionUrls,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -261,11 +267,13 @@ export default function Index() {
             renderItem={({ item }) => {
               return (
                 <ArticleCard
+                  fallbackImage={item.fallbackImage}
+                  feeds={feeds}
                   item={item}
                   publication={item.channel}
-                  fallbackImage={item.fallbackImage}
-                  channelUrl={item.channelUrl}
                   user={user}
+                  userSubscriptionIds={userSubscriptionIds}
+                  userSubscriptionUrls={userSubscriptionUrls}
                 />
               );
             }}
@@ -273,7 +281,7 @@ export default function Index() {
         </View>
       ) : (
         <>
-        <Text>Loading...</Text>
+          <Text>Loading...</Text>
         </>
       )}
       {/* User info and logout */}

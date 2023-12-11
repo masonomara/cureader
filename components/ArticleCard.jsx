@@ -6,18 +6,25 @@ import {
   useColorScheme,
   Share,
 } from "react-native";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+  renderers,
+} from "react-native-popup-menu";
 import { Image } from "expo-image";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import Dots20 from "./icons/20/Dots20";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import Colors from "../constants/Colors";
+import { AuthContext } from "../app/_layout";
 
 function formatPublicationDate(published) {
   const publicationDate = new Date(published);
   const now = new Date();
-
   const timeDifference = now - publicationDate;
 
   const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
@@ -39,11 +46,16 @@ function formatPublicationDate(published) {
 }
 
 export default function ArticleCard({
-  publication,
-  item,
-  user,
   fallbackImage,
+  feeds,
+  item,
+  publication,
+  user,
+  userSubscriptionIds,
+  userSubscriptionUrls,
 }) {
+  const { setUserSubscriptionIds, setUserSubscriptionUrls } =
+    useContext(AuthContext);
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
@@ -83,6 +95,86 @@ export default function ArticleCard({
       }
     } catch (error) {
       console.error("Error sharing:", error.message);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      // If the user is already subscribed to the feed
+      const updatedUserSubscriptionIds = userSubscriptionIds.filter(
+        (id) => id !== item.id
+      );
+      const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
+        (url) => url !== item.channel_url
+      );
+
+      // Update the state with the new arrays
+      setUserSubscriptionIds(updatedUserSubscriptionIds);
+      setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+
+      // Update the user's subscriptions in supabase
+      await updateUserSubscriptions(
+        updatedUserSubscriptionIds,
+        updatedUserSubscriptionUrls
+      );
+
+      // Update channel subscribers count in supabase
+      await updateChannelSubscribers(item.id, user.id, false);
+    } catch (error) {
+      console.error("Error handling subscription:", error);
+      // Handle errors and revert the state if necessary
+      setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    }
+  };
+
+  const updateUserSubscriptions = async (updatedIds, updatedUrls) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          channel_subscriptions: updatedIds.map((id, index) => ({
+            channelId: id,
+            channelUrl: updatedUrls[index],
+          })),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error; // Rethrow the error to handle it elsewhere if needed
+    }
+  };
+
+  const updateChannelSubscribers = async (
+    channelId,
+    userId,
+    subscribe = true
+  ) => {
+    try {
+      const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
+
+      if (channelIndex !== -1) {
+        const updatedFeeds = [...feeds];
+        const channelSubscribers =
+          updatedFeeds[channelIndex].channel_subscribers || [];
+
+        // Update the channel_subscribers array based on the subscribe flag
+        updatedFeeds[channelIndex].channel_subscribers = subscribe
+          ? [...channelSubscribers, userId]
+          : channelSubscribers.filter((sub) => sub !== userId);
+
+        // Update the channel_subscribers array in Supabase
+        await supabase
+          .from("channels")
+          .update({
+            channel_subscribers: updatedFeeds[channelIndex].channel_subscribers,
+          })
+          .eq("id", channelId);
+      } else {
+        console.error("Channel not found in the feeds prop");
+      }
+    } catch (error) {
+      console.error("Error updating channel subscribers:", error);
+      throw error;
     }
   };
 
@@ -180,27 +272,35 @@ export default function ArticleCard({
     },
     cardControls: {
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "center",
       gap: "28px",
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
+      height: 52,
+      paddingTop: 4,
     },
     cardButtons: {
       display: "flex",
-      alignItems: "flex-start",
-      gap: "28px",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      gap: "12px",
       alignSelf: "stretch",
       flexDirection: "row",
       flex: 1,
     },
     buttonWrapper: {
-      height: 44,
+      height: 40,
       minWidth: 44,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
       gap: 5,
+      paddingHorizontal: 12,
+      paddingLeft: 10,
+      borderWidth: 0.5,
+      borderColor: Colors[colorScheme || "light"].border,
+      borderRadius: 100,
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
@@ -209,6 +309,31 @@ export default function ArticleCard({
       fontSize: 13,
       lineHeight: 18,
       letterSpacing: -0.065,
+    },
+    tooptipPublicationWrapper: {
+      borderBottomWidth: 1,
+      paddingTop: 16,
+      paddingBottom: 12,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+    },
+    tooltipPublicationTitle: {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      alignItems: "flex-start",
+      flexWrap: "wrap",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      marginBottom: 2,
+    },
+    tooltipDivider: {
+      height: 1,
+      width: "100%",
+      backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
   };
 
@@ -282,12 +407,96 @@ export default function ArticleCard({
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.buttonWrapper}>
+        {/* <TouchableOpacity style={styles.buttonWrapper}>
           <Dots20
             style={styles.buttonImage}
             color={Colors[colorScheme || "light"].buttonActive}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+        <Menu renderer={renderers.SlideInMenu}>
+          <MenuTrigger
+            customStyles={{
+              triggerTouchable: {
+                underlayColor: "transparent",
+                activeOpacity: 0.2,
+                style: {
+                  height: 40,
+                  minWidth: 40,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  gap: 5,
+                  borderWidth: 0.5,
+                  borderColor: Colors[colorScheme || "light"].border,
+                  borderRadius: 100,
+                },
+              },
+            }}
+          >
+            <Dots20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+          </MenuTrigger>
+
+          <MenuOptions
+            customStyles={{
+              optionsContainer: {
+                backgroundColor: Colors[colorScheme || "light"].background,
+                borderWidth: 0.5,
+                borderColor: Colors[colorScheme || "light"].border,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                shadowColor: "none",
+                shadowOpacity: 0,
+                overflow: "hidden",
+                paddingTop: 8,
+                paddingBottom: 12,
+              },
+              optionsWrapper: {
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                paddingHorizontal: 16,
+              },
+              optionWrapper: {
+                margin: 5,
+                alignItems: "flex-start",
+                justifyContent: "center",
+                paddingHorizontal: 0,
+                height: 44,
+                // borderWidth: 1,
+                // borderColor: "red",
+              },
+              optionTouchable: {
+                underlayColor: "transparent",
+                activeOpacity: 0.2,
+              },
+              optionText: {
+                color: Colors[colorScheme || "light"].buttonActive,
+                fontFamily: "InterMedium",
+                fontWeight: "500",
+                fontSize: 15,
+                lineHeight: 20,
+                letterSpacing: -0.15,
+              },
+            }}
+          >
+            <View style={styles.tooptipPublicationWrapper}>
+              <Text style={styles.tooltipPublicationTitle} numberOfLines={2}>
+                {publication}
+              </Text>
+            </View>
+            {/* <View style={styles.tooltipDivider}></View> */}
+            <MenuOption
+              onSelect={() => alert(`Save`)}
+              text="View All Articles"
+            />
+            <View style={styles.tooltipDivider}></View>
+            <MenuOption onSelect={() => alert(`Delete`)} text="Unsubscribe" />
+            <View style={styles.tooltipDivider}></View>
+          </MenuOptions>
+        </Menu>
       </View>
     </Pressable>
   );
