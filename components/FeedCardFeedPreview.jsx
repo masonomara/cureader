@@ -95,7 +95,7 @@ export default function FeedCardFeedPreview({ item }) {
     // Update state when the subscribed prop changes
     setIsSubscribed(userSubscriptionIds.includes(itemId));
     setIsOptimisticSubscribed(userSubscriptionIds.includes(itemId));
-  }, [userSubscriptionIds]);
+  }, [userSubscriptionIds.includes(item.id)]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
@@ -104,7 +104,7 @@ export default function FeedCardFeedPreview({ item }) {
       if (isSubscribed) {
         // If the user is already subscribed to the feed
         const updatedUserSubscriptionIds = userSubscriptionIds.filter(
-          (id) => id !== itemId
+          (id) => id !== item.id
         );
         const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
           (url) => url !== item.channel_url
@@ -121,20 +121,20 @@ export default function FeedCardFeedPreview({ item }) {
         );
 
         // Update channel subscribers count in supabase
-        await updateChannelSubscribers(itemId, -1);
+        await updateChannelSubscribers(item.id, user.id, false);
       } else {
         // If the user is not subscribed to the feed
-        setUserSubscriptionIds([...userSubscriptionIds, itemId]);
+        setUserSubscriptionIds([...userSubscriptionIds, item.id]);
         setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
 
         // Update the user's subscriptions in supabase
         await updateUserSubscriptions(
-          [...userSubscriptionIds, itemId],
+          [...userSubscriptionIds, item.id],
           [...userSubscriptionUrls, item.channel_url]
         );
 
         // Update channel subscribers count in supabase
-        await updateChannelSubscribers(itemId, 1);
+        await updateChannelSubscribers(item.id, user.id, true);
       }
     } catch (error) {
       console.error("Error handling subscription:", error);
@@ -160,18 +160,29 @@ export default function FeedCardFeedPreview({ item }) {
     }
   };
 
-  const updateChannelSubscribers = async (channelId, increment = 1) => {
+  const updateChannelSubscribers = async (
+    channelId,
+    userId,
+    subscribe = true
+  ) => {
     try {
       const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
 
       if (channelIndex !== -1) {
         const updatedFeeds = [...feeds];
-        updatedFeeds[channelIndex].subscribers += increment;
+        const channelSubscribers =
+          updatedFeeds[channelIndex].channel_subscribers || [];
 
+        // Update the channel_subscribers array based on the subscribe flag
+        updatedFeeds[channelIndex].channel_subscribers = subscribe
+          ? [...channelSubscribers, userId]
+          : channelSubscribers.filter((sub) => sub !== userId);
+
+        // Update the channel_subscribers array in Supabase
         await supabase
           .from("channels")
           .update({
-            subscribers: updatedFeeds[channelIndex].subscribers,
+            channel_subscribers: updatedFeeds[channelIndex].channel_subscribers,
           })
           .eq("id", channelId);
       } else {
@@ -179,7 +190,7 @@ export default function FeedCardFeedPreview({ item }) {
       }
     } catch (error) {
       console.error("Error updating channel subscribers:", error);
-      throw error; // Rethrow the error to handle it elsewhere if needed
+      throw error;
     }
   };
 

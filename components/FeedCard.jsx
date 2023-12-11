@@ -120,7 +120,7 @@ export default function FeedCard({ item, user }) {
         );
 
         // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, -1);
+        await updateChannelSubscribers(item.id, user.id, false);
       } else {
         // If the user is not subscribed to the feed
         setUserSubscriptionIds([...userSubscriptionIds, item.id]);
@@ -133,7 +133,7 @@ export default function FeedCard({ item, user }) {
         );
 
         // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, 1);
+        await updateChannelSubscribers(item.id, user.id, true);
       }
     } catch (error) {
       console.error("Error handling subscription:", error);
@@ -159,18 +159,29 @@ export default function FeedCard({ item, user }) {
     }
   };
 
-  const updateChannelSubscribers = async (channelId, increment = 1) => {
+  const updateChannelSubscribers = async (
+    channelId,
+    userId,
+    subscribe = true
+  ) => {
     try {
       const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
 
       if (channelIndex !== -1) {
         const updatedFeeds = [...feeds];
-        updatedFeeds[channelIndex].subscribers += increment;
+        const channelSubscribers =
+          updatedFeeds[channelIndex].channel_subscribers || [];
 
+        // Update the channel_subscribers array based on the subscribe flag
+        updatedFeeds[channelIndex].channel_subscribers = subscribe
+          ? [...channelSubscribers, userId]
+          : channelSubscribers.filter((sub) => sub !== userId);
+
+        // Update the channel_subscribers array in Supabase
         await supabase
           .from("channels")
           .update({
-            subscribers: updatedFeeds[channelIndex].subscribers,
+            channel_subscribers: updatedFeeds[channelIndex].channel_subscribers,
           })
           .eq("id", channelId);
       } else {
@@ -178,7 +189,7 @@ export default function FeedCard({ item, user }) {
       }
     } catch (error) {
       console.error("Error updating channel subscribers:", error);
-      throw error; // Rethrow the error to handle it elsewhere if needed
+      throw error;
     }
   };
 
@@ -318,7 +329,7 @@ export default function FeedCard({ item, user }) {
   return (
     <Pressable
       style={styles.card}
-      onPress={() => {
+      onPress={() =>
         router.push({
           pathname: "/feedView",
           params: {
@@ -333,8 +344,8 @@ export default function FeedCard({ item, user }) {
             subscribed: isSubscribed,
             userSubscriptionIds: userSubscriptionIds,
           },
-        });
-      }}
+        })
+      }
     >
       {!item.channel_image_url ? (
         <View style={styles.noImageContainer}>

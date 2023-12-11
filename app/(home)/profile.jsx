@@ -28,8 +28,6 @@ export default function Profile() {
     }
   };
 
-
-
   // Styles
   const styles = {
     container: {
@@ -113,7 +111,7 @@ export default function Profile() {
       {/* List of feeds */}
       <View style={styles.articleList}>
         <FlashList
-          data={userFeeds}
+          data={feeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}

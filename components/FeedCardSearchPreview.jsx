@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-  Dimensions,
-  Pressable,
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+import { useContext, useState } from "react";
+import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
+import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
-import { router, useNavigation } from "expo-router";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
+import { AuthContext } from "../app/_layout";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -78,12 +70,11 @@ export default function FeedCardSearchPreview({
   channelTitle,
   channelDescription,
   channelImageUrl,
-  user,
 }) {
+  const { user } = useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   const showErrorAlert = (message) => {
@@ -92,6 +83,8 @@ export default function FeedCardSearchPreview({
 
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
+
+    
     if (!channelUrl) {
       showErrorAlert("Please fill in the field correctly");
       return;
@@ -439,12 +432,11 @@ export default function FeedCardSearchPreview({
           <Image
             style={{
               flex: 1,
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
+              borderRadius: 12,
               borderWidth: 0.67,
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
+            contentFit="cover"
             source={{ uri: channelImageUrl }}
           />
         </View>
