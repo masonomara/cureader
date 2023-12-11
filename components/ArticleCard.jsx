@@ -18,9 +18,11 @@ import React, { useContext, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import Dots20 from "./icons/20/Dots20";
 import Share20 from "./icons/20/Share20";
+import { supabase } from "../config/initSupabase";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import Colors from "../constants/Colors";
 import { AuthContext } from "../app/_layout";
+import FeedCardToolTip from "./FeedCardTooltip";
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -236,15 +238,7 @@ export default function ArticleCard({
     }
   };
 
-  // Function to get background color based on the first letter
-  const getColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
-    return colorArray[index];
-  };
-  const getTextColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
-    return textColorArray[index];
-  };
+
 
   const styles = {
     card: {
@@ -377,97 +371,8 @@ export default function ArticleCard({
       fontSize: 13,
       lineHeight: 18,
       letterSpacing: -0.065,
-    },
-    tooptipPublicationWrapper: {
-      borderBottomWidth: 1,
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "center",
-      flexDirection: "row",
-      display: "flex",
-      flex: 1,
-      width: "100%",
-      gap: 0,
-      paddingVertical: 12,
-      paddingBottom: 16,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
-    },
-    tooltipContent: {
-      display: "flex",
-      alignItems: "center",
-      flexDirection: "row",
-      flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
-      gap: 8,
-    },
-    tooltipInfo: {
-      flex: 1,
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
-      overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
-    },
-    tooltipTitle: {
-      display: "flex",
-      flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-      marginBottom: 2,
-    },
-    tooltipDescription: {
-      flex: 1,
-      maxHeight: 38,
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-      height: "100%",
-    },
-    tooltipDivider: {
-      height: 1,
-      width: "100%",
-      backgroundColor: `${Colors[colorScheme || "light"].border}`,
-    },
-    noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
-      backgroundColor: getColorForLetter(item.title[0]),
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-    },
-    noImageContainerText: {
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 23,
-      lineHeight: 26,
-      letterSpacing: -0.173,
-      height: 26,
-      color: getTextColorForLetter(item.title[0]),
-      textAlignVertical: "center",
-      textAlign: "center",
-      width: "1000%",
-    },
+    }
   };
-
-  // console.log( "[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url );
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
@@ -538,6 +443,8 @@ export default function ArticleCard({
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>
         </View>
+
+        <FeedCardToolTip item={feed} />
         {/* <TouchableOpacity style={styles.buttonWrapper}>
           <Dots20
             style={styles.buttonImage}
@@ -545,33 +452,9 @@ export default function ArticleCard({
           />
         </TouchableOpacity> */}
 
-        <Menu renderer={renderers.SlideInMenu}>
-          <MenuTrigger
-            customStyles={{
-              triggerTouchable: {
-                underlayColor: "transparent",
-                activeOpacity: 0.2,
-                style: {
-                  height: 40,
-                  minWidth: 40,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  gap: 5,
-                  borderWidth: 0.5,
-                  borderColor: Colors[colorScheme || "light"].border,
-                  borderRadius: 100,
-                },
-              },
-            }}
-          >
-            <Dots20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
-          </MenuTrigger>
 
-          <MenuOptions
+
+          {/* <MenuOptions
             customStyles={{
               optionsContainer: {
                 backgroundColor: Colors[colorScheme || "light"].background,
@@ -613,73 +496,80 @@ export default function ArticleCard({
               },
             }}
           >
-            <View style={styles.tooptipPublicationWrapper}>
-              {!feed.channel_image_url ? (
-                <View style={styles.noImageContainer}>
-                  <Text style={styles.noImageContainerText}>
-                    {feed.channel_title} {feed.channel_title}
-                  </Text>
-                  <Text style={styles.noImageContainerText}>
-                    {feed.channel_title} {feed.channel_title}{" "}
-                    {feed.channel_title}
-                  </Text>
-                  <Text style={styles.noImageContainerText}>
-                    {feed.channel_title} {feed.channel_title}
-                  </Text>
-                </View>
-              ) : (
-                <View
-                  style={{
-                    aspectRatio: "1/1",
-                    width: 64,
-                    overflow: "hidden",
-                    borderRadius: 10,
-                  }}
-                >
-                  <Image
-                    style={{
-                      flex: 1,
-                      borderRadius: 12,
-                      borderWidth: 0.67,
-                      borderColor: `${Colors[colorScheme || "light"].border}`,
-                    }}
-                    contentFit="cover"
-                    source={{ uri: feed.channel_image_url }}
-                  />
-                </View>
-              )}
-              <View style={styles.tooltipContent}>
-                <View style={styles.tooltipInfo}>
-                  <Text style={styles.tooltipTitle} numberOfLines={2}>
-                    {feed.channel_title}
-                  </Text>
-                  {feed.channel_description ? (
-                    <Text style={styles.tooltipDescription} numberOfLines={2}>
-                      {feed.channel_description
-                        .replace(/<[^>]*>/g, "")
-                        .replace(/&#8216;/g, "‘")
-                        .replace(/&#8217;/g, "’")
-                        .replace(/&#160;/g, " ")
-                        .replace(/&#8220;/g, "“")
-                        .replace(/&#8221;/g, "”")
-                        .trim()}
+    
+              
+              <View style={styles.tooptipPublicationWrapper}>
+                {!feed.channel_image_url ? (
+                  <View style={styles.noImageContainer}>
+                    <Text style={styles.noImageContainerText}>
+                      {feed.channel_title} {feed.channel_title}
                     </Text>
-                  ) : (
-                    <Text numberOfLines={2} style={styles.description}></Text>
-                  )}
+                    <Text style={styles.noImageContainerText}>
+                      {feed.channel_title} {feed.channel_title}{" "}
+                      {feed.channel_title}
+                    </Text>
+                    <Text style={styles.noImageContainerText}>
+                      {feed.channel_title} {feed.channel_title}
+                    </Text>
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      aspectRatio: "1/1",
+                      width: 64,
+                      overflow: "hidden",
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Image
+                      style={{
+                        flex: 1,
+                        borderRadius: 12,
+                        borderWidth: 0.67,
+                        borderColor: `${Colors[colorScheme || "light"].border}`,
+                      }}
+                      contentFit="cover"
+                      source={{ uri: feed.channel_image_url }}
+                    />
+                  </View>
+                )}
+                <View style={styles.tooltipContent}>
+                  <View style={styles.tooltipInfo}>
+                    <Text style={styles.tooltipTitle} numberOfLines={2}>
+                      {feed.channel_title}
+                    </Text>
+                    {feed.channel_description ? (
+                      <Text style={styles.tooltipDescription} numberOfLines={2}>
+                        {feed.channel_description
+                          .replace(/<[^>]*>/g, "")
+                          .replace(/&#8216;/g, "‘")
+                          .replace(/&#8217;/g, "’")
+                          .replace(/&#160;/g, " ")
+                          .replace(/&#8220;/g, "“")
+                          .replace(/&#8221;/g, "”")
+                          .trim()}
+                      </Text>
+                    ) : (
+                      <Text numberOfLines={2} style={styles.description}></Text>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-            {/* <View style={styles.tooltipDivider}></View> */}
-            <MenuOption
-              onSelect={() => alert(`Save`)}
-              text="View All Articles"
-            />
-            <View style={styles.tooltipDivider}></View>
-            <MenuOption onSelect={() => alert(`Delete`)} text="Unsubscribe" />
-            <View style={styles.tooltipDivider}></View>
-          </MenuOptions>
-        </Menu>
+
+              <View style={styles.tooltipDivider}></View>
+              <MenuOption
+                onSelect={() => alert(`Save`)}
+                text="View All Articles"
+              />
+              <View style={styles.tooltipDivider}></View>
+              <MenuOption
+                onSelect={() => handleSubscribe()}
+                text="Unsubscribe"
+              />
+              <View style={styles.tooltipDivider}></View>
+        
+          </MenuOptions> */}
+
       </View>
     </Pressable>
   );
