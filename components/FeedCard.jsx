@@ -7,7 +7,6 @@ import {
   Pressable,
 } from "react-native";
 import { Image } from "expo-image";
-
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "../config/initSupabase";

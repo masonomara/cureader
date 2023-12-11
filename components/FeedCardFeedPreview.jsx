@@ -353,7 +353,7 @@ export default function FeedCardFeedPreview({ item }) {
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
-            source={{ uri: params.image }}
+            source={{ uri: item.image }}
           />
         </View>
       )}
