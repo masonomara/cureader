@@ -26,20 +26,6 @@ export default function TabLayout() {
           },
           title: "Feed",
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerRight: () => (
-            <Link href="/addChannel" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <Feather
-                    name="plus"
-                    size={25}
-                    color={Colors[colorScheme || "light"].colorPrimary}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
         }}
       />
       <Tabs.Screen
