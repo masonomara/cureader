@@ -17,11 +17,8 @@ import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
   const { feeds } = useContext(FeedContext);
-  const {
-    user,
-    userSubscriptionIds,
-    userSubscriptionUrls,
-  } = useContext(AuthContext);
+  const { user, userSubscriptionIds, userSubscriptionUrls } =
+    useContext(AuthContext);
 
   const params = useLocalSearchParams();
 
@@ -259,13 +256,10 @@ export default function TabOneScreen() {
           renderItem={({ item }) => (
             <ArticleCard
               fallbackImage={item.fallbackImage}
-              feeds={feeds}
               item={item}
               feed={item.feed}
               publication={item.feed.channel_title}
               user={user}
-              userSubscriptionIds={userSubscriptionIds}
-              userSubscriptionUrls={userSubscriptionUrls}
             />
           )}
         />

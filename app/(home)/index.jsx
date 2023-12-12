@@ -397,13 +397,10 @@ export default function Index() {
               renderItem={({ item }) => (
                 <ArticleCard
                   fallbackImage={item.fallbackImage}
-                  feeds={feeds}
                   item={item}
                   feed={item.feed}
                   publication={item.feed.channel_title}
                   user={user}
-                  userSubscriptionIds={userSubscriptionIds}
-                  userSubscriptionUrls={userSubscriptionUrls}
                 />
               )}
             />
