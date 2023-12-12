@@ -1,9 +1,10 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
-import { useColorScheme, View, Alert } from "react-native";
+import { useColorScheme, View } from "react-native";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { useContext } from "react";
+import { AuthContext } from "../_layout";
 import {
   Menu,
   MenuOptions,
@@ -30,42 +31,6 @@ export default function TabLayout() {
     if (error) {
       showErrorAlert("Error signing out: " + error.message);
     }
-  };
-
-  const commonScreenOptions = {
-    headerStyle: {
-      shadowColor: "transparent",
-      backgroundColor: Colors[colorScheme || "light"].background,
-    },
-    headerTitleStyle: {
-      color: Colors[colorScheme || "light"].textHigh,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-    },
-  };
-
-  const commonTabOptions = (name, title, icon) => ({
-    name,
-    options: {
-      title,
-      tabBarIcon: ({ color }) => <TabBarIcon name={icon} color={color} />,
-      ...commonScreenOptions,
-    },
-  });
-
-  const headerButtonStyle = {
-    marginRight: 16,
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    color: Colors[colorScheme || "light"].buttonActive,
-    fontFamily: "InterMedium",
-    fontWeight: "500",
-    fontSize: 15,
-    lineHeight: 20,
-    letterSpacing: -0.15,
   };
 
   const styles = {
@@ -118,17 +83,61 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors[colorScheme || "light"].tabIconDefault,
       }}
     >
-      <Tabs.Screen {...commonTabOptions("index", "Feed", "home")} />
-      <Tabs.Screen {...commonTabOptions("explore", "Explore", "search")} />
       <Tabs.Screen
-        {...commonTabOptions("bookmarks", "Bookmarks", "bookmark")}
+        name="index"
+        options={{
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          title: "Feed",
+          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: "Explore",
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookmarks"
+        options={{
+          title: "Bookmarks",
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="bookmark" color={color} />
+          ),
+        }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          ...commonScreenOptions,
+          headerStyle: {
+            shadowColor: "transparent", // Remove shadow on iOS
+            backgroundColor: Colors[colorScheme || "light"].background,
+          },
+          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
           headerRight: () => (
+            // <TouchableOpacity style={styles.headerButton}>
+            //   <Text style={styles.headerButtonText}>Settings</Text>
+            // </TouchableOpacity>
+
             <Menu renderer={renderers.SlideInMenu}>
               <MenuTrigger
                 text="Settings"
@@ -136,9 +145,28 @@ export default function TabLayout() {
                   triggerTouchable: {
                     underlayColor: "transparent",
                     activeOpacity: 0.2,
-                    style: headerButtonStyle,
+                    style: {
+                      marginRight: 16,
+                      flexDirection: "row",
+                      flexWrap: "nowrap",
+                      color: `${Colors[colorScheme || "light"].buttonActive}`,
+                      fontFamily: "InterMedium",
+                      fontWeight: "500",
+                      fontSize: 15,
+                      lineHeight: 20,
+                      letterSpacing: -0.15,
+                    },
                   },
-                  triggerText: headerButtonStyle,
+                  triggerText: {
+                    flexDirection: "row",
+                    flexWrap: "nowrap",
+                    color: `${Colors[colorScheme || "light"].buttonActive}`,
+                    fontFamily: "InterMedium",
+                    fontWeight: "500",
+                    fontSize: 15,
+                    lineHeight: 20,
+                    letterSpacing: -0.15,
+                  },
                 }}
               />
               <MenuOptions
@@ -166,16 +194,34 @@ export default function TabLayout() {
                     justifyContent: "center",
                     paddingHorizontal: 0,
                     height: 44,
+                    // borderWidth: 1,
+                    // borderColor: "red",
                   },
                   optionTouchable: {
                     underlayColor: "transparent",
                     activeOpacity: 0.2,
                   },
-                  optionText: headerButtonStyle,
+                  optionText: {
+                    color: Colors[colorScheme || "light"].buttonActive,
+                    fontFamily: "InterMedium",
+                    fontWeight: "500",
+                    fontSize: 15,
+                    lineHeight: 20,
+                    letterSpacing: -0.15,
+                  },
                 }}
               >
-                <MenuOption onSelect={doLogout} text="Log Out" />
-                <View style={commonScreenOptions.tooltipDivider}></View>
+                <MenuOption
+                  onSelect={() => {
+                    doLogout();
+                  }}
+                  text="Log Out"
+                />
+                <View style={styles.tooltipDivider}></View>
+                {/* <MenuOption
+                  
+                  text="Turn off Daily Quote"
+                /> */}
               </MenuOptions>
             </Menu>
           ),
