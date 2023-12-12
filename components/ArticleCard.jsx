@@ -37,12 +37,11 @@ export default function ArticleCard({
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
 
-  const descriptionWithoutTags =
-    item.description?.replace(/<[^>]*>/g, "") || "";
+  const descriptionWithoutTags = item.description || "";
 
-  const imageUrl =
-    (descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?/) || [])[1] ||
-    "";
+  const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
+  
+  const imageUrl = match ? match[1] : "";
 
   const _handlePressButtonAsync = async () => {
     try {
