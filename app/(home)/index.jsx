@@ -226,7 +226,7 @@ export default function Index() {
     container: {
       flex: 1,
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-start",
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
@@ -332,14 +332,81 @@ export default function Index() {
       letterSpacing: -0.15,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
+    dailyQuoteContainer: {
+      padding: 16,
+      paddingVertical: 24,
+      paddingBottom: 12,
+      marginBottom: 0,
+      alignContent: "center",
+      justifyContent: "center",
+      flex: 1,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    dailyQuoteContainerLoading: {
+      padding: 16,
+      paddingVertical: 24,
+      paddingBottom: 12,
+      marginBottom: 0,
+      alignContent: "center",
+      justifyContent: "center",
+      flex: 1,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      position: "absolute",
+      zIndex: -1,
+    },
+    dailyQuoteWrapper: {
+      gap: 7,
+      alignContent: "center",
+      justifyContent: "center",
+    },
+    dailyQuoteQuote: {
+      textAlign: "center",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 19,
+      lineHeight: 24,
+      letterSpacing: -0.1425,
+    },
+    dailyQuoteAuthor: {
+      textAlign: "center",
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+    },
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.dailyQuoteContainerLoading}>
+        {dailyQuote && dailyQuote.length > 0 && (
+          <View style={styles.dailyQuoteWrapper}>
+            <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
+            <Text style={styles.dailyQuoteAuthor}>- {dailyQuote[0].a}</Text>
+          </View>
+        )}
+      </View>
       {feedsParsed ? (
         rssItems.length > 0 ? (
           <View style={styles.articleList}>
             <FlashList
+              ListHeaderComponent={() => (
+                <View style={styles.dailyQuoteContainer}>
+                  {dailyQuote && dailyQuote.length > 0 && (
+                    <View style={styles.dailyQuoteWrapper}>
+                      <Text style={styles.dailyQuoteQuote}>
+                        “{dailyQuote[0].q}”
+                      </Text>
+                      <Text style={styles.dailyQuoteAuthor}>
+                        - {dailyQuote[0].a}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
               data={rssItems}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
@@ -414,14 +481,7 @@ export default function Index() {
           </View>
         )
       ) : (
-        <>
-          {dailyQuote && dailyQuote.length > 0 && (
-            <>
-              <Text>{dailyQuote[0].q}</Text>
-              <Text>{dailyQuote[0].a}</Text>
-            </>
-          )}
-        </>
+        <></>
       )}
     </View>
   );

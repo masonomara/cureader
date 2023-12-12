@@ -240,9 +240,7 @@ export default function ArticleCard({
 
   const styles = {
     card: {
-      borderTopWidth: 1,
       borderBottomWidth: 1,
-      marginTop: -1,
       paddingTop: 28,
       paddingLeft: 16,
       paddingRight: 16,

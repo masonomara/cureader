@@ -179,6 +179,13 @@ const FONT = {
     lineHeight: 24,
     letterSpacing: -0.19,
   },
+  quote: {
+    fontFamily: "NotoSerifMedium",
+    fontWeight: "500",
+    fontSize: 19,
+    lineHeight: 24,
+    letterSpacing: -0.1425,
+  },
   sectionTitle: {
     fontFamily: "InterBold",
     fontWeight: "700",
