@@ -46,6 +46,13 @@ export default function Profile() {
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 8,
+      paddingBottom: 0,
+    },
+    profileHeaderNoFeeds: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
       paddingBottom: 48,
     },
     container: {
@@ -252,6 +259,14 @@ export default function Profile() {
             }}
             ListHeaderComponent={() => (
               <>
+                <View style={styles.profileHeader}>
+                  <Text style={styles.username}>
+                    Hello {user.user_metadata.displayName}
+                  </Text>
+                  <Text style={styles.subtitle}>
+                    You are currently subscribed to {userFeeds.length} feeds.
+                  </Text>
+                </View>
                 <View style={styles.headerWrapper}>
                   <View style={styles.titleWrapperUserFeeds}>
                     <Text style={styles.title}>Your Feeds</Text>
@@ -269,7 +284,7 @@ export default function Profile() {
           <FlashList
             ListHeaderComponent={() => (
               <>
-                <View style={styles.profileHeader}>
+                <View style={styles.profileHeaderNoFeeds}>
                   <Text style={styles.username}>
                     Hello {user.user_metadata.displayName}
                   </Text>
