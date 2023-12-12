@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useContext,
-} from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   ScrollView,
   Text,
@@ -40,7 +34,6 @@ export default function Explore() {
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-  const textInputRef = useRef(null);
   const [searchInput, setSearchInput] = useState("");
   const [parserInput, setParserInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -417,7 +410,6 @@ export default function Explore() {
           style={styles.searchIcon}
         />
         <TextInput
-          ref={textInputRef}
           style={[styles.input, textInputFocused && styles.inputSelected]}
           value={searchInput}
           label="Channel Url Text"
