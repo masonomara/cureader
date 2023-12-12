@@ -11,6 +11,7 @@ import { Image } from "expo-image";
 import * as WebBrowser from "expo-web-browser";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
+import BookmarkFilled20 from "./icons/20/BookmarkFilled20";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
 import { AuthContext } from "../app/_layout";
@@ -35,17 +36,21 @@ export default function ArticleCard({
   feed,
   item,
   publication,
-  user
+  user,
 }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
-  const [isBookmark, setIsBookmark] = useState(null);
-  const [userBookmarks, setUserBookmarks] = useState([]);
+  const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
-  console.log(item.links[0].url);
+  console.log("type:", typeof item.links[0].url);
+  console.log("comp:", userBookmarks[0]);
+
+  const [isBookmarked, setIsBookmarked] = useState(
+    userBookmarks.includes(item.links[0].url)
+  );
 
   useLayoutEffect(() => {
-    setIsBookmark(userBookmarks.includes(item.links[0].url));
+    setIsBookmarked(userBookmarks.includes(item.links[0].url));
   }, [userBookmarks, item.links[0].url]);
 
   const descriptionWithoutTags = item.description || "";
@@ -85,35 +90,48 @@ export default function ArticleCard({
     }
   };
 
-  const onBookmark = async () => {
-    const optimisticBookmark = !isBookmark;
-    setIsBookmark(optimisticBookmark);
+  const handleBookmark = async () => {
+    const optimisticBookmark = !isBookmarked;
+    setIsBookmarked(optimisticBookmark);
 
     try {
-      const updatedUserBookmarks = optimisticBookmark
-        ? [...userBookmarks, item.links[0].url]
-        : userBookmarks.filter((url) => url !== item.links[0].url);
-
-      setUserBookmarks(updatedUserBookmarks);
-      await updateUserBookmarks(updatedUserBookmarks);
+      await updateUserBookmarks(user.id, item.links[0].url, optimisticBookmark);
     } catch (error) {
       console.error("Error handling bookmark:", error);
-      setIsBookmark(!isBookmark); // Revert the state if there's an error
+      setIsBookmarked(!isBookmarked); // Revert the state if there's an error
     }
   };
 
-  const updateUserBookmarks = async (updatedBookmarks) => {
+  const updateUserBookmarks = async (userId, bookmarkUrl, isBookmarking) => {
     try {
+      const userProfile = await supabase
+        .from("profiles")
+        .select("bookmarks")
+        .eq("id", userId)
+        .single();
+
+      let updatedBookmarks = userProfile.data.bookmarks || [];
+
+      if (isBookmarking) {
+        // Add bookmarkUrl to the array if not already present
+        if (!updatedBookmarks.includes(bookmarkUrl)) {
+          updatedBookmarks.push(bookmarkUrl);
+        }
+      } else {
+        // Remove bookmarkUrl from the array
+        updatedBookmarks = updatedBookmarks.filter(
+          (url) => url !== bookmarkUrl
+        );
+      }
+
       await supabase
         .from("profiles")
         .update({
-          bookmarks: updatedBookmarks.map((bookmark) => ({
-            bookmarkUrl: bookmark,
-          })),
+          bookmarks: updatedBookmarks.map((bookmark) => String(bookmark)),
         })
-        .eq("id", user.id);
+        .eq("id", userId);
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      console.error("Error updating user bookmarks:", error);
       throw error;
     }
   };
@@ -303,11 +321,22 @@ export default function ArticleCard({
       </View>
       <View style={styles.cardControls}>
         <View style={styles.cardButtons}>
-          <TouchableOpacity style={styles.buttonWrapper} onPress={onBookmark}>
-            <BookmarkOutline20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
+          <TouchableOpacity
+            style={styles.buttonWrapper}
+            onPress={handleBookmark}
+          >
+            {isBookmarked ? (
+              <BookmarkFilled20
+                style={styles.buttonImage}
+                color={Colors[colorScheme || "light"].buttonActive}
+              />
+            ) : (
+              <BookmarkOutline20
+                style={styles.buttonImage}
+                color={Colors[colorScheme || "light"].buttonActive}
+              />
+            )}
+
             <Text style={styles.buttonText}>Bookmark</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>

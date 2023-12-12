@@ -66,7 +66,7 @@ function RootLayoutNav() {
   const [user, setUser] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
-  const [userBookmarks, setUserBookmarks] = useState([]);
+  const [userBookmarks, setUserBookmarks] = useState(null);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [dailyQuote, setDailyQuote] = useState(null);
   const [session, setSession] = useState(null);
@@ -174,9 +174,11 @@ function RootLayoutNav() {
       } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
+        const { channelIds, channelUrls, bookmarks } =
+          await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
+        setUserBookmarks(bookmarks);
       }
 
       if (feedsFetched) {
@@ -188,6 +190,7 @@ function RootLayoutNav() {
       setUser(null);
       setUserSubscriptionIds(null);
       setUserSubscriptionUrls(null);
+      setUserBookmarks(null);
     }
   };
 
@@ -204,9 +207,11 @@ function RootLayoutNav() {
         } = await supabase.auth.getUser();
         setUser(user);
 
-        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
+        const { channelIds, channelUrls, bookmarks } =
+          await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
+        setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
           router.replace("(home)");
@@ -237,15 +242,21 @@ function RootLayoutNav() {
 
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
-        return { channelIds: [], channelUrls: [] };
+        return { channelIds: [], channelUrls: [], bookmarks: [] };
       }
 
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
 
-      if (!channelSubscriptions || channelSubscriptions.length === 0) {
-        return { channelIds: [], channelUrls: [] };
-      }
+      const articleBookmarks = userProfileData[0]?.bookmarks || [];
+
+      // if (!channelSubscriptions || channelSubscriptions.length === 0 || !articleBookmarks || articleBookmarks.length === 0) {
+      //   return { channelIds: [], channelUrls: [], bookmarks: [] };
+      // }
+
+      // if (!articleBookmarks || articleBookmarks.length === 0) {
+      //   return { channelIds: [], channelUrls: [], bookmarks: [] };
+      // }
 
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
@@ -256,10 +267,12 @@ function RootLayoutNav() {
         { channelIds: [], channelUrls: [] }
       );
 
-      return { channelIds, channelUrls };
+      const bookmarks = articleBookmarks;
+
+      return { channelIds, channelUrls, bookmarks };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return { channelIds: [], channelUrls: [] };
+      return { channelIds: [], channelUrls: [], bookmarks: [] };
     }
   };
 
