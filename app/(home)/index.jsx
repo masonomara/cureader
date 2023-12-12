@@ -9,7 +9,6 @@ import {
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext, FeedContext } from "../_layout";
-import { supabase } from "../../config/initSupabase";
 import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
@@ -20,14 +19,8 @@ export default function Index() {
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
   const { feeds, popularFeeds } = useContext(FeedContext);
-  const {
-    session,
-    user,
-    userSubscriptionIds,
-    userSubscriptionUrls,
-    setUserSubscriptionIds,
-    setUserSubscriptionUrls,
-  } = useContext(AuthContext);
+  const { user, userSubscriptionIds, userSubscriptionUrls } =
+    useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -37,15 +30,6 @@ export default function Index() {
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
-  };
-
-  // Function to chunk an array
-  const chunkArray = (arr, chunkSize) => {
-    const chunkedArray = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-      chunkedArray.push(arr.slice(i, i + chunkSize));
-    }
-    return chunkedArray;
   };
 
   // Parse feeds
@@ -196,14 +180,69 @@ export default function Index() {
 
   // Styles
   const styles = {
+    noFeedsHeader: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
+      paddingBottom: 48,
+    },
+    username: {
+      marginBottom: 4,
+      marginTop: 4,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 29,
+      lineHeight: 35,
+      letterSpacing: -0.217,
+    },
+    subtitle: {
+      marginBottom: 36,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
+      fontWeight: "700",
+      fontSize: 19,
+      textAlign: "center",
+      lineHeight: 24,
+      letterSpacing: -0.19,
+    },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
     container: {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
       width: "100%",
       flex: 1,
+    },
+    feedList: {
+      width: "100%",
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    feedListFooter: {
+      height: 16,
     },
     input: {
       width: "100%",
@@ -233,16 +272,6 @@ export default function Index() {
       lineHeight: 22,
       letterSpacing: -0,
     },
-    button: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
     buttonDisabled: {
       height: 48,
       width: "100%",
@@ -261,16 +290,29 @@ export default function Index() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
+    headerWrapper: {
+      paddingHorizontal: 0,
+      paddingVertical: 12,
+      gap: 3,
+      width: "100%",
+      maxWidth: "100%",
+      height: 86,
+    },
     titleWrapper: {
       marginTop: 0,
-      flex: 1,
-      padding: 16,
-      paddingVertical: 12,
       width: "100%",
       marginTop: 8,
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "flex-end",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -292,26 +334,21 @@ export default function Index() {
       letterSpacing: -0.15,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
-    randomChannelList: {
-      gap: 8,
-      paddingHorizontal: 16,
-      marginBottom: 24,
-    },
   };
 
   return (
     <View style={styles.container}>
       {feedsParsed ? (
-        <View style={styles.articleList}>
-          <FlashList
-            data={rssItems}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            refreshing={isRefreshing} // Add this line to pass the refreshing state
-            onRefresh={onRefresh}
-            estimatedItemSize={200}
-            renderItem={({ item }) => {
-              return (
+        rssItems.length > 0 ? (
+          <View style={styles.articleList}>
+            <FlashList
+              data={rssItems}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              refreshing={isRefreshing} // Add this line to pass the refreshing state
+              onRefresh={onRefresh}
+              estimatedItemSize={200}
+              renderItem={({ item }) => (
                 <ArticleCard
                   fallbackImage={item.fallbackImage}
                   feeds={feeds}
@@ -322,83 +359,64 @@ export default function Index() {
                   userSubscriptionIds={userSubscriptionIds}
                   userSubscriptionUrls={userSubscriptionUrls}
                 />
-              );
-            }}
-            ListEmptyComponent={() => (
-              <>
-                <View style={styles.titleWrapper}>
-                  <Text style={styles.title}>Your Feeds are empty</Text>
-                  <TouchableOpacity
-                    style={styles.textButton}
-                    onPress={() => {
-                      router.push({
-                        pathname: "/(home)/explore",
-                      });
-                    }}
-                  >
-                    <Text style={styles.textButtonText}>
-                      Go to Explore Page
+              )}
+            />
+          </View>
+        ) : (
+          <View style={styles.feedList}>
+            <FlashList
+              ListHeaderComponent={() => (
+                <>
+                  <View style={styles.noFeedsHeader}>
+                    <Text style={styles.username}>Welcome to Cureader!</Text>
+                    <Text style={styles.subtitle}>
+                      Feed free to view your Explore Page or see our most
+                      popular feeds below.
                     </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.titleWrapper}>
-                  <Text style={styles.title}>Popular Feeds</Text>
-                  <TouchableOpacity
-                    style={styles.textButton}
-                    onPress={() => {
-                      router.push({
-                        pathname: "/allPopularFeeds",
-                      });
-                    }}
-                  >
-                    <Text style={styles.textButtonText}>View more</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {feeds ? (
-                  <ScrollView
-                    horizontal
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[styles.randomChannelList]}
-                    decelerationRate={0}
-                    snapToInterval={CARD_WIDTH + 8}
-                    snapToAlignment={"left"}
-                  >
-                    {chunkArray(popularFeeds, 4).map((chunk, index) => (
-                      <View
-                        key={index}
-                        style={{
-                          flexDirection: "column",
-                          alignItems: "flex-start",
-                          borderTopWidth: 1,
-                          borderColor: `${
-                            Colors[colorScheme || "light"].border
-                          }`,
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => {
+                        router.push({
+                          pathname: "/explore",
+                        });
+                      }}
+                    >
+                      <Text style={styles.buttonText}>View Explore Page</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.headerWrapper}>
+                    <View style={styles.titleWrapper}>
+                      <Text style={styles.title}>Popular Feeds</Text>
+                      <TouchableOpacity
+                        style={styles.textButton}
+                        onPress={() => {
+                          router.push({
+                            pathname: "/allPopularFeeds",
+                          });
                         }}
                       >
-                        {chunk.map((item) => (
-                          <FeedCard key={item.id} item={item} user={user} />
-                        ))}
-                      </View>
-                    ))}
-                  </ScrollView>
-                ) : (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator
-                      size="large"
-                      color={Colors[colorScheme || "light"].colorPrimary}
-                    />
+                        <Text style={styles.textButtonText}>View more</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.headerSubtitle}>
+                      Get started with our most popular feeds.
+                    </Text>
                   </View>
-                )}
-              </>
-            )}
-          />
-        </View>
+                </>
+              )}
+              data={popularFeeds}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              estimatedItemSize={200}
+              renderItem={({ item }) => (
+                <FeedCard key={item.id} item={item} user={user} />
+              )}
+              ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            />
+          </View>
+        )
       ) : (
-        <>
-          <Text>Loading...</Text>
-        </>
+        <Text>Loading...</Text>
       )}
       {/* User info and logout */}
       {/* <View>

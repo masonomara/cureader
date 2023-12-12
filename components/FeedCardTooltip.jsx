@@ -421,7 +421,7 @@ export default function FeedCardToolTip({ item }) {
             shadowOpacity: 0,
             overflow: "hidden",
             paddingTop: 8,
-            paddingBottom: 12,
+            paddingBottom: 16,
           },
           optionsWrapper: {
             borderTopLeftRadius: 20,

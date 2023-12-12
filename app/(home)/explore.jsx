@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
 import {
   ScrollView,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
@@ -38,6 +39,7 @@ export default function Explore() {
   const [parserInput, setParserInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [channelUrl, setChannelUrl] = useState("");
   const [channelTitle, setChannelTitle] = useState("");
@@ -48,19 +50,22 @@ export default function Explore() {
   const [channelUrlError, setChannelUrlError] = useState(null);
 
   // Function for handling search input focus
-  const handleFocus = () => {
-    setIsSearchInputSelected(true);
-  };
+
 
   // Function for clearing the search input
-  const handleClearInput = () => {
+  const handleClearInput = useCallback(() => {
     setSearchInput("");
     setParserInput("");
     setIsSearchInputSelected(false);
-  };
+    setIsSearching(false);
+    Keyboard.dismiss();
+  }, []);
+
+
 
   // Function for handling when there is search input change
   const handleSearchInput = (searchInput) => {
+    setIsSearching(true);
     searchInput = searchInput.trim();
     let moddedSearchInput = "";
 
@@ -117,7 +122,7 @@ export default function Explore() {
   // Creates search results that match the user's search input — sets [searchResults]
   useEffect(() => {
     const filterResults = () => {
-      if (searchInput !== "") {
+      if (searchInput !== null) {
         const lowercasedInput = searchInput.toLowerCase();
 
         const filteredFeeds = feeds.filter((feed) => {
@@ -143,14 +148,6 @@ export default function Explore() {
     filterResults();
   }, [searchInput, feeds]);
 
-  // Creates random feeds — sets [randomFeeds]
-  // useEffect(() => {
-  //   if (feeds.length > 33) {
-  //     const randomFeedsSlice = shuffleArray(feeds.slice(33));
-  //     setRandomFeeds(randomFeedsSlice.slice(0, 34));
-  //   }
-  // }, [feeds]);
-
   // Function to chunk an array
   const chunkArray = (arr, chunkSize) => {
     const chunkedArray = [];
@@ -158,24 +155,6 @@ export default function Explore() {
       chunkedArray.push(arr.slice(i, i + chunkSize));
     }
     return chunkedArray;
-  };
-
-  // Function to shuffle an array randomly
-  const shuffleArray = (array) => {
-    let currentIndex = array.length,
-      randomIndex,
-      temporaryValue;
-
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-
-    return array;
   };
 
   const styles = {
@@ -197,7 +176,7 @@ export default function Explore() {
     randomChannelList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 24,
+      marginBottom: 16,
     },
     popularChannelList: {
       paddingHorizontal: 16,
@@ -363,16 +342,26 @@ export default function Explore() {
       lineHeight: 19,
       letterSpacing: -0.14,
     },
+    headerWrapper: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 3,
+    },
     titleWrapper: {
       marginTop: 0,
-      flex: 1,
-      padding: 16,
-      paddingVertical: 12,
       width: "100%",
       marginTop: 8,
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "flex-end",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -424,12 +413,12 @@ export default function Explore() {
           autoCapitalize="none"
           autoCorrect={false}
           onChangeText={handleSearchInput}
-          onFocus={handleFocus}
+
         />
         <TouchableOpacity
           style={[
             styles.closeIconWrapper,
-            isSearchInputSelected ? { opacity: 1 } : { opacity: 0 },
+            searchInput ? { opacity: 1 } : { opacity: 0 },
           ]}
           onPress={handleClearInput}
         >
@@ -440,7 +429,7 @@ export default function Explore() {
           />
         </TouchableOpacity>
       </View>
-      {isSearchInputSelected && searchInput !== "" && (
+      {searchInput !== null && (
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
@@ -452,7 +441,7 @@ export default function Explore() {
             </Text>
           </View>
 
-          {searchResults.length > 0 && (
+          {searchInput != null && (
             <View
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
@@ -498,22 +487,25 @@ export default function Explore() {
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        style={
-          isSearchInputSelected && searchInput !== "" ? { display: "none" } : {}
-        }
+        style={isSearching ? { display: "none" } : {}}
       >
-        <View style={styles.titleWrapper}>
-          <Text style={styles.title}>Random Feeds</Text>
-          <TouchableOpacity
-            style={styles.textButton}
-            onPress={() => {
-              router.push({
-                pathname: "/allRandomFeeds",
-              });
-            }}
-          >
-            <Text style={styles.textButtonText}>View more</Text>
-          </TouchableOpacity>
+        <View style={styles.headerWrapper}>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Random Feeds</Text>
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                router.push({
+                  pathname: "/allRandomFeeds",
+                });
+              }}
+            >
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.headerSubtitle}>
+            Explore some randomly selected feeds.
+          </Text>
         </View>
 
         {randomFeeds ? (
@@ -533,31 +525,26 @@ export default function Explore() {
         ) : (
           <Text>Loading...</Text>
         )}
-        {/* <View>
-        <Text numberOfLines={1}>User: {JSON.stringify(user)}</Text>
-        <Text numberOfLines={1}>
-          userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
-        </Text>
-        <Text numberOfLines={1}>
-          useerSubscriptionUrls: {JSON.stringify(userSubscriptionUrls)}
-        </Text>
-        <Text numberOfLines={1}>Feeds: {JSON.stringify(feeds)}</Text>
-      </View> */}
-        <View style={styles.titleWrapper}>
-          <Text style={styles.title}>Popular Feeds</Text>
-          <TouchableOpacity
-            style={styles.textButton}
-            onPress={() => {
-              router.push({
-                pathname: "/allPopularFeeds",
-              });
-            }}
-          >
-            <Text style={styles.textButtonText}>View more</Text>
-          </TouchableOpacity>
+        <View style={styles.headerWrapper}>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Popular Feeds</Text>
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                router.push({
+                  pathname: "/allPopularFeeds",
+                });
+              }}
+            >
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.headerSubtitle}>
+            Follow some of our most popular feeds.
+          </Text>
         </View>
 
-        {feeds ? (
+        {popularFeeds ? (
           <ScrollView
             horizontal
             showsVerticalScrollIndicator={false}
@@ -573,7 +560,6 @@ export default function Explore() {
                 style={{
                   flexDirection: "column",
                   alignItems: "flex-start",
-                  borderTopWidth: 1,
                   borderColor: `${Colors[colorScheme || "light"].border}`,
                 }}
               >
