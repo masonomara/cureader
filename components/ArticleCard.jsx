@@ -238,8 +238,6 @@ export default function ArticleCard({
     }
   };
 
-
-
   const styles = {
     card: {
       borderTopWidth: 1,
@@ -371,7 +369,7 @@ export default function ArticleCard({
       fontSize: 13,
       lineHeight: 18,
       letterSpacing: -0.065,
-    }
+    },
   };
 
   return (
@@ -452,9 +450,7 @@ export default function ArticleCard({
           />
         </TouchableOpacity> */}
 
-
-
-          {/* <MenuOptions
+        {/* <MenuOptions
             customStyles={{
               optionsContainer: {
                 backgroundColor: Colors[colorScheme || "light"].background,
@@ -569,7 +565,6 @@ export default function ArticleCard({
               <View style={styles.tooltipDivider}></View>
         
           </MenuOptions> */}
-
       </View>
     </Pressable>
   );
