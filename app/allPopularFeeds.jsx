@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useColorScheme, View } from "react-native";
+import { useColorScheme, View, Text } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import Colors from "../constants/Colors";
 import FeedCardListItem from "../components/FeedCardListItem";
@@ -8,47 +8,35 @@ import { AuthContext, FeedContext } from "./_layout";
 export default function TabOneScreen() {
   const { popularFeeds } = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-
   const colorScheme = useColorScheme();
 
-  // Styles
-  const styles = {
+  const createStyles = (additionalStyles) => ({
+    ...additionalStyles,
     container: {
       flex: 1,
       alignItems: "center",
+      width: "100%",
+      maxWidth: "100%",
       justifyContent: "center",
+      backgroundColor: Colors[colorScheme || "light"].background,
     },
-    articleList: {
-      width: "100%",
+  });
+
+  const styles = createStyles({
+    container: {
       flex: 1,
-    },
-    input: {
+      alignItems: "center",
       width: "100%",
-      borderRadius: 20,
-      height: 56,
-      marginBottom: 16,
-      paddingHorizontal: 16,
-      borderWidth: 1,
-      flexDirection: "row",
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      alignContent: "center",
-      justifyContent: "space-between",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
+      maxWidth: "100%",
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
-    inputText: {
+    feedList: {
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
       flex: 1,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
+      paddingHorizontal: 0,
     },
     button: {
       height: 48,
@@ -78,16 +66,57 @@ export default function TabOneScreen() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
-  };
+    headerWrapper: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 3,
+      width: "100%",
+      maxWidth: "100%",
+      height: 86,
+    },
+    titleWrapper: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
+    },
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.articleList}>
+      <View style={styles.feedList}>
         <FlashList
           data={popularFeeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
+          ListHeaderComponent={
+            <View style={styles.headerWrapper}>
+              <View style={styles.titleWrapper}>
+                <Text style={styles.title}>Popular Feeds</Text>
+              </View>
+              <Text style={styles.headerSubtitle}>
+                Follow some of our most popular feeds.
+              </Text>
+            </View>
+          }
           renderItem={({ item }) => {
             return <FeedCardListItem key={item.id} item={item} user={user} />;
           }}

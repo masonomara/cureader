@@ -268,7 +268,6 @@ export default function TabOneScreen() {
               userSubscriptionUrls={userSubscriptionUrls}
             />
           )}
-          ListEmptyComponent={() => <Text>Empty</Text>}
         />
       </View>
     </>

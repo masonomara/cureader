@@ -313,6 +313,38 @@ function RootLayoutNav() {
                   },
                 })}
               />
+              <Stack.Screen
+                name="allPopularFeeds"
+                options={{
+                  title: 'Popular Feeds',
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                }}
+              />
+                            <Stack.Screen
+                name="allRandomFeeds"
+                options={{
+                  title: 'Random Feeds',
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                }}
+              />
             </Stack>
           </AuthContext.Provider>
         </FeedContext.Provider>
