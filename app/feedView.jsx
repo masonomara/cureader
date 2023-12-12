@@ -18,12 +18,9 @@ import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 export default function TabOneScreen() {
   const { feeds } = useContext(FeedContext);
   const {
-    session,
     user,
     userSubscriptionIds,
     userSubscriptionUrls,
-    setUserSubscriptionIds,
-    setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
   const params = useLocalSearchParams();

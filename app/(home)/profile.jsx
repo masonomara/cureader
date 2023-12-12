@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import {
   TouchableOpacity,
   Alert,
   useColorScheme,
   Text,
   View,
-  ScrollView,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 
 import { router } from "expo-router";
-import { supabase } from "../../config/initSupabase";
 import Colors from "../../constants/Colors";
-import FeedCardListItem from "../../components/FeedCardListItem";
 import { FeedContext, AuthContext } from "../_layout";
 import FeedCard from "../../components/FeedCard";
 
@@ -22,22 +19,11 @@ export default function Profile() {
   const { feeds, popularFeeds } = useContext(FeedContext);
   const { user } = useContext(AuthContext);
 
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
+
 
   const userFeeds = feeds.filter((feed) =>
     feed.channel_subscribers.includes(user.id)
   );
-
-  // Logout user
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      showErrorAlert("Error signing out: " + error.message);
-    }
-  };
 
   // Styles
   const styles = {
@@ -233,20 +219,6 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {/* <ScrollView
-        contentContainerStyle={styles.scrollViewContainer}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      > */}
-      {/* User info and logout */}
-      {/* <View>
-
-          <TouchableOpacity onPress={doLogout}>
-            <Text>Log out</Text>
-          </TouchableOpacity>
-        </View> */}
-
-      {/* List of feeds */}
       {userFeeds.length > 0 ? (
         <View style={styles.feedList}>
           <FlashList
@@ -266,9 +238,6 @@ export default function Profile() {
                   <Text style={styles.subtitle}>
                     You are currently subscribed to {userFeeds.length} feeds.
                   </Text>
-                  <TouchableOpacity onPress={doLogout}>
-                    <Text>Log out</Text>
-                  </TouchableOpacity>
                 </View>
                 <View style={styles.headerWrapper}>
                   <View style={styles.titleWrapperUserFeeds}>
@@ -303,9 +272,6 @@ export default function Profile() {
                     }}
                   >
                     <Text style={styles.buttonText}>View Explore Page</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={doLogout}>
-                    <Text>Log out</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.headerWrapper}>
