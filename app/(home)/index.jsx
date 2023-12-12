@@ -3,8 +3,6 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
-  ScrollView,
-  Dimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -230,7 +228,7 @@ export default function Index() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      //backgroundColor: `${Colors[colorScheme || "light"].background}`,
       width: "100%",
       flex: 1,
     },

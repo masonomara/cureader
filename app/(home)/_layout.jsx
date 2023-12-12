@@ -1,11 +1,6 @@
 import Feather from "@expo/vector-icons/Feather";
-import { Link, Tabs } from "expo-router";
-import {
-  Pressable,
-  useColorScheme,
-  TouchableOpacity,
-  Text,
-} from "react-native";
+import { Tabs } from "expo-router";
+import { useColorScheme, View } from "react-native";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { useContext } from "react";
@@ -25,6 +20,7 @@ function TabBarIcon(props) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { user } = useContext(AuthContext);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -73,6 +69,11 @@ export default function TabLayout() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
+    },
+    tooltipDivider: {
+      height: 1,
+      width: "100%",
+      backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
   };
 
@@ -217,6 +218,11 @@ export default function TabLayout() {
                   }}
                   text="Log Out"
                 />
+                <View style={styles.tooltipDivider}></View>
+                {/* <MenuOption
+                  
+                  text="Turn off Daily Quote"
+                /> */}
               </MenuOptions>
             </Menu>
           ),
