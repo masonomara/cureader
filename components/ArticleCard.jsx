@@ -1,3 +1,4 @@
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -6,23 +7,14 @@ import {
   useColorScheme,
   Share,
 } from "react-native";
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-  renderers,
-} from "react-native-popup-menu";
 import { Image } from "expo-image";
-import React, { useContext, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
-import Dots20 from "./icons/20/Dots20";
 import Share20 from "./icons/20/Share20";
-import { supabase } from "../config/initSupabase";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import Colors from "../constants/Colors";
 import { AuthContext } from "../app/_layout";
 import FeedCardToolTip from "./FeedCardTooltip";
+import { supabase } from "../config/initSupabase";
 
 const textColorArray = [
   "#E75450", // Red (Main Color)
@@ -82,26 +74,17 @@ const colorArray = [
 ];
 
 function formatPublicationDate(published) {
-  const publicationDate = new Date(published);
-  const now = new Date();
-  const timeDifference = now - publicationDate;
-
-  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
+  const timeDifference = new Date() - new Date(published);
   const minutesAgo = Math.floor(timeDifference / (60 * 1000));
+  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
   const daysAgo = Math.floor(hoursAgo / 24);
-  const yearsAgo = Math.floor(daysAgo / 265);
+  const yearsAgo = Math.floor(daysAgo / 365);
 
-  if (minutesAgo < 1) {
-    return "Just now";
-  } else if (minutesAgo < 60) {
-    return `${minutesAgo}m`;
-  } else if (hoursAgo < 24) {
-    return `${hoursAgo}h`;
-  } else if (daysAgo < 365) {
-    return `${daysAgo}d`;
-  } else {
-    return `${yearsAgo}y`;
-  }
+  if (minutesAgo < 1) return "Just now";
+  if (minutesAgo < 60) return `${minutesAgo}m`;
+  if (hoursAgo < 24) return `${hoursAgo}h`;
+  if (daysAgo < 365) return `${daysAgo}d`;
+  return `${yearsAgo}y`;
 }
 
 export default function ArticleCard({
