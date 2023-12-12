@@ -266,6 +266,9 @@ export default function Profile() {
                   <Text style={styles.subtitle}>
                     You are currently subscribed to {userFeeds.length} feeds.
                   </Text>
+                  <TouchableOpacity onPress={doLogout}>
+                    <Text>Log out</Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.headerWrapper}>
                   <View style={styles.titleWrapperUserFeeds}>
