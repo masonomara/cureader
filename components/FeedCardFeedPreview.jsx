@@ -1,7 +1,6 @@
 import { useState, useContext, useLayoutEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
@@ -66,7 +65,6 @@ const colorArray = [
 
 export default function FeedCardFeedPreview({ item }) {
   const itemId = parseInt(item.id, 10);
-
   const { feeds } = useContext(FeedContext);
   const {
     user,
@@ -76,63 +74,38 @@ export default function FeedCardFeedPreview({ item }) {
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
-  const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptionIds.includes(itemId)
-  );
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userSubscriptionIds.includes(itemId)
-  );
-
   const colorScheme = useColorScheme();
 
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
+
   useLayoutEffect(() => {
-    // Update state when the subscribed prop changes
     setIsSubscribed(userSubscriptionIds.includes(itemId));
     setIsOptimisticSubscribed(userSubscriptionIds.includes(itemId));
-  }, [userSubscriptionIds.includes(item.id)]);
+  }, [userSubscriptionIds, itemId]);
 
   const handleSubscribe = async () => {
     setIsOptimisticSubscribed(!isOptimisticSubscribed);
 
     try {
-      if (isSubscribed) {
-        // If the user is already subscribed to the feed
-        const updatedUserSubscriptionIds = userSubscriptionIds.filter(
-          (id) => id !== item.id
-        );
-        const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
-          (url) => url !== item.channel_url
-        );
+      const updatedUserSubscriptionIds = isSubscribed
+        ? userSubscriptionIds.filter((id) => id !== itemId)
+        : [...userSubscriptionIds, itemId];
 
-        // Update the state with the new arrays
-        setUserSubscriptionIds(updatedUserSubscriptionIds);
-        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+      const updatedUserSubscriptionUrls = isSubscribed
+        ? userSubscriptionUrls.filter((url) => url !== item.channel_url)
+        : [...userSubscriptionUrls, item.channel_url];
 
-        // Update the user's subscriptions in supabase
-        await updateUserSubscriptions(
-          updatedUserSubscriptionIds,
-          updatedUserSubscriptionUrls
-        );
+      setUserSubscriptionIds(updatedUserSubscriptionIds);
+      setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-        // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, user.id, false);
-      } else {
-        // If the user is not subscribed to the feed
-        setUserSubscriptionIds([...userSubscriptionIds, item.id]);
-        setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
-
-        // Update the user's subscriptions in supabase
-        await updateUserSubscriptions(
-          [...userSubscriptionIds, item.id],
-          [...userSubscriptionUrls, item.channel_url]
-        );
-
-        // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, user.id, true);
-      }
+      await updateUserSubscriptions(
+        updatedUserSubscriptionIds,
+        updatedUserSubscriptionUrls
+      );
+      await updateChannelSubscribers(itemId, user.id, !isSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
-      // Handle errors and revert the state if necessary
       setIsOptimisticSubscribed(!isOptimisticSubscribed);
     }
   };
@@ -150,7 +123,7 @@ export default function FeedCardFeedPreview({ item }) {
         .eq("id", user.id);
     } catch (error) {
       console.error("Error updating user profile:", error);
-      throw error; // Rethrow the error to handle it elsewhere if needed
+      throw error;
     }
   };
 
@@ -167,12 +140,10 @@ export default function FeedCardFeedPreview({ item }) {
         const channelSubscribers =
           updatedFeeds[channelIndex].channel_subscribers || [];
 
-        // Update the channel_subscribers array based on the subscribe flag
         updatedFeeds[channelIndex].channel_subscribers = subscribe
           ? [...channelSubscribers, userId]
           : channelSubscribers.filter((sub) => sub !== userId);
 
-        // Update the channel_subscribers array in Supabase
         await supabase
           .from("channels")
           .update({
@@ -188,15 +159,10 @@ export default function FeedCardFeedPreview({ item }) {
     }
   };
 
-  // Function to get background color based on the first letter
-  const getColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
-    return colorArray[index];
-  };
-  const getTextColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
-    return textColorArray[index];
-  };
+  const getColorForLetter = (letter) =>
+    colorArray[letter.toUpperCase().charCodeAt(0) % colorArray.length];
+  const getTextColorForLetter = (letter) =>
+    textColorArray[letter.toUpperCase().charCodeAt(0) % textColorArray.length];
 
   const styles = {
     card: {
@@ -388,7 +354,7 @@ export default function FeedCardFeedPreview({ item }) {
           >
             <Text
               style={
-                isOptimisticSubscribed.toString() === "true"
+                isOptimisticSubscribed
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
