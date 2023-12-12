@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
+import { AuthContext } from "../app/_layout";
+import { supabase } from "../config/initSupabase";
 
 function formatPublicationDate(published) {
   const timeDifference = new Date() - new Date(published);
@@ -33,14 +35,23 @@ export default function ArticleCard({
   feed,
   item,
   publication,
+  user
 }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
+  const [isBookmark, setIsBookmark] = useState(null);
+  const [userBookmarks, setUserBookmarks] = useState([]);
+
+  console.log(item.links[0].url);
+
+  useLayoutEffect(() => {
+    setIsBookmark(userBookmarks.includes(item.links[0].url));
+  }, [userBookmarks, item.links[0].url]);
 
   const descriptionWithoutTags = item.description || "";
 
   const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
-  
+
   const imageUrl = match ? match[1] : "";
 
   const _handlePressButtonAsync = async () => {
@@ -71,6 +82,39 @@ export default function ArticleCard({
       }
     } catch (error) {
       console.error("Error sharing:", error.message);
+    }
+  };
+
+  const onBookmark = async () => {
+    const optimisticBookmark = !isBookmark;
+    setIsBookmark(optimisticBookmark);
+
+    try {
+      const updatedUserBookmarks = optimisticBookmark
+        ? [...userBookmarks, item.links[0].url]
+        : userBookmarks.filter((url) => url !== item.links[0].url);
+
+      setUserBookmarks(updatedUserBookmarks);
+      await updateUserBookmarks(updatedUserBookmarks);
+    } catch (error) {
+      console.error("Error handling bookmark:", error);
+      setIsBookmark(!isBookmark); // Revert the state if there's an error
+    }
+  };
+
+  const updateUserBookmarks = async (updatedBookmarks) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          bookmarks: updatedBookmarks.map((bookmark) => ({
+            bookmarkUrl: bookmark,
+          })),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error;
     }
   };
 
@@ -259,7 +303,7 @@ export default function ArticleCard({
       </View>
       <View style={styles.cardControls}>
         <View style={styles.cardButtons}>
-          <TouchableOpacity style={styles.buttonWrapper}>
+          <TouchableOpacity style={styles.buttonWrapper} onPress={onBookmark}>
             <BookmarkOutline20
               style={styles.buttonImage}
               color={Colors[colorScheme || "light"].buttonActive}
