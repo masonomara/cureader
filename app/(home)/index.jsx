@@ -154,7 +154,7 @@ export default function Index() {
     });
   };
 
-  // Styles
+
   const styles = {
     noFeedsHeader: {
       width: "100%",
@@ -373,7 +373,7 @@ export default function Index() {
             <FlashList
               ListHeaderComponent={() => (
                 <View style={styles.dailyQuoteContainer}>
-                  {dailyQuote && dailyQuote.length > 0 && rssChannels > 0 && (
+                  {dailyQuote && dailyQuote.length > 0 && (
                     <View style={styles.dailyQuoteWrapper}>
                       <Text style={styles.dailyQuoteQuote}>
                         “{dailyQuote[0].q}”
@@ -463,4 +463,4 @@ export default function Index() {
       )}
     </View>
   );
-};
+}

@@ -1,7 +1,19 @@
 [
   {
-    "channelId": 97,
-    "channelUrl": "https://lifehacker.com/index.xml"
+    "channelId": 124,
+    "channelUrl": "https://tympanus.net/codrops/feed"
+  },
+  {
+    "channelId": 122,
+    "channelUrl": "https://darkhorse.com/blog/rss"
+  },
+  {
+    "channelId": 84,
+    "channelUrl": "https://nasa.gov/rss/breaking_news.rss"
+  },
+  {
+    "channelId": 92,
+    "channelUrl": "https://apartmenttherapy.com/main.rss"
   },
   {
     "channelId": 88,
@@ -12,11 +24,11 @@
     "channelUrl": "https://feeds.simplecast.com/qm_9xx0g"
   },
   {
-    "channelId": 96,
-    "channelUrl": "https://tmz.com/rss"
+    "channelId": 115,
+    "channelUrl": "https://bookriot.com/feed"
   },
   {
-    "channelId": 109,
-    "channelUrl": "https://talkingpointsmemo.com/feed"
+    "channelId": 123,
+    "channelUrl": "https://sitepoint.com/feed"
   }
 ]

@@ -76,25 +76,26 @@ export default function FeedCardFeedPreview({ item }) {
 
   const colorScheme = useColorScheme();
 
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(
+    userSubscriptionIds.includes(item.id)
+  );
 
   useLayoutEffect(() => {
-    setIsSubscribed(userSubscriptionIds.includes(itemId));
-    setIsOptimisticSubscribed(userSubscriptionIds.includes(itemId));
-  }, [userSubscriptionIds, itemId]);
+    setIsSubscribed(userSubscriptionIds.includes(item.id));
+  }, [userSubscriptionIds, item.id]);
 
   const handleSubscribe = async () => {
-    setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    const optimisticSubscribed = !isSubscribed;
+    setIsSubscribed(optimisticSubscribed);
 
     try {
-      const updatedUserSubscriptionIds = isSubscribed
-        ? userSubscriptionIds.filter((id) => id !== itemId)
-        : [...userSubscriptionIds, itemId];
+      const updatedUserSubscriptionIds = optimisticSubscribed
+        ? [...userSubscriptionIds, item.id]
+        : userSubscriptionIds.filter((id) => id !== item.id);
 
-      const updatedUserSubscriptionUrls = isSubscribed
-        ? userSubscriptionUrls.filter((url) => url !== item.channel_url)
-        : [...userSubscriptionUrls, item.channel_url];
+      const updatedUserSubscriptionUrls = optimisticSubscribed
+        ? [...userSubscriptionUrls, item.channel_url]
+        : userSubscriptionUrls.filter((url) => url !== item.channel_url);
 
       setUserSubscriptionIds(updatedUserSubscriptionIds);
       setUserSubscriptionUrls(updatedUserSubscriptionUrls);
@@ -103,10 +104,10 @@ export default function FeedCardFeedPreview({ item }) {
         updatedUserSubscriptionIds,
         updatedUserSubscriptionUrls
       );
-      await updateChannelSubscribers(itemId, user.id, !isSubscribed);
+      await updateChannelSubscribers(item.id, user.id, optimisticSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
     }
   };
 
@@ -346,20 +347,18 @@ export default function FeedCardFeedPreview({ item }) {
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={
-              isOptimisticSubscribed
-                ? styles.subscribedButton
-                : styles.subscribeButton
+              isSubscribed ? styles.subscribedButton : styles.subscribeButton
             }
             onPress={handleSubscribe}
           >
             <Text
               style={
-                isOptimisticSubscribed
+                isSubscribed
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
             >
-              {isOptimisticSubscribed ? "Following" : "Follow"}
+              {isSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>

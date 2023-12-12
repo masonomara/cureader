@@ -1,8 +1,7 @@
-import { useState, useContext, useLayoutEffect } from "react";
+import React, { useState, useContext } from "react";
 import { View, Text } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/initSupabase";
 import Colors from "../constants/Colors";
@@ -83,54 +82,34 @@ export default function FeedCardToolTip({ item }) {
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
-  const [isSubscribed, setIsSubscribed] = useState(true);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(true);
-
   const colorScheme = useColorScheme();
 
+  const [isSubscribed, setIsSubscribed] = useState(true);
+
   const handleSubscribe = async () => {
-    setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    const optimisticSubscribed = !isSubscribed;
+    setIsSubscribed(optimisticSubscribed);
 
     try {
-      if (isSubscribed) {
-        // If the user is already subscribed to the feed
-        const updatedUserSubscriptionIds = userSubscriptionIds.filter(
-          (id) => id !== item.id
-        );
-        const updatedUserSubscriptionUrls = userSubscriptionUrls.filter(
-          (url) => url !== item.channel_url
-        );
+      const updatedUserSubscriptionIds = optimisticSubscribed
+        ? [...userSubscriptionIds, item.id]
+        : userSubscriptionIds.filter((id) => id !== item.id);
 
-        // Update the state with the new arrays
-        setUserSubscriptionIds(updatedUserSubscriptionIds);
-        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+      const updatedUserSubscriptionUrls = optimisticSubscribed
+        ? [...userSubscriptionUrls, item.channel_url]
+        : userSubscriptionUrls.filter((url) => url !== item.channel_url);
 
-        // Update the user's subscriptions in supabase
-        await updateUserSubscriptions(
-          updatedUserSubscriptionIds,
-          updatedUserSubscriptionUrls
-        );
+      setUserSubscriptionIds(updatedUserSubscriptionIds);
+      setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-        // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, user.id, false);
-      } else {
-        // If the user is not subscribed to the feed
-        setUserSubscriptionIds([...userSubscriptionIds, item.id]);
-        setUserSubscriptionUrls([...userSubscriptionUrls, item.channel_url]);
-
-        // Update the user's subscriptions in supabase
-        await updateUserSubscriptions(
-          [...userSubscriptionIds, item.id],
-          [...userSubscriptionUrls, item.channel_url]
-        );
-
-        // Update channel subscribers count in supabase
-        await updateChannelSubscribers(item.id, user.id, true);
-      }
+      await updateUserSubscriptions(
+        updatedUserSubscriptionIds,
+        updatedUserSubscriptionUrls
+      );
+      await updateChannelSubscribers(item.id, user.id, optimisticSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
-      // Handle errors and revert the state if necessary
-      setIsOptimisticSubscribed(!isOptimisticSubscribed);
+      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
     }
   };
 
@@ -147,7 +126,7 @@ export default function FeedCardToolTip({ item }) {
         .eq("id", user.id);
     } catch (error) {
       console.error("Error updating user profile:", error);
-      throw error; // Rethrow the error to handle it elsewhere if needed
+      throw error;
     }
   };
 
@@ -164,12 +143,10 @@ export default function FeedCardToolTip({ item }) {
         const channelSubscribers =
           updatedFeeds[channelIndex].channel_subscribers || [];
 
-        // Update the channel_subscribers array based on the subscribe flag
         updatedFeeds[channelIndex].channel_subscribers = subscribe
           ? [...channelSubscribers, userId]
           : channelSubscribers.filter((sub) => sub !== userId);
 
-        // Update the channel_subscribers array in Supabase
         await supabase
           .from("channels")
           .update({
@@ -185,15 +162,10 @@ export default function FeedCardToolTip({ item }) {
     }
   };
 
-  // Function to get background color based on the first letter
-  const getColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
-    return colorArray[index];
-  };
-  const getTextColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
-    return textColorArray[index];
-  };
+  const getColorForLetter = (letter) =>
+    colorArray[letter.toUpperCase().charCodeAt(0) % colorArray.length];
+  const getTextColorForLetter = (letter) =>
+    textColorArray[letter.toUpperCase().charCodeAt(0) % textColorArray.length];
 
   const styles = {
     card: {
