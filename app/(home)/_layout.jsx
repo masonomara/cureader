@@ -6,13 +6,17 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
+import { router } from "expo-router";
 import Colors from "../../constants/Colors";
+import { useContext } from "react";
+import { AuthContext } from "../_layout";
 
 function TabBarIcon(props) {
   return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
+  const { user, settingsActive } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   const styles = {
@@ -36,8 +40,8 @@ export default function TabLayout() {
       flexDirection: "row",
       flexWrap: "nowrap",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
