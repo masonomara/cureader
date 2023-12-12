@@ -16,9 +16,7 @@ import Colors from "../../constants/Colors";
 import FeedCard from "../../components/FeedCard";
 
 export default function Index() {
-  const CARD_WIDTH = Dimensions.get("window").width - 32;
-
-  const { feeds, popularFeeds } = useContext(FeedContext);
+  const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
   const { user, userSubscriptionIds, userSubscriptionUrls } =
     useContext(AuthContext);
 
@@ -416,7 +414,14 @@ export default function Index() {
           </View>
         )
       ) : (
-        <Text>Loading...</Text>
+        <>
+          {dailyQuote && dailyQuote.length > 0 && (
+            <>
+              <Text>{dailyQuote[0].q}</Text>
+              <Text>{dailyQuote[0].a}</Text>
+            </>
+          )}
+        </>
       )}
       {/* User info and logout */}
       {/* <View>

@@ -16,6 +16,7 @@ export const FeedContext = createContext({
   feeds: null,
   popularFeeds: null,
   randomFeeds: null,
+  dailyQuote: null,
 });
 export const AuthContext = createContext({
   session: null,
@@ -77,10 +78,37 @@ function RootLayoutNav() {
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [feedsFetched, setFeedsFetched] = useState(false);
+  const [dailyQuote, setDailyQuote] = useState(null);
 
   const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
+
+  const fetchDailyQuote = async () => {
+    try {
+      const response = await fetch("https://zenquotes.io/api/today");
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch daily quote. Status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      // Log the received data to verify its structure
+      console.log("Received data:", data);
+
+      setDailyQuote(data);
+    } catch (error) {
+      console.error("Error fetching daily quote:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchDailyQuote();
+  }, []);
+
 
   // Fetches all feeds — sets [feeds]
   useEffect(() => {
@@ -321,6 +349,7 @@ function RootLayoutNav() {
             feeds,
             popularFeeds,
             randomFeeds,
+            dailyQuote,
           }}
         >
           <AuthContext.Provider
@@ -329,6 +358,7 @@ function RootLayoutNav() {
               user,
               userSubscriptionIds,
               userSubscriptionUrls,
+
               setUserSubscriptionIds,
               setUserSubscriptionUrls,
             }}
