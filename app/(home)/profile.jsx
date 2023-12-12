@@ -1,13 +1,6 @@
 import React, { useContext } from "react";
-import {
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-  Text,
-  View,
-} from "react-native";
+import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
@@ -15,14 +8,59 @@ import FeedCard from "../../components/FeedCard";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-
   const { feeds, popularFeeds } = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-
-
-
   const userFeeds = feeds.filter((feed) =>
     feed.channel_subscribers.includes(user.id)
+  );
+
+  const renderHeaderText = () => (
+    <>
+      <View style={styles.profileHeader}>
+        <Text style={styles.username}>
+          Hello {user.user_metadata.displayName}
+        </Text>
+        <Text style={styles.subtitle}>
+          {userFeeds.length > 0
+            ? `You are currently subscribed to ${userFeeds.length} feeds.`
+            : "It looks like you aren't subscribed to any feeds yet!"}
+        </Text>
+        {userFeeds.length === 0 && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push({ pathname: "/explore" })}
+          >
+            <Text style={styles.buttonText}>View Explore Page</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={styles.headerWrapper}>
+        <View
+          style={
+            userFeeds.length > 0
+              ? styles.titleWrapperUserFeeds
+              : styles.titleWrapper
+          }
+        >
+          <Text style={styles.title}>
+            {userFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
+          </Text>
+          {userFeeds.length === 0 && (
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => router.push({ pathname: "/allPopularFeeds" })}
+            >
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <Text style={styles.headerSubtitle}>
+          {userFeeds.length > 0
+            ? "Manage all your favorite feeds."
+            : "Get started with our most popular feeds."}
+        </Text>
+      </View>
+    </>
   );
 
   // Styles
@@ -32,7 +70,7 @@ export default function Profile() {
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 8,
-      paddingBottom: 0,
+      paddingBottom: userFeeds.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
       width: "100%",
@@ -219,92 +257,19 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {userFeeds.length > 0 ? (
-        <View style={styles.feedList}>
-          <FlashList
-            data={userFeeds}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            estimatedItemSize={200}
-            renderItem={({ item }) => {
-              return <FeedCard key={item.id} item={item} user={user} />;
-            }}
-            ListHeaderComponent={() => (
-              <>
-                <View style={styles.profileHeader}>
-                  <Text style={styles.username}>
-                    Hello {user.user_metadata.displayName}
-                  </Text>
-                  <Text style={styles.subtitle}>
-                    You are currently subscribed to {userFeeds.length} feeds.
-                  </Text>
-                </View>
-                <View style={styles.headerWrapper}>
-                  <View style={styles.titleWrapperUserFeeds}>
-                    <Text style={styles.title}>Your Feeds</Text>
-                  </View>
-                  <Text style={styles.headerSubtitle}>
-                    Manage all your favorite feeds.
-                  </Text>
-                </View>
-              </>
-            )}
-          />
-        </View>
-      ) : (
-        <View style={styles.feedList}>
-          <FlashList
-            ListHeaderComponent={() => (
-              <>
-                <View style={styles.profileHeaderNoFeeds}>
-                  <Text style={styles.username}>
-                    Hello {user.user_metadata.displayName}
-                  </Text>
-                  <Text style={styles.subtitle}>
-                    It looks like you aren't subscribed to any feeds yet!
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => {
-                      router.push({
-                        pathname: "/explore",
-                      });
-                    }}
-                  >
-                    <Text style={styles.buttonText}>View Explore Page</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.headerWrapper}>
-                  <View style={styles.titleWrapper}>
-                    <Text style={styles.title}>Popular Feeds</Text>
-                    <TouchableOpacity
-                      style={styles.textButton}
-                      onPress={() => {
-                        router.push({
-                          pathname: "/allPopularFeeds",
-                        });
-                      }}
-                    >
-                      <Text style={styles.textButtonText}>View more</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.headerSubtitle}>
-                    Get started with our most popular feeds.
-                  </Text>
-                </View>
-              </>
-            )}
-            data={popularFeeds}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            estimatedItemSize={200}
-            ListFooterComponent={() => <View style={styles.feedListFooter} />}
-            renderItem={({ item }) => (
-              <FeedCard key={item.id} item={item} user={user} />
-            )}
-          />
-        </View>
-      )}
+      <View style={styles.feedList}>
+        <FlashList
+          data={userFeeds.length > 0 ? userFeeds : popularFeeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          renderItem={({ item }) => (
+            <FeedCard key={item.id} item={item} user={user} />
+          )}
+          ListHeaderComponent={renderHeaderText}
+          ListFooterComponent={() => <View style={styles.feedListFooter} />}
+        />
+      </View>
     </View>
   );
 }
