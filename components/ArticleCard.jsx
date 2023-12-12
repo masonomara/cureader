@@ -6,16 +6,17 @@ import {
   Pressable,
   useColorScheme,
   Share,
+  StyleSheet,
 } from "react-native";
 import { Image } from "expo-image";
 import * as WebBrowser from "expo-web-browser";
-import Share20 from "./icons/20/Share20";
-import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
-import BookmarkFilled20 from "./icons/20/BookmarkFilled20";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
 import { AuthContext } from "../app/_layout";
 import { supabase } from "../config/initSupabase";
+import Share20 from "./icons/20/Share20";
+import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
+import BookmarkFilled20 from "./icons/20/BookmarkFilled20";
 
 function formatPublicationDate(published) {
   const timeDifference = new Date() - new Date(published);
@@ -41,9 +42,6 @@ export default function ArticleCard({
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
   const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
-
-  console.log("bkmk:", userBookmarks);
-  console.log("item", item);
 
   const [isBookmarked, setIsBookmarked] = useState(
     userBookmarks.some((bookmark) => bookmark.id === item.id)
@@ -122,7 +120,7 @@ export default function ArticleCard({
     }
   };
 
-  const styles = {
+  const styles = StyleSheet.create({
     card: {
       borderBottomWidth: 1,
       paddingTop: 28,
@@ -251,7 +249,7 @@ export default function ArticleCard({
       lineHeight: 18,
       letterSpacing: -0.065,
     },
-  };
+  });
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
