@@ -81,6 +81,21 @@ export default function Profile() {
 
   // Styles
   const styles = {
+    container: {
+      flex: 1,
+      alignItems: "center",
+      width: "100%",
+      maxWidth: "100%",
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    feedList: {
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
+      flex: 1,
+      paddingHorizontal: 16,
+    },
     profileHeader: {
       width: "100%",
       alignItems: "center",
@@ -95,14 +110,6 @@ export default function Profile() {
       paddingHorizontal: 8,
       paddingBottom: 48,
     },
-    container: {
-      flex: 1,
-      alignItems: "center",
-      width: "100%",
-      maxWidth: "100%",
-      justifyContent: "center",
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
-    },
     scrollViewContainer: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       display: "flex",
@@ -113,14 +120,6 @@ export default function Profile() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-    },
-
-    feedList: {
-      width: "100%",
-      maxWidth: "100%",
-      minWidth: "100%",
-      flex: 1,
-      paddingHorizontal: 16,
     },
     input: {
       width: "100%",
