@@ -423,20 +423,6 @@ export default function Index() {
           )}
         </>
       )}
-      {/* User info and logout */}
-      {/* <View>
-        <Text numberOfLines={4}>User: {JSON.stringify(user)}</Text>
-        <Text numberOfLines={4}>
-          userSubscriptionIds: {JSON.stringify(userSubscriptionIds)}
-        </Text>
-        <Text numberOfLines={4}>
-          useerSubscriptionUrls: {JSON.stringify(userSubscriptionUrls)}
-        </Text>
-        <Text numberOfLines={4}>Feeds: {JSON.stringify(feeds)}</Text>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View> */}
     </View>
   );
 }
