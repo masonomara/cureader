@@ -25,7 +25,7 @@ export const AuthContext = createContext({
   user: null,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
-  userBookmarks: null,
+  userBookmarks: [],
   setUserSubscriptionIds: () => {},
   setUserSubscriptionUrls: () => {},
   setUserBookmarks: () => {},
@@ -66,7 +66,7 @@ function RootLayoutNav() {
   const [user, setUser] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
-  const [userBookmarks, setUserBookmarks] = useState(null);
+  const [userBookmarks, setUserBookmarks] = useState([]);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [dailyQuote, setDailyQuote] = useState(null);
   const [session, setSession] = useState(null);
@@ -174,11 +174,9 @@ function RootLayoutNav() {
       } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        const { channelIds, channelUrls, bookmarks } =
-          await fetchUserSubscriptions(user);
+        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
-        setUserBookmarks(bookmarks);
       }
 
       if (feedsFetched) {
@@ -190,7 +188,6 @@ function RootLayoutNav() {
       setUser(null);
       setUserSubscriptionIds(null);
       setUserSubscriptionUrls(null);
-      setUserBookmarks(null);
     }
   };
 
@@ -207,11 +204,9 @@ function RootLayoutNav() {
         } = await supabase.auth.getUser();
         setUser(user);
 
-        const { channelIds, channelUrls, bookmarks } =
-          await fetchUserSubscriptions(user);
+        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
-        setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
           router.replace("(home)");
@@ -242,7 +237,7 @@ function RootLayoutNav() {
 
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
-        return { channelIds: [], channelUrls: [], bookmarks: [] };
+        return { channelIds: [], channelUrls: [] };
       }
 
       const channelSubscriptions =
@@ -261,28 +256,12 @@ function RootLayoutNav() {
         { channelIds: [], channelUrls: [] }
       );
 
-      const articleBookmarks = userProfileData[0]?.bookmarks || [];
-
-      if (!articleBookmarks || articleBookmarks.length === 0) {
-        return { bookmarks: [] };
-      }
-
-      const { bookmarks } = articleBookmarks.reduce(
-        (acc, article) => {
-          acc.bookmarks.push(article.url);
-          return acc;
-        },
-        { bookmarks: [] }
-      );
-
-      return { channelIds, channelUrls, bookmarks };
+      return { channelIds, channelUrls };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return { channelIds: [], channelUrls: [], bookmarks: [] };
+      return { channelIds: [], channelUrls: [] };
     }
   };
-
-  console.log("bookmarks:", userBookmarks);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
