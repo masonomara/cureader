@@ -30,9 +30,9 @@ export default function AuthLayout() {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
   };
 
