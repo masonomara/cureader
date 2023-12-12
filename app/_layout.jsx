@@ -11,6 +11,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
 import { MenuProvider } from "react-native-popup-menu";
+import Colors from "../constants/Colors";
 
 export const FeedContext = createContext({
   feeds: null,
@@ -18,26 +19,20 @@ export const FeedContext = createContext({
   randomFeeds: null,
   dailyQuote: null,
 });
+
 export const AuthContext = createContext({
   session: null,
   user: null,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
+  setUserSubscriptionIds: () => {},
+  setUserSubscriptionUrls: () => {},
 });
 
-import Colors from "../constants/Colors";
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
-
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: "(home)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -51,18 +46,10 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
-  // Remove spash screen on font load
-  useEffect(() => {
-    if (loaded) {
-    }
-  }, [loaded]);
-
-  // Error catcher
   if (!loaded) {
     return null;
   }
@@ -79,7 +66,6 @@ function RootLayoutNav() {
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [dailyQuote, setDailyQuote] = useState(null);
-
   const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
@@ -95,10 +81,6 @@ function RootLayoutNav() {
       }
 
       const data = await response.json();
-
-      // Log the received data to verify its structure
-      console.log("Received data:", data);
-
       setDailyQuote(data);
     } catch (error) {
       console.error("Error fetching daily quote:", error.message);
@@ -109,8 +91,6 @@ function RootLayoutNav() {
     fetchDailyQuote();
   }, []);
 
-
-  // Fetches all feeds — sets [feeds]
   useEffect(() => {
     async function fetchFeeds() {
       try {
@@ -119,26 +99,21 @@ function RootLayoutNav() {
           .select("*");
         if (error) {
           console.error("Error fetching feeds:", error);
-          // You might want to show a user-friendly error message here.
           return;
         }
 
         setFeeds(feedsData);
-
         setFeedsFetched(true);
       } catch (error) {
         console.error("Error fetching feeds:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
       }
     }
 
     fetchFeeds();
   }, []);
 
-  // Updated useEffect to set popular and random feeds
   useEffect(() => {
     if (feeds) {
-      // Function to sort feeds by the number of subscribers
       const sortFeedsBySubscribers = (feeds) => {
         return feeds.slice().sort((a, b) => {
           const subscribersA = a.channel_subscribers
@@ -148,28 +123,20 @@ function RootLayoutNav() {
             ? b.channel_subscribers.length
             : 0;
 
-          // Sort in descending order
           return subscribersB - subscribersA;
         });
       };
 
-      // Sort feeds and set popularFeeds state
       const sortedFeeds = sortFeedsBySubscribers(feeds);
       const popularFeeds = sortedFeeds.slice(0, 24);
-      console.log(
-        "Popular Feeds:",
-        popularFeeds.map((feed) => feed.channel_title)
-      );
       setPopularFeeds(popularFeeds);
 
-      // Get the rest of the feeds excluding those in popularFeeds
       const remainingFeeds = sortedFeeds.slice(24);
       const remainingFeedsExcludingPopular = remainingFeeds.filter(
         (feed) =>
           !popularFeeds.some((popularFeed) => popularFeed.id === feed.id)
       );
 
-      // Function to shuffle an array randomly
       const shuffleArray = (array) => {
         let currentIndex = array.length,
           randomIndex,
@@ -187,118 +154,77 @@ function RootLayoutNav() {
         return array;
       };
 
-      // Shuffle remaining feeds randomly and set randomFeeds state
       const randomFeeds = shuffleArray(remainingFeedsExcludingPopular).slice(
         0,
         25
       );
 
-      console.log(
-        "Random Feeds:",
-        randomFeeds.map((feed) => feed.channel_title)
-      );
       setRandomFeeds(randomFeeds);
     }
   }, [feeds]);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        console.log("Starting scenario 1");
-        setSession(session);
-        // Fetch the user data
-        supabase.auth
-          .getUser()
-          .then(({ data: { user } }) => {
-            if (user) {
-              setUser(user);
-              // Fetch user subscriptions
-              fetchUserSubscriptions(user).then(
-                ({ channelIds, channelUrls }) => {
-                  setUserSubscriptionIds(channelIds);
-                  setUserSubscriptionUrls(channelUrls);
-                }
-              );
-            }
-          })
-          .then(SplashScreen.hideAsync())
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-          });
-        console.log("Finished scenario 1");
+  const handleAuthStateChange = async (event, session) => {
+    if (session) {
+      setSession(session);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
+        setUserSubscriptionIds(channelIds);
+        setUserSubscriptionUrls(channelUrls);
       }
 
-      // Listen for changes in the authentication state
-      else
-        supabase.auth.onAuthStateChange((_event, session) => {
-          if (session) {
-            console.log("Starting scenario 2");
-            setSession(session);
-            supabase.auth.getUser().then(({ data: { user } }) => {
-              if (user) {
-                setUser(user);
-              }
-            });
-            // Fetch user subscriptions in the background
-            const { channelIds, channelUrls } = fetchUserSubscriptions(user);
-            setUserSubscriptionIds(channelIds);
-            setUserSubscriptionUrls(channelUrls);
-            // If a session is present, navigate to the main screen
-            router.replace("(home)");
-            SplashScreen.hideAsync();
-            console.log("Finished scenario 2");
-          } else {
-            console.log("Starting scenario 3");
-            // If a session is not present, navigate to the login screen
-            setTimeout(() => {
-              SplashScreen.hideAsync();
-            }, 500);
-            console.log("Finished scenario 3");
-          }
-        });
-    });
+      if (feedsFetched) {
+        router.replace("(home)");
+      }
+    } else {
+      router.replace("(login)");
+      setSession(null);
+      setUser(null);
+      setUserSubscriptionIds(null);
+      setUserSubscriptionUrls(null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserAndSubscriptions = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+
+      if (session) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+
+        const { channelIds, channelUrls } = await fetchUserSubscriptions(user);
+        setUserSubscriptionIds(channelIds);
+        setUserSubscriptionUrls(channelUrls);
+
+        if (feedsFetched) {
+          router.replace("(home)");
+          SplashScreen.hideAsync();
+        }
+      } else {
+        SplashScreen.hideAsync();
+      }
+    };
+
+    supabase.auth.onAuthStateChange(handleAuthStateChange);
+    fetchUserAndSubscriptions();
+
+    return () => {
+      // Check if removeAuthStateListener is available before calling it
+      if (supabase.auth.removeAuthStateListener) {
+        supabase.auth.removeAuthStateListener(handleAuthStateChange);
+      }
+    };
   }, [feedsFetched]);
 
-  // Listen for changes in the authentication state
-  useEffect(() => {
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        console.log("Starting scenario 4");
-        setSession(session);
-        // Fetch the user data
-        supabase.auth
-          .getUser()
-          .then(({ data: { user } }) => {
-            if (user) {
-              setUser(user);
-              // Fetch user subscriptions
-              fetchUserSubscriptions(user).then(
-                ({ channelIds, channelUrls }) => {
-                  setUserSubscriptionIds(channelIds);
-                  setUserSubscriptionUrls(channelUrls);
-                }
-              );
-            }
-          })
-          .then(router.replace("(home)"))
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-          });
-
-        console.log("Finished scenario 4");
-      } else {
-        console.log("Finished scenario 5");
-        router.replace("(login)");
-        setSession(null);
-        setUser(null);
-        setUserSubscriptionIds(null);
-        setUserSubscriptionUrls(null);
-        console.log("Finished scenario 5");
-      }
-    });
-  }, []);
-
-  // fetch user subscriptions
   const fetchUserSubscriptions = async (user) => {
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
@@ -358,7 +284,6 @@ function RootLayoutNav() {
               user,
               userSubscriptionIds,
               userSubscriptionUrls,
-
               setUserSubscriptionIds,
               setUserSubscriptionUrls,
             }}
@@ -378,13 +303,13 @@ function RootLayoutNav() {
                   title: route.params.title || "Default Title",
                   headerStyle: {
                     headerTransparent: true,
-                    shadowColor: "transparent", // Remove shadow on iOS
+                    shadowColor: "transparent",
                     backgroundColor: Colors[colorScheme || "light"].background,
                   },
-                  headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
                   headerBackTitle: "Explore",
                   headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh, // Set header title color
+                    color: Colors[colorScheme || "light"].textHigh,
                   },
                 })}
               />
