@@ -77,12 +77,12 @@ export default function FeedCardFeedPreview({ item }) {
   const colorScheme = useColorScheme();
 
   const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptionIds.includes(item.id)
+    userSubscriptionIds.includes(itemId)
   );
 
   useLayoutEffect(() => {
-    setIsSubscribed(userSubscriptionIds.includes(item.id));
-  }, [userSubscriptionIds, item.id]);
+    setIsSubscribed(userSubscriptionIds.includes(itemId));
+  }, [userSubscriptionIds, itemId]);
 
   const handleSubscribe = async () => {
     const optimisticSubscribed = !isSubscribed;
@@ -90,8 +90,8 @@ export default function FeedCardFeedPreview({ item }) {
 
     try {
       const updatedUserSubscriptionIds = optimisticSubscribed
-        ? [...userSubscriptionIds, item.id]
-        : userSubscriptionIds.filter((id) => id !== item.id);
+        ? [...userSubscriptionIds, itemId]
+        : userSubscriptionIds.filter((id) => id !== itemId);
 
       const updatedUserSubscriptionUrls = optimisticSubscribed
         ? [...userSubscriptionUrls, item.channel_url]
@@ -104,7 +104,7 @@ export default function FeedCardFeedPreview({ item }) {
         updatedUserSubscriptionIds,
         updatedUserSubscriptionUrls
       );
-      await updateChannelSubscribers(item.id, user.id, optimisticSubscribed);
+      await updateChannelSubscribers(itemId, user.id, optimisticSubscribed);
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed); // Revert the state if there's an error
