@@ -29,8 +29,7 @@ function CloseIcon({ size, ...props }) {
 
 export default function Explore() {
   const { feeds, popularFeeds, randomFeeds } = useContext(FeedContext);
-  const { user, userSubscriptionIds, userSubscriptionUrls } =
-    useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -41,17 +40,16 @@ export default function Explore() {
   const [isSearching, setIsSearching] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
 
-  const [channelUrl, setChannelUrl] = useState("");
-  const [channelTitle, setChannelTitle] = useState("");
-  const [channelDescription, setChannelDescription] = useState("");
-  const [channelImageUrl, setChannelImageUrl] = useState("");
-
-  const [channelTitleWait, setChannelTitleWait] = useState(false);
-  const [channelUrlError, setChannelUrlError] = useState(null);
+  const [channelData, setChannelData] = useState({
+    title: "",
+    url: "",
+    description: "",
+    imageUrl: "",
+    wait: false,
+    error: null,
+  });
 
   // Function for handling search input focus
-
-  // Function for clearing the search input
   const handleClearInput = useCallback(() => {
     setSearchInput("");
     setParserInput("");
@@ -68,7 +66,6 @@ export default function Explore() {
     setTextInputFocused(false);
   }, []);
 
-  // Function for handling when there is search input change
   const handleSearchInput = (searchInput) => {
     setIsSearching(true);
     searchInput = searchInput.trim();
@@ -86,17 +83,20 @@ export default function Explore() {
       moddedSearchInput = "https://" + searchInput;
     }
 
-    setChannelTitleWait(true);
+    setChannelData((prevData) => ({
+      ...prevData,
+      wait: true,
+    }));
+
     setParserInput(moddedSearchInput);
     setSearchInput(searchInput);
   };
 
-  // Handles API request for channel information
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
       try {
         const response = await Promise.race([
-          fetch(parserInput), //change: parserInput
+          fetch(parserInput),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Request Timeout")), 10000)
           ),
@@ -106,25 +106,30 @@ export default function Explore() {
         }
         const responseData = await response.text();
         const parsedRss = await rssParser.parse(responseData);
-        setChannelTitle(parsedRss.title);
-        console.log("channelTitle:", channelTitle);
-        setChannelUrl(parserInput);
-        setChannelDescription(parsedRss.description);
-        setChannelImageUrl(parsedRss.image.url);
-        setChannelTitleWait(false);
+        setChannelData({
+          title: parsedRss.title,
+          url: parserInput,
+          description: parsedRss.description,
+          imageUrl: parsedRss.image.url,
+          wait: false,
+          error: null,
+        });
       } catch (error) {
         console.log(error);
-        setChannelTitle(null);
-        setChannelTitleWait(false);
-        setChannelDescription(null);
-        setChannelImageUrl(null);
+        setChannelData({
+          title: null,
+          url: parserInput,
+          description: null,
+          imageUrl: null,
+          wait: false,
+          error: error.message,
+        });
       }
     }, 150);
 
     return () => clearTimeout(delayTimer);
   }, [parserInput]);
 
-  // Creates search results that match the user's search input — sets [searchResults]
   useEffect(() => {
     const filterResults = () => {
       if (searchInput !== null) {
@@ -153,7 +158,6 @@ export default function Explore() {
     filterResults();
   }, [searchInput, feeds]);
 
-  // Function to chunk an array
   const chunkArray = (arr, chunkSize) => {
     const chunkedArray = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
@@ -402,7 +406,6 @@ export default function Explore() {
 
   return (
     <View style={styles.container}>
-      {/* <Text>{JSON.stringify(userSubscriptionIds)}</Text> */}
       <View style={styles.inputWrapper}>
         <SearchIcon
           name="search"
@@ -438,9 +441,9 @@ export default function Explore() {
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
-              {searchResults.length > 0 || channelTitle
+              {searchResults.length > 0 || channelData.title
                 ? `Search Results (${searchResults.length})`
-                : searchResults.length === 0 && channelTitleWait
+                : searchResults.length === 0 && channelData.wait
                 ? "Searching..."
                 : "No Search Results Found"}
             </Text>
@@ -462,14 +465,16 @@ export default function Explore() {
           )}
 
           <View style={styles.noResultsWrapper}>
-            {searchResults.length == 0 && !channelTitleWait && channelTitle && (
-              <FeedCardSearchPreview
-                channelUrl={channelUrl}
-                channelTitle={channelTitle}
-                channelDescription={channelDescription}
-                channelImageUrl={channelImageUrl}
-              />
-            )}
+            {searchResults.length == 0 &&
+              !channelData.wait &&
+              channelData.title && (
+                <FeedCardSearchPreview
+                  channelUrl={channelData.url}
+                  channelTitle={channelData.title}
+                  channelDescription={channelData.description}
+                  channelImageUrl={channelData.imageUrl}
+                />
+              )}
             <View style={[styles.searchResultsList]}>
               <View style={styles.noResultsHeader}>
                 <Text style={styles.noResultsHeaderText}>
@@ -520,7 +525,7 @@ export default function Explore() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.randomChannelList}
             decelerationRate={0}
-            snapToInterval={CARD_WIDTH + 8} //your element width
+            snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
           >
             {randomFeeds.slice(0, 8).map((item) => (
