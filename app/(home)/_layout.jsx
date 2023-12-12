@@ -10,14 +10,33 @@ import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { useContext } from "react";
 import { AuthContext } from "../_layout";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+  renderers,
+} from "react-native-popup-menu";
+import { supabase } from "../../config/initSupabase";
 
 function TabBarIcon(props) {
   return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
-  const { user, settingsActive } = useContext(AuthContext);
   const colorScheme = useColorScheme();
+
+  const showErrorAlert = (message) => {
+    Alert.alert("Error", message);
+  };
+
+  const doLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    router.replace("(login)");
+    if (error) {
+      showErrorAlert("Error signing out: " + error.message);
+    }
+  };
 
   const styles = {
     headerButton: {
@@ -115,14 +134,91 @@ export default function TabLayout() {
           },
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
           headerRight: () => (
-            <Link href="/addChannel" asChild>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.replace("(signup)")}
+            // <TouchableOpacity style={styles.headerButton}>
+            //   <Text style={styles.headerButtonText}>Settings</Text>
+            // </TouchableOpacity>
+
+            <Menu renderer={renderers.SlideInMenu}>
+              <MenuTrigger
+                text="Settings"
+                customStyles={{
+                  triggerTouchable: {
+                    underlayColor: "transparent",
+                    activeOpacity: 0.2,
+                    style: {
+                      marginRight: 16,
+                      flexDirection: "row",
+                      flexWrap: "nowrap",
+                      color: `${Colors[colorScheme || "light"].buttonActive}`,
+                      fontFamily: "InterMedium",
+                      fontWeight: "500",
+                      fontSize: 15,
+                      lineHeight: 20,
+                      letterSpacing: -0.15,
+                    },
+                  },
+                  triggerText: {
+                    flexDirection: "row",
+                    flexWrap: "nowrap",
+                    color: `${Colors[colorScheme || "light"].buttonActive}`,
+                    fontFamily: "InterMedium",
+                    fontWeight: "500",
+                    fontSize: 15,
+                    lineHeight: 20,
+                    letterSpacing: -0.15,
+                  },
+                }}
+              />
+              <MenuOptions
+                customStyles={{
+                  optionsContainer: {
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                    borderWidth: 0.5,
+                    borderColor: Colors[colorScheme || "light"].border,
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                    shadowColor: "none",
+                    shadowOpacity: 0,
+                    overflow: "hidden",
+                    paddingTop: 8,
+                    paddingBottom: 16,
+                  },
+                  optionsWrapper: {
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                    paddingHorizontal: 16,
+                  },
+                  optionWrapper: {
+                    margin: 5,
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    paddingHorizontal: 0,
+                    height: 44,
+                    // borderWidth: 1,
+                    // borderColor: "red",
+                  },
+                  optionTouchable: {
+                    underlayColor: "transparent",
+                    activeOpacity: 0.2,
+                  },
+                  optionText: {
+                    color: Colors[colorScheme || "light"].buttonActive,
+                    fontFamily: "InterMedium",
+                    fontWeight: "500",
+                    fontSize: 15,
+                    lineHeight: 20,
+                    letterSpacing: -0.15,
+                  },
+                }}
               >
-                <Text style={styles.headerButtonText}>Settings</Text>
-              </TouchableOpacity>
-            </Link>
+                <MenuOption
+                  onSelect={() => {
+                    doLogout();
+                  }}
+                  text="Log Out"
+                />
+              </MenuOptions>
+            </Menu>
           ),
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}

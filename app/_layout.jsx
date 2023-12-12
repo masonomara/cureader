@@ -74,7 +74,6 @@ function RootLayoutNav() {
   const [popularFeeds, setPopularFeeds] = useState(null);
   const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
-  const [settingsActive, setSettingsActive] = useState(false);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [feedsFetched, setFeedsFetched] = useState(false);
