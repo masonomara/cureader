@@ -10,8 +10,9 @@ import Colors from "../../constants/Colors";
 import FeedCard from "../../components/FeedCard";
 
 export default function Index() {
-  const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
-  const { user, userSubscriptionIds, userSubscriptionUrls } =
+  // const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
+  const { feeds, popularFeeds } = useContext(FeedContext);
+  const { user, userSubscriptionIds, userSubscriptionUrls, userBookmarkUrls } =
     useContext(AuthContext);
 
   const colorScheme = useColorScheme();
@@ -86,6 +87,9 @@ export default function Index() {
     if (user && feeds && userSubscriptionUrls) {
       fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
+        if (rssItems.length > 0) {
+          console.log("First item in allItems:", rssItems[0]);
+        }
       });
     }
   }, [user, feeds, userSubscriptionUrls]);
@@ -153,7 +157,6 @@ export default function Index() {
       setIsRefreshing(false);
     });
   };
-
 
   const styles = {
     noFeedsHeader: {
@@ -359,32 +362,32 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dailyQuoteContainerLoading}>
+      {/* <View style={styles.dailyQuoteContainerLoading}>
         {dailyQuote && dailyQuote.length > 0 && (
           <View style={styles.dailyQuoteWrapper}>
             <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
             <Text style={styles.dailyQuoteAuthor}>- {dailyQuote[0].a}</Text>
           </View>
         )}
-      </View>
+      </View> */}
       {feedsParsed ? (
         rssItems.length > 0 ? (
           <View style={styles.articleList}>
             <FlashList
-              ListHeaderComponent={() => (
-                <View style={styles.dailyQuoteContainer}>
-                  {dailyQuote && dailyQuote.length > 0 && (
-                    <View style={styles.dailyQuoteWrapper}>
-                      <Text style={styles.dailyQuoteQuote}>
-                        “{dailyQuote[0].q}”
-                      </Text>
-                      <Text style={styles.dailyQuoteAuthor}>
-                        - {dailyQuote[0].a}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              )}
+              // ListHeaderComponent={() => (
+              //   <View style={styles.dailyQuoteContainer}>
+              //     {dailyQuote && dailyQuote.length > 0 && (
+              //       <View style={styles.dailyQuoteWrapper}>
+              //         <Text style={styles.dailyQuoteQuote}>
+              //           “{dailyQuote[0].q}”
+              //         </Text>
+              //         <Text style={styles.dailyQuoteAuthor}>
+              //           - {dailyQuote[0].a}
+              //         </Text>
+              //       </View>
+              //     )}
+              //   </View>
+              // )}
               data={rssItems}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
