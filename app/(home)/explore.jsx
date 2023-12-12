@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import {
   ScrollView,
   Text,
@@ -40,6 +46,7 @@ export default function Explore() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [textInputFocused, setTextInputFocused] = useState(false);
 
   const [channelUrl, setChannelUrl] = useState("");
   const [channelTitle, setChannelTitle] = useState("");
@@ -51,7 +58,6 @@ export default function Explore() {
 
   // Function for handling search input focus
 
-
   // Function for clearing the search input
   const handleClearInput = useCallback(() => {
     setSearchInput("");
@@ -61,7 +67,13 @@ export default function Explore() {
     Keyboard.dismiss();
   }, []);
 
+  const handleFocus = useCallback(() => {
+    setTextInputFocused(true);
+  }, []);
 
+  const handleBlur = useCallback(() => {
+    setTextInputFocused(false);
+  }, []);
 
   // Function for handling when there is search input change
   const handleSearchInput = (searchInput) => {
@@ -406,14 +418,15 @@ export default function Explore() {
         />
         <TextInput
           ref={textInputRef}
-          style={[styles.input, isSearchInputSelected && styles.inputSelected]}
+          style={[styles.input, textInputFocused && styles.inputSelected]}
           value={searchInput}
           label="Channel Url Text"
           placeholder="Search for feed"
           autoCapitalize="none"
           autoCorrect={false}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           onChangeText={handleSearchInput}
-
         />
         <TouchableOpacity
           style={[
@@ -518,7 +531,7 @@ export default function Explore() {
             snapToInterval={CARD_WIDTH + 8} //your element width
             snapToAlignment={"left"}
           >
-            {randomFeeds.map((item) => (
+            {randomFeeds.slice(0, 8).map((item) => (
               <FeedCardFeatured key={item.id} item={item} user={user} />
             ))}
           </ScrollView>
