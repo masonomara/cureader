@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
@@ -10,9 +10,25 @@ export default function Profile() {
   const colorScheme = useColorScheme();
   const { feeds, popularFeeds } = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const userFeeds = feeds.filter((feed) =>
-    feed.channel_subscribers.includes(user.id)
-  );
+  const [userInitialFeeds, setUserInitialFeeds] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchUserFeeds = useCallback(async () => {
+    const fetchedFeeds = feeds.filter((feed) =>
+      feed.channel_subscribers.includes(user.id)
+    );
+    setUserInitialFeeds(fetchedFeeds);
+  }, [feeds, user.id]);
+
+  useEffect(() => {
+    fetchUserFeeds();
+  }, [fetchUserFeeds]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserFeeds();
+    setRefreshing(false);
+  };
 
   const renderHeaderText = () => (
     <>
@@ -21,11 +37,11 @@ export default function Profile() {
           Hello {user.user_metadata.displayName}
         </Text>
         <Text style={styles.subtitle}>
-          {userFeeds.length > 0
-            ? `You are currently subscribed to ${userFeeds.length} feeds.`
+          {userInitialFeeds.length > 0
+            ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
             : "It looks like you aren't subscribed to any feeds yet!"}
         </Text>
-        {userFeeds.length === 0 && (
+        {userInitialFeeds.length === 0 && (
           <TouchableOpacity
             style={styles.button}
             onPress={() => router.push({ pathname: "/explore" })}
@@ -37,15 +53,15 @@ export default function Profile() {
       <View style={styles.headerWrapper}>
         <View
           style={
-            userFeeds.length > 0
+            userInitialFeeds.length > 0
               ? styles.titleWrapperUserFeeds
               : styles.titleWrapper
           }
         >
           <Text style={styles.title}>
-            {userFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
+            {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
           </Text>
-          {userFeeds.length === 0 && (
+          {userInitialFeeds.length === 0 && (
             <TouchableOpacity
               style={styles.textButton}
               onPress={() => router.push({ pathname: "/allPopularFeeds" })}
@@ -55,7 +71,7 @@ export default function Profile() {
           )}
         </View>
         <Text style={styles.headerSubtitle}>
-          {userFeeds.length > 0
+          {userInitialFeeds.length > 0
             ? "Manage all your favorite feeds."
             : "Get started with our most popular feeds."}
         </Text>
@@ -70,7 +86,7 @@ export default function Profile() {
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 8,
-      paddingBottom: userFeeds.length > 0 ? 0 : 48,
+      paddingBottom: userInitialFeeds.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
       width: "100%",
@@ -259,7 +275,7 @@ export default function Profile() {
     <View style={styles.container}>
       <View style={styles.feedList}>
         <FlashList
-          data={userFeeds.length > 0 ? userFeeds : popularFeeds}
+          data={userInitialFeeds.length > 0 ? userInitialFeeds : popularFeeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
@@ -268,6 +284,8 @@ export default function Profile() {
           )}
           ListHeaderComponent={renderHeaderText}
           ListFooterComponent={() => <View style={styles.feedListFooter} />}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
         />
       </View>
     </View>
