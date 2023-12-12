@@ -1,31 +1,40 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Alert, useColorScheme, Text, ActivityIndicator } from "react-native";
 import { AuthContext, FeedContext } from "./_layout";
+import {
+  Alert,
+  useColorScheme,
+  Text,
+  ActivityIndicator, // Import ActivityIndicator
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../components/ArticleCard";
 import Colors from "../constants/Colors";
 import { FlashList } from "@shopify/flash-list";
+
 import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
-  const { feeds, user, userSubscriptionIds, userSubscriptionUrls } =
-    useContext(AuthContext);
+  const { feeds } = useContext(FeedContext);
+  const {
+    user,
+    userSubscriptionIds,
+    userSubscriptionUrls,
+  } = useContext(AuthContext);
 
   const params = useLocalSearchParams();
 
   const colorScheme = useColorScheme();
-  const [state, setState] = useState({
-    rssItems: [],
-    loading: true,
-    feedsEmpty: false,
-  });
+  const [rssItems, setRssItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Add a loading state
+  const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
 
+  // Parse feed channel for articles in the feed
   useEffect(() => {
     const parseFeed = async () => {
       if (params.url && feeds && userSubscriptionUrls) {
@@ -58,16 +67,14 @@ export default function TabOneScreen() {
 
           allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
-          setState({
-            rssItems: allItems,
-            loading: false,
-            feedsEmpty: allItems.length === 0,
-          });
+          setRssItems(allItems);
         } catch (error) {
           console.error(error);
           showErrorAlert(
             "Error fetching or parsing the RSS feed. Please try again."
           );
+        } finally {
+          setIsLoading(false); // Set loading to false after the effect is done firing
         }
       }
     };
@@ -245,7 +252,7 @@ export default function TabOneScreen() {
       <FeedCardFeedPreview item={params} />
       <View style={styles.articleList}>
         <FlashList
-          data={state.rssItems}
+          data={rssItems}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
