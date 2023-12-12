@@ -42,16 +42,16 @@ export default function ArticleCard({
   const [result, setResult] = useState(null);
   const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
-  console.log("type:", typeof item.links[0].url);
-  console.log("comp:", userBookmarks[0]);
+  console.log("bkmk:", userBookmarks);
+  console.log("item", item);
 
   const [isBookmarked, setIsBookmarked] = useState(
-    userBookmarks.includes(item.links[0].url)
+    userBookmarks.some((bookmark) => bookmark.id === item.id)
   );
 
   useLayoutEffect(() => {
-    setIsBookmarked(userBookmarks.includes(item.links[0].url));
-  }, [userBookmarks, item.links[0].url]);
+    setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
+  }, [userBookmarks, item]);
 
   const descriptionWithoutTags = item.description || "";
 
@@ -95,41 +95,27 @@ export default function ArticleCard({
     setIsBookmarked(optimisticBookmark);
 
     try {
-      await updateUserBookmarks(user.id, item.links[0].url, optimisticBookmark);
+      const updatedUserBookmarks = optimisticBookmark
+        ? [...userBookmarks, item]
+        : userBookmarks.filter((bookmark) => bookmark !== item);
+
+      setUserBookmarks(updatedUserBookmarks);
+
+      await updateUserBookmarks(updatedUserBookmarks);
     } catch (error) {
       console.error("Error handling bookmark:", error);
       setIsBookmarked(!isBookmarked); // Revert the state if there's an error
     }
   };
 
-  const updateUserBookmarks = async (userId, bookmarkUrl, isBookmarking) => {
+  const updateUserBookmarks = async (updatedBookmarks) => {
     try {
-      const userProfile = await supabase
-        .from("profiles")
-        .select("bookmarks")
-        .eq("id", userId)
-        .single();
-
-      let updatedBookmarks = userProfile.data.bookmarks || [];
-
-      if (isBookmarking) {
-        // Add bookmarkUrl to the array if not already present
-        if (!updatedBookmarks.includes(bookmarkUrl)) {
-          updatedBookmarks.push(bookmarkUrl);
-        }
-      } else {
-        // Remove bookmarkUrl from the array
-        updatedBookmarks = updatedBookmarks.filter(
-          (url) => url !== bookmarkUrl
-        );
-      }
-
       await supabase
         .from("profiles")
         .update({
-          bookmarks: updatedBookmarks.map((bookmark) => String(bookmark)),
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark), // Assuming 'id' is the unique identifier
         })
-        .eq("id", userId);
+        .eq("id", user.id);
     } catch (error) {
       console.error("Error updating user bookmarks:", error);
       throw error;
