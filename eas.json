@@ -1,0 +1,11 @@
+{
+  "build": {
+    "production": {
+      "node": "18.17.1",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lqiogwnhnjgqgsyhnktg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaW9nd25obmpncWdzeWhua3RnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTgwMTkyOTQsImV4cCI6MjAxMzU5NTI5NH0._VA1HGpunQhuMMbxpbA_4HsWEHnYh82bq_Eun5JE0nU"
+      }
+    }
+  }
+}
