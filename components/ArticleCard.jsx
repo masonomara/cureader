@@ -13,7 +13,7 @@ import * as WebBrowser from "expo-web-browser";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
 import { AuthContext } from "../app/_layout";
-import { supabase } from "../config/initSupabase";
+import { supabase } from "../config/supabase";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import BookmarkFilled20 from "./icons/20/BookmarkFilled20";

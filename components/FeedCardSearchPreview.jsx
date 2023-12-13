@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
-import { supabase } from "../config/initSupabase";
+import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext } from "../app/_layout";
 

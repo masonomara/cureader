@@ -9,7 +9,7 @@ import {
   Pressable,
   useColorScheme,
 } from "react-native";
-import { supabase } from "../../config/initSupabase";
+import { supabase } from "../../config/supabase";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";

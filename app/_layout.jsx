@@ -8,7 +8,7 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { router } from "expo-router";
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "../config/initSupabase.js";
+import { supabase } from "../config/supabase.js";
 import { useColorScheme } from "react-native";
 import { MenuProvider } from "react-native-popup-menu";
 import Colors from "../constants/Colors";

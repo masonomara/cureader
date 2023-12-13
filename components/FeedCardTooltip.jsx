@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useColorScheme } from "react-native";
-import { supabase } from "../config/initSupabase";
+import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import {
   Menu,

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
-import { supabase } from "../config/initSupabase";
+import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 

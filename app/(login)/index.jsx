@@ -12,7 +12,7 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
-import { supabase } from "../../config/initSupabase";
+import { supabase } from "../../config/supabase";
 
 export default function Auth() {
   const colorScheme = useColorScheme();

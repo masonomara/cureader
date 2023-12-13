@@ -12,7 +12,7 @@ import {
   MenuTrigger,
   renderers,
 } from "react-native-popup-menu";
-import { supabase } from "../../config/initSupabase";
+import { supabase } from "../../config/supabase";
 
 function TabBarIcon(props) {
   return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
