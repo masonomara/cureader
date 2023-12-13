@@ -12,6 +12,7 @@ import { supabase } from "../config/initSupabase.js";
 import { useColorScheme } from "react-native";
 import { MenuProvider } from "react-native-popup-menu";
 import Colors from "../constants/Colors";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const FeedContext = createContext({
   feeds: null,
@@ -37,6 +38,8 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     InterRegular: require("../assets/fonts/Inter/Inter-Regular.ttf"),
@@ -56,7 +59,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayoutNav />
+    </QueryClientProvider>
+  );
 }
 
 function RootLayoutNav() {
