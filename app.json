@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "cureader-ios"
+      "bundleIdentifier": "com.masonomara.cureader"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,8 +42,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "d1d94445-74e2-4a14-bc67-21af5ad91448"
+        "projectId": "9e098709-617a-4eac-b57d-d2b1d3407f78"
       }
-    }
+    },
+    "owner": "masonomara"
   }
 }
