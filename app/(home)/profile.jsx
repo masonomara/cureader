@@ -37,7 +37,9 @@ export default function Profile() {
           Hello {user.user_metadata.displayName}
         </Text>
         <Text style={styles.subtitle}>
-          {userInitialFeeds.length > 0
+          {userInitialFeeds.length === 1
+            ? "You are currently subscribed to 1 feed."
+            : userInitialFeeds.length > 1
             ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
             : "It looks like you aren't subscribed to any feeds yet!"}
         </Text>
