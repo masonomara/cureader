@@ -38,7 +38,6 @@ export default function ArticleCard({
   item,
   publication,
   user,
-  description,
 }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
@@ -52,9 +51,8 @@ export default function ArticleCard({
     setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
   }, [userBookmarks, item]);
 
-  const match = description.match(/<img.*?src=['"](.*?)['"].*?>/);
-
-  const imageUrl = match ? match[1] : "";
+  const imageUrl =
+    (item.description?.match(/<img.*?src=['"](.*?)['"].*?>/)?.[1] ?? "") || "";
 
   const _handlePressButtonAsync = async () => {
     try {
@@ -139,6 +137,7 @@ export default function ArticleCard({
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
+      maxwidth: 550,
     },
     iconWrapper: {
       display: "flex",
@@ -157,6 +156,35 @@ export default function ArticleCard({
       flexDirection: "column",
       alignItems: "flex-start",
       flex: 1,
+    },
+    cardContentNoImage: {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      borderWidth: 1,
+      borderColor: "green",
+    },
+    cardContentWrapperNoImage: {
+      display: "flex",
+      flexDirection: "column",
+      width: "66%",
+      borderWidth: 1,
+      borderColor: "blue",
+    },
+    publicationWrapperNoImage: {
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      alignItems: "flex-start",
+      marginBottom: 6,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+      borderWidth: 1,
+      borderColor: "red",
     },
     publicationWrapper: {
       display: "flex",
@@ -252,80 +280,182 @@ export default function ArticleCard({
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {(item.image?.url || imageUrl || fallbackImage) && (
-        <View
-          style={{
-            aspectRatio: "4/3",
-            width: "100%",
-            borderRadius: 12,
-            overflow: "hidden",
-            marginBottom: 12,
-          }}
-        >
-          <Image
+      {imageUrl ? (
+        <>
+          <View
             style={{
-              flex: 1,
+              aspectRatio: "4/3",
+              width: "100%",
               borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
+              overflow: "hidden",
+              marginBottom: 12,
             }}
-            contentFit="cover"
-            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-          />
-        </View>
-      )}
-
-      <View style={styles.cardContent}>
-        <View style={styles.cardContentWrapper}>
-          <Text style={styles.publicationWrapper}>
-            {publication}&nbsp;&nbsp;
-            <Text style={styles.articleDate}>
-              {formatPublicationDate(item.published)}
-            </Text>
-          </Text>
-          <Text style={styles.title}>{item.title ? item.title : ""}</Text>
-          <Text numberOfLines={4} style={styles.description}>
-            {description ? (
-              <Text numberOfLines={4} style={styles.description}>
-                {description}
-              </Text>
-            ) : (
-              <Text style={styles.description}></Text>
-            )}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.cardControls}>
-        <View style={styles.cardButtons}>
-          <TouchableOpacity
-            style={styles.buttonWrapper}
-            onPress={handleBookmark}
           >
-            {isBookmarked ? (
-              <BookmarkFilled20
-                style={styles.buttonImage}
-                color={Colors[colorScheme || "light"].buttonActive}
-              />
-            ) : (
-              <BookmarkOutline20
-                style={styles.buttonImage}
-                color={Colors[colorScheme || "light"].buttonActive}
-              />
-            )}
-
-            <Text style={styles.buttonText}>Bookmark</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-            <Share20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
+            <Image
+              style={{
+                flex: 1,
+                borderRadius: 12,
+                borderWidth: 0.67,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
+              contentFit="cover"
+              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
             />
-            <Text style={styles.buttonText}>Share</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+          <View style={styles.cardContent}>
+            <View style={styles.cardContentWrapper}>
+              <Text style={styles.publicationWrapper}>
+                {publication}&nbsp;&nbsp;
+                <Text style={styles.articleDate}>
+                  {formatPublicationDate(item.published)}
+                </Text>
+              </Text>
+              <Text style={styles.title}>{item.title ? item.title : ""}</Text>
 
-        <FeedCardToolTip item={feed} />
-      </View>
+              <Text numberOfLines={4} style={styles.description}>
+                {item.description ? (
+                  <Text style={styles.description}>
+                    {item.description
+                      .replace(/<[^>]*>/g, "")
+                      .replace(/&#8216;/g, "‘")
+                      .replace(/&#8217;/g, "’")
+                      .replace(/&#160;/g, " ")
+                      .replace(/&#8220;/g, "“")
+                      .replace(/&#8221;/g, "”")
+                      .trim()
+                      .slice(0, 300)}
+                  </Text>
+                ) : (
+                  <Text style={styles.description}></Text>
+                )}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.cardControls}>
+            <View style={styles.cardButtons}>
+              <TouchableOpacity
+                style={styles.buttonWrapper}
+                onPress={handleBookmark}
+              >
+                {isBookmarked ? (
+                  <BookmarkFilled20
+                    style={styles.buttonImage}
+                    color={Colors[colorScheme || "light"].buttonActive}
+                  />
+                ) : (
+                  <BookmarkOutline20
+                    style={styles.buttonImage}
+                    color={Colors[colorScheme || "light"].buttonActive}
+                  />
+                )}
+
+                <Text style={styles.buttonText}>Bookmark</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
+                <Share20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+                <Text style={styles.buttonText}>Share</Text>
+              </TouchableOpacity>
+            </View>
+
+            <FeedCardToolTip item={feed} />
+          </View>
+        </>
+      ) : (
+        <>
+          <View
+            style={{
+              width: "100%",
+              gap: 8,
+              flexDirection: "row",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
+              <Text style={styles.publicationWrapper}>
+                {publication}&nbsp;&nbsp;
+                <Text style={styles.articleDate}>
+                  {formatPublicationDate(item.published)}
+                </Text>
+              </Text>
+
+              <Text style={styles.title} numberOfLines={4}>
+                {item.title ? item.title : ""}
+              </Text>
+              <Text style={styles.description} numberOfLines={3}>
+                {item.description ? (
+                  <Text>
+                    {item.description
+                      .replace(/<[^>]*>/g, "")
+                      .replace(/&#8216;/g, "‘")
+                      .replace(/&#8217;/g, "’")
+                      .replace(/&#160;/g, " ")
+                      .replace(/&#8220;/g, "“")
+                      .replace(/&#8221;/g, "”")
+                      .trim()
+                      .slice(0, 500)}
+                  </Text>
+                ) : (
+                  <Text></Text>
+                )}
+              </Text>
+            </View>
+
+            <Image
+              style={{
+                aspectRatio: 1 / 1,
+                flex: 1,
+                borderRadius: 12,
+                marginTop: 3,
+                marginBottom: 3,
+                maxWidth: 80,
+                width: 80,
+                borderWidth: 0.67,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
+              contentFit="cover"
+              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+            />
+          </View>
+          <View style={styles.cardControls}>
+            <View style={styles.cardButtons}>
+              <TouchableOpacity
+                style={styles.buttonWrapper}
+                onPress={handleBookmark}
+              >
+                {isBookmarked ? (
+                  <BookmarkFilled20
+                    style={styles.buttonImage}
+                    color={Colors[colorScheme || "light"].buttonActive}
+                  />
+                ) : (
+                  <BookmarkOutline20
+                    style={styles.buttonImage}
+                    color={Colors[colorScheme || "light"].buttonActive}
+                  />
+                )}
+
+                <Text style={styles.buttonText}>Bookmark</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
+                <Share20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+                <Text style={styles.buttonText}>Share</Text>
+              </TouchableOpacity>
+            </View>
+
+            <FeedCardToolTip item={feed} />
+          </View>
+        </>
+      )}
     </Pressable>
   );
 }
