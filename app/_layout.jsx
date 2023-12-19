@@ -257,14 +257,6 @@ function RootLayoutNav() {
 
       const articleBookmarks = userProfileData[0]?.bookmarks || [];
 
-      // if (!channelSubscriptions || channelSubscriptions.length === 0 || !articleBookmarks || articleBookmarks.length === 0) {
-      //   return { channelIds: [], channelUrls: [], bookmarks: [] };
-      // }
-
-      // if (!articleBookmarks || articleBookmarks.length === 0) {
-      //   return { channelIds: [], channelUrls: [], bookmarks: [] };
-      // }
-
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
           acc.channelIds.push(subscription.channelId);
