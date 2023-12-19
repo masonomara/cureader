@@ -38,6 +38,7 @@ export default function ArticleCard({
   item,
   publication,
   user,
+  description,
 }) {
   const colorScheme = useColorScheme();
   const [result, setResult] = useState(null);
@@ -51,9 +52,7 @@ export default function ArticleCard({
     setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
   }, [userBookmarks, item]);
 
-  const descriptionWithoutTags = item.description || "";
-
-  const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
+  const match = description.match(/<img.*?src=['"](.*?)['"].*?>/);
 
   const imageUrl = match ? match[1] : "";
 
@@ -286,16 +285,9 @@ export default function ArticleCard({
           </Text>
           <Text style={styles.title}>{item.title ? item.title : ""}</Text>
           <Text numberOfLines={4} style={styles.description}>
-            {item.description ? (
+            {description ? (
               <Text numberOfLines={4} style={styles.description}>
-                {item.description
-                  .replace(/<[^>]*>/g, "")
-                  .replace(/&#8216;/g, "‘")
-                  .replace(/&#8217;/g, "’")
-                  .replace(/&#160;/g, " ")
-                  .replace(/&#8220;/g, "“")
-                  .replace(/&#8221;/g, "”")
-                  .trim()}
+                {description}
               </Text>
             ) : (
               <Text style={styles.description}></Text>

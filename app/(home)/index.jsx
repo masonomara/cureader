@@ -55,7 +55,6 @@ export default function Index() {
     const parseAndSort = async (url) => {
       try {
         const response = await fetch(url);
-        
 
         if (!response.ok) {
           throw new Error(
@@ -448,6 +447,15 @@ export default function Index() {
                   feed={item.feed}
                   publication={item.feed.channel_title}
                   user={user}
+                  description={item.description
+                    .replace(/<[^>]*>/g, "")
+                    .replace(/&#8216;/g, "‘")
+                    .replace(/&#8217;/g, "’")
+                    .replace(/&#160;/g, " ")
+                    .replace(/&#8220;/g, "“")
+                    .replace(/&#8221;/g, "”")
+                    .trim()
+                    .slice(0, 300)}
                 />
               )}
             />
