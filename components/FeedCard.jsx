@@ -90,7 +90,8 @@ export default function FeedCard({ item, user }) {
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);
-
+  // console.log("feedcard item.channel_url type:", typeof item.channel_url);
+  // console.log("feedcard item.channel_url:", item.channel_url);
   const handleSubscribe = async () => {
     const optimisticSubscribed = !isSubscribed;
     setIsSubscribed(optimisticSubscribed);

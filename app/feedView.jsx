@@ -17,8 +17,7 @@ import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
   const { feeds } = useContext(FeedContext);
-  const { user, userSubscriptionIds, userSubscriptionUrls } =
-    useContext(AuthContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
 
   const params = useLocalSearchParams();
 
@@ -33,6 +32,7 @@ export default function TabOneScreen() {
 
   // Parse feed channel for articles in the feed
   useEffect(() => {
+    console.log("[1] params.id:", params.id);
     const parseFeed = async () => {
       if (params.url && feeds && userSubscriptionUrls) {
         try {

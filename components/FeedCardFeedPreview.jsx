@@ -64,7 +64,10 @@ const colorArray = [
 ];
 
 export default function FeedCardFeedPreview({ item }) {
+  console.log("feedpreview item.channel_url type:", typeof item.url);
+  console.log("item.channel_url", item.url);
   const itemId = parseInt(item.id, 10);
+  //console.log("feedpreview itemId type:", typeof itemId);
   const { feeds } = useContext(FeedContext);
   const {
     user,
@@ -88,14 +91,17 @@ export default function FeedCardFeedPreview({ item }) {
     const optimisticSubscribed = !isSubscribed;
     setIsSubscribed(optimisticSubscribed);
 
+    console.log("[2] itemId:", itemId);
+
+    console.log("[3] optimisticSubscribed:", optimisticSubscribed);
     try {
       const updatedUserSubscriptionIds = optimisticSubscribed
         ? [...userSubscriptionIds, itemId]
         : userSubscriptionIds.filter((id) => id !== itemId);
 
       const updatedUserSubscriptionUrls = optimisticSubscribed
-        ? [...userSubscriptionUrls, item.channel_url]
-        : userSubscriptionUrls.filter((url) => url !== item.channel_url);
+        ? [...userSubscriptionUrls, item.url]
+        : userSubscriptionUrls.filter((url) => url !== item.url);
 
       setUserSubscriptionIds(updatedUserSubscriptionIds);
       setUserSubscriptionUrls(updatedUserSubscriptionUrls);
