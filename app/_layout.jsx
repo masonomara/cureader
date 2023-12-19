@@ -190,13 +190,11 @@ function RootLayoutNav() {
       }
 
       if (feedsFetched) {
-        router.replace("(home)");
-
-        console.log("weee 1");
+        //router.replace("(home)");
+        return null
       }
     } else {
       //router.replace("(login)");
-      console.log("weee 4");
       setSession(null);
       setUser(null);
       setUserSubscriptionIds(null);
@@ -226,13 +224,11 @@ function RootLayoutNav() {
 
         if (feedsFetched) {
           //router.replace("(home)");
-          console.log("weee 2");
         }
       } else {
         setTimeout(() => {
           router.replace("(login)");
         }, 800);
-        console.log("weee 3");
       }
     };
 
