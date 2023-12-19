@@ -33,6 +33,7 @@ export const AuthContext = createContext({
 });
 
 export const unstable_settings = {
+  // NOTE: initial route fake splash screen?
   initialRouteName: "(home)",
 };
 
@@ -99,6 +100,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     fetchDailyQuote();
+    SplashScreen.hideAsync();
   }, []);
 
   useEffect(() => {
@@ -189,9 +191,12 @@ function RootLayoutNav() {
 
       if (feedsFetched) {
         router.replace("(home)");
+
+        console.log("weee 1");
       }
     } else {
-      router.replace("(login)");
+      //router.replace("(login)");
+      console.log("weee 4");
       setSession(null);
       setUser(null);
       setUserSubscriptionIds(null);
@@ -220,10 +225,14 @@ function RootLayoutNav() {
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
-          SplashScreen.hideAsync();
+          //router.replace("(home)");
+          console.log("weee 2");
         }
       } else {
-        SplashScreen.hideAsync();
+        setTimeout(() => {
+          router.replace("(login)");
+        }, 800);
+        console.log("weee 3");
       }
     };
 
@@ -308,6 +317,7 @@ function RootLayoutNav() {
               <Stack.Screen name="(login)" options={{ headerShown: false }} />
               <Stack.Screen name="(signup)" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+              <Stack.Screen name="quoteSplash" />
               <Stack.Screen
                 name="addChannel"
                 options={{ presentation: "modal", title: "Add Channel" }}
@@ -315,7 +325,7 @@ function RootLayoutNav() {
               <Stack.Screen
                 name="feedView"
                 options={({ route }) => ({
-                  title: route.params.title || "Default Title",
+                  title: route.params.title || "RSS Feed",
                   headerStyle: {
                     headerTransparent: true,
                     shadowColor: "transparent",

@@ -111,7 +111,7 @@ export default function Auth() {
       alignItems: "flex-start",
       flexWrap: "wrap",
       marginBottom: 5,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+      color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
       fontSize: 13,

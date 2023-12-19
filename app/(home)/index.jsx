@@ -12,7 +12,7 @@ import { useScrollToTop } from "@react-navigation/native";
 
 export default function Index() {
   // const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
-  const { feeds, popularFeeds } = useContext(FeedContext);
+  const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
   const { user, userSubscriptionIds, userSubscriptionUrls, userBookmarkUrls } =
     useContext(AuthContext);
 
@@ -38,17 +38,17 @@ export default function Index() {
   };
 
   const fetchAndParseFeeds = async (urls) => {
-    console.log("[1] ready to parse feeds:");
+    //console.log("[1] ready to parse feeds:");
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
     );
-    console.log("[2] created userFeeds:");
+    //console.log("[2] created userFeeds:");
     const fallbackImages = userFeeds.map((feed) => ({
       channel_url: feed.channel_url,
       channel_image_url: feed.channel_image_url,
     }));
 
-    console.log("[3] fallbackImages:");
+    //console.log("[3] fallbackImages:");
     const allChannels = [];
     const allItems = [];
 
@@ -102,7 +102,7 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (user && feeds && userSubscriptionUrls) {
+    if (user !== null && feeds !== null && userSubscriptionUrls !== null) {
       fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
         // if (rssItems.length > 0) {
@@ -340,7 +340,9 @@ export default function Index() {
       alignContent: "center",
       justifyContent: "center",
       flex: 1,
+      height: "100%",
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      position: "absolute",
     },
     dailyQuoteContainerLoading: {
       padding: 16,
@@ -361,7 +363,7 @@ export default function Index() {
     },
     dailyQuoteQuote: {
       textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 19,
@@ -377,10 +379,31 @@ export default function Index() {
       lineHeight: 19,
       letterSpacing: -0.14,
     },
+    feedsLoadingText: {
+      textAlign: "center",
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+      marginTop: 20,
+    },
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.dailyQuoteContainer}>
+        {dailyQuote && dailyQuote.length > 0 && (
+          <View style={styles.dailyQuoteWrapper}>
+            <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
+            <Text style={styles.dailyQuoteAuthor}>- {dailyQuote[0].a}</Text>
+            <Text style={styles.feedsLoadingText}>
+              Your Feeds are Loading...
+            </Text>
+          </View>
+        )}
+      </View>
       {/* <View style={styles.dailyQuoteContainerLoading}>
         {dailyQuote && dailyQuote.length > 0 && (
           <View style={styles.dailyQuoteWrapper}>
