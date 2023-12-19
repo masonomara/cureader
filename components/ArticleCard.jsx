@@ -6,7 +6,6 @@ import {
   Pressable,
   useColorScheme,
   Share,
-  StyleSheet,
 } from "react-native";
 import { Image } from "expo-image";
 import * as WebBrowser from "expo-web-browser";
@@ -31,7 +30,7 @@ export default function ArticleCard({
   user,
 }) {
   const colorScheme = useColorScheme();
-  const [result, setResult] = useState(null);
+
   const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
   const [isBookmarked, setIsBookmarked] = useState(
@@ -47,8 +46,7 @@ export default function ArticleCard({
 
   const _handlePressButtonAsync = async () => {
     try {
-      let result = await WebBrowser.openBrowserAsync(item.links[0].url);
-      setResult(result);
+      await WebBrowser.openBrowserAsync(item.links[0].url);
     } catch (error) {
       console.error("Error opening browser:", error);
     }
