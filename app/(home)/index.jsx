@@ -33,33 +33,22 @@ export default function Index() {
     })
   );
 
-  // const onScroll = (event) => {
-  //   const yOffset = event.nativeEvent.contentOffset.y;
-  //   // You can set a threshold value to determine when to trigger the refresh
-  //   const refreshThreshold = 0;
-
-  //   if (yOffset === refreshThreshold && !refreshTriggered) {
-  //     // Trigger the refresh only if it hasn't been triggered before
-  //     onRefresh();
-
-  //     // Set the state to indicate that refresh has been triggered
-  //     setRefreshTriggered(true);
-  //   } else if (yOffset !== refreshThreshold && refreshTriggered) {
-  //     // Reset the state when the user scrolls away from the refresh position
-  //     setRefreshTriggered(false);
-  //   }
-  // };
-
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
 
   const fetchAndParseFeeds = async (urls) => {
-    const fallbackImages = feeds.map((feed) => ({
+    console.log("[1] ready to parse feeds:");
+    const userFeeds = feeds.filter((feed) =>
+      userSubscriptionUrls.includes(feed.channel_url)
+    );
+    console.log("[2] created userFeeds:");
+    const fallbackImages = userFeeds.map((feed) => ({
       channel_url: feed.channel_url,
       channel_image_url: feed.channel_image_url,
     }));
 
+    console.log("[3] fallbackImages:");
     const allChannels = [];
     const allItems = [];
 
