@@ -1,4 +1,10 @@
-import React, { useCallback, useState, useEffect, useContext } from "react";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+} from "react";
 import { Text, TouchableOpacity, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext } from "../_layout";
@@ -6,12 +12,22 @@ import { View } from "../../components/Themed";
 import ArticleCard from "../../components/ArticleCard";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
+import { useScrollToTop } from "@react-navigation/native";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
   const { user, userBookmarks } = useContext(AuthContext);
   const [userInitialBookmarks, setUserInitialBookmarks] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  const ref = useRef(null);
+
+  useScrollToTop(
+    useRef({
+      scrollToTop: () =>
+        ref.current?.scrollToOffset({ animated: true, offset: 0 }),
+    })
+  );
 
   useEffect(() => {
     // Set userInitialBookmarks to userBookmarks on initial build
@@ -222,6 +238,7 @@ export default function Bookmarks() {
     <View style={styles.container}>
       <View style={styles.articleList}>
         <FlashList
+          ref={ref}
           ListEmptyComponent={() => (
             <View style={styles.noFeedsHeader}>
               <Text style={styles.username}>Like anything?</Text>

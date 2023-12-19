@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { TouchableOpacity, Alert, useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -8,6 +8,7 @@ import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 import FeedCard from "../../components/FeedCard";
+import { useScrollToTop } from "@react-navigation/native";
 
 export default function Index() {
   // const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
@@ -20,6 +21,34 @@ export default function Index() {
   const [rssItems, setRssItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [feedsParsed, setFeedsParsed] = useState(false);
+
+  //const [refreshTriggered, setRefreshTriggered] = useState(false);
+
+  const ref = useRef(null);
+
+  useScrollToTop(
+    useRef({
+      scrollToTop: () =>
+        ref.current?.scrollToOffset({ animated: true, offset: 0 }),
+    })
+  );
+
+  // const onScroll = (event) => {
+  //   const yOffset = event.nativeEvent.contentOffset.y;
+  //   // You can set a threshold value to determine when to trigger the refresh
+  //   const refreshThreshold = 0;
+
+  //   if (yOffset === refreshThreshold && !refreshTriggered) {
+  //     // Trigger the refresh only if it hasn't been triggered before
+  //     onRefresh();
+
+  //     // Set the state to indicate that refresh has been triggered
+  //     setRefreshTriggered(true);
+  //   } else if (yOffset !== refreshThreshold && refreshTriggered) {
+  //     // Reset the state when the user scrolls away from the refresh position
+  //     setRefreshTriggered(false);
+  //   }
+  // };
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -390,11 +419,13 @@ export default function Index() {
               //   </View>
               // )}
               data={rssItems}
+              ref={ref}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
               refreshing={isRefreshing}
               onRefresh={onRefresh}
               estimatedItemSize={200}
+              //onScroll={onScroll} // Add this line to handle scroll events
               renderItem={({ item }) => (
                 <ArticleCard
                   fallbackImage={item.fallbackImage}
@@ -409,6 +440,8 @@ export default function Index() {
         ) : (
           <View style={styles.feedList}>
             <FlashList
+              //onScroll={onScroll} // Add this line to handle scroll events
+              ref={ref}
               ListHeaderComponent={() => (
                 <>
                   <View style={styles.noFeedsHeader}>

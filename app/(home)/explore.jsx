@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
 import {
   ScrollView,
   Text,
@@ -18,6 +24,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
 import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
+import { useScrollToTop } from "@react-navigation/native";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -48,6 +55,14 @@ export default function Explore() {
     wait: false,
     error: null,
   });
+
+  const ref = useRef(null);
+
+  useScrollToTop(
+    React.useRef({
+      scrollToTop: () => ref.current?.scrollTo({ y: 0 }),
+    })
+  );
 
   // Function for handling search input focus
   const handleClearInput = useCallback(() => {
@@ -498,6 +513,7 @@ export default function Explore() {
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         style={isSearching ? { display: "none" } : {}}
+        ref={ref}
       >
         <View style={styles.headerWrapper}>
           <View style={styles.titleWrapper}>

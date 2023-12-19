@@ -1,10 +1,17 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
 import FeedCard from "../../components/FeedCard";
+import { useScrollToTop } from "@react-navigation/native";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
@@ -12,6 +19,15 @@ export default function Profile() {
   const { user } = useContext(AuthContext);
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  const ref = useRef(null);
+
+  useScrollToTop(
+    useRef({
+      scrollToTop: () =>
+        ref.current?.scrollToOffset({ animated: true, offset: 0 }),
+    })
+  );
 
   const fetchUserFeeds = useCallback(async () => {
     const fetchedFeeds = feeds.filter((feed) =>
@@ -280,6 +296,7 @@ export default function Profile() {
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
+          ref={ref}
           renderItem={({ item }) => (
             <FeedCard key={item.id} item={item} user={user} />
           )}
