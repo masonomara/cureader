@@ -111,7 +111,6 @@ function RootLayoutNav() {
           console.error("Error fetching feeds:", error);
           return;
         }
-
         setFeeds(feedsData);
         setFeedsFetched(true);
       } catch (error) {
@@ -221,7 +220,6 @@ function RootLayoutNav() {
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
-          router.replace("(home)");
           SplashScreen.hideAsync();
         }
       } else {
