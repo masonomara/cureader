@@ -17,20 +17,11 @@ import { supabase } from "../config/supabase";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
 import BookmarkFilled20 from "./icons/20/BookmarkFilled20";
-
-function formatPublicationDate(published) {
-  const timeDifference = new Date() - new Date(published);
-  const minutesAgo = Math.floor(timeDifference / (60 * 1000));
-  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
-  const daysAgo = Math.floor(hoursAgo / 24);
-  const yearsAgo = Math.floor(daysAgo / 365);
-
-  if (minutesAgo < 1) return "Just now";
-  if (minutesAgo < 60) return `${minutesAgo}m`;
-  if (hoursAgo < 24) return `${hoursAgo}h`;
-  if (daysAgo < 365) return `${daysAgo}d`;
-  return `${yearsAgo}y`;
-}
+import {
+  formatPublicationDate,
+  formatDescription,
+} from "../app/utils/Formatting";
+import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 
 export default function ArticleCard({
   fallbackImage,
@@ -117,7 +108,7 @@ export default function ArticleCard({
     }
   };
 
-  const styles = StyleSheet.create({
+  const styles = {
     card: {
       borderBottomWidth: 1,
       paddingTop: 28,
@@ -276,7 +267,29 @@ export default function ArticleCard({
       lineHeight: 18,
       letterSpacing: -0.065,
     },
-  });
+    noImageContainer: {
+      height: 80,
+      width: 80,
+      borderRadius: 12,
+      backgroundColor: getColorForLetter(publication),
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    noImageContainerText: {
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 29,
+      lineHeight: 33,
+      letterSpacing: -0.173,
+      height: 33,
+      color: getTextColorForLetter(publication),
+      textAlignVertical: "center",
+      textAlign: "center",
+      width: "1000%",
+    },
+  };
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
@@ -315,15 +328,7 @@ export default function ArticleCard({
               <Text numberOfLines={4} style={styles.description}>
                 {item.description ? (
                   <Text style={styles.description}>
-                    {item.description
-                      .replace(/<[^>]*>/g, "")
-                      .replace(/&#8216;/g, "‘")
-                      .replace(/&#8217;/g, "’")
-                      .replace(/&#160;/g, " ")
-                      .replace(/&#8220;/g, "“")
-                      .replace(/&#8221;/g, "”")
-                      .trim()
-                      .slice(0, 300)}
+                    {formatDescription(item.description, 300)}
                   </Text>
                 ) : (
                   <Text style={styles.description}></Text>
@@ -390,38 +395,42 @@ export default function ArticleCard({
               </Text>
               <Text style={styles.description} numberOfLines={3}>
                 {item.description ? (
-                  <Text>
-                    {item.description
-                      .replace(/<[^>]*>/g, "")
-                      .replace(/&#8216;/g, "‘")
-                      .replace(/&#8217;/g, "’")
-                      .replace(/&#160;/g, " ")
-                      .replace(/&#8220;/g, "“")
-                      .replace(/&#8221;/g, "”")
-                      .trim()
-                      .slice(0, 500)}
-                  </Text>
+                  <Text>{formatDescription(item.description, 300)}</Text>
                 ) : (
                   <Text></Text>
                 )}
               </Text>
             </View>
 
-            <Image
-              style={{
-                aspectRatio: 1 / 1,
-                flex: 1,
-                borderRadius: 12,
-                marginTop: 3,
-                marginBottom: 3,
-                maxWidth: 80,
-                width: 80,
-                borderWidth: 0.67,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
-              }}
-              contentFit="cover"
-              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-            />
+            {fallbackImage || item.image?.url ? (
+              <Image
+                style={{
+                  aspectRatio: 1 / 1,
+                  flex: 1,
+                  borderRadius: 12,
+                  marginTop: 3,
+                  marginBottom: 3,
+                  maxWidth: 80,
+                  width: 80,
+                  borderWidth: 0.67,
+                  borderColor: `${Colors[colorScheme || "light"].border}`,
+                }}
+                contentFit="cover"
+                source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+              />
+            ) : (
+              <View style={styles.noImageContainer}>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication}
+                </Text>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication} {publication}
+                </Text>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication}
+                </Text>
+              </View>
+            )}
           </View>
           <View style={styles.cardControls}>
             <View style={styles.cardButtons}>
