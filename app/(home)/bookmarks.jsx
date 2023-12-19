@@ -4,6 +4,7 @@ import { FlashList } from "@shopify/flash-list";
 import { AuthContext } from "../_layout";
 import { View } from "../../components/Themed";
 import ArticleCard from "../../components/ArticleCard";
+import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 
 export default function Bookmarks() {
@@ -225,7 +226,8 @@ export default function Bookmarks() {
             <View style={styles.noFeedsHeader}>
               <Text style={styles.username}>Like anything?</Text>
               <Text style={styles.subtitle}>
-                Feel free to save any articles you find interesting or can't get to yet.
+                Feel free to save any articles you find interesting or can't get
+                to yet.
               </Text>
               <TouchableOpacity
                 style={styles.button}
