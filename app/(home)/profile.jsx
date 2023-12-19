@@ -16,7 +16,7 @@ import { useScrollToTop } from "@react-navigation/native";
 export default function Profile() {
   const colorScheme = useColorScheme();
   const { feeds, popularFeeds } = useContext(FeedContext);
-  const { user } = useContext(AuthContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -30,11 +30,14 @@ export default function Profile() {
   );
 
   const fetchUserFeeds = useCallback(async () => {
-    const fetchedFeeds = feeds.filter((feed) =>
-      feed.channel_subscribers.includes(user.id)
-    );
-    setUserInitialFeeds(fetchedFeeds);
-  }, [feeds, user.id]);
+    if (userSubscriptionUrls) {
+      // console.log(userSubscriptionUrls);
+      const fetchedFeeds = feeds.filter((feed) =>
+        userSubscriptionUrls.includes(feed.channel_url)
+      );
+      setUserInitialFeeds(fetchedFeeds);
+    }
+  }, [userSubscriptionUrls]);
 
   useEffect(() => {
     fetchUserFeeds();
@@ -50,7 +53,7 @@ export default function Profile() {
     <>
       <View style={styles.profileHeader}>
         <Text style={styles.username}>
-          Hello {user.user_metadata.displayName}
+          Hello {user.user_metadata.displayName || null}
         </Text>
         <Text style={styles.subtitle}>
           {userInitialFeeds.length === 1

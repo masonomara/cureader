@@ -38,23 +38,24 @@ export default function Index() {
   };
 
   const fetchAndParseFeeds = async (urls) => {
-    //console.log("[1] ready to parse feeds:");
+    console.log("[1] ready to parse feeds:");
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
     );
-    //console.log("[2] created userFeeds:");
+    console.log("[2] created userFeeds:");
     const fallbackImages = userFeeds.map((feed) => ({
       channel_url: feed.channel_url,
       channel_image_url: feed.channel_image_url,
     }));
 
-    //console.log("[3] fallbackImages:");
+    console.log("[3] fallbackImages:");
     const allChannels = [];
     const allItems = [];
 
     const parseAndSort = async (url) => {
       try {
         const response = await fetch(url);
+        
 
         if (!response.ok) {
           throw new Error(
@@ -63,6 +64,8 @@ export default function Index() {
         }
 
         const responseData = await response.text();
+
+        console.log(responseData);
         const parsedRss = await rssParser.parse(responseData);
 
         const channelImage = fallbackImages.find(
