@@ -6,6 +6,7 @@ import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
+import { formatDescription } from "../app/utils/Formatting";
 
 
 export default function FeedCardFeedPreview({ item }) {
@@ -277,14 +278,7 @@ export default function FeedCardFeedPreview({ item }) {
           </Text>
           {item.description ? (
             <Text style={styles.description} numberOfLines={2}>
-              {item.description
-                .replace(/<[^>]*>/g, "")
-                .replace(/&#8216;/g, "‘")
-                .replace(/&#8217;/g, "’")
-                .replace(/&#160;/g, " ")
-                .replace(/&#8220;/g, "“")
-                .replace(/&#8221;/g, "”")
-                .trim()}
+             {formatDescription(item.channel_description, 200)}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

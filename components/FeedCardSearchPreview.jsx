@@ -6,9 +6,9 @@ import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
+import { formatDescription } from "../app/utils/Formatting";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
-
 
 export default function FeedCardSearchPreview({
   channelUrl,
@@ -381,14 +381,7 @@ export default function FeedCardSearchPreview({
           </Text>
           {channelDescription ? (
             <Text numberOfLines={2} style={styles.description}>
-              {channelDescription
-                .replace(/<[^>]*>/g, "")
-                .replace(/&#8216;/g, "‘")
-                .replace(/&#8217;/g, "’")
-                .replace(/&#160;/g, " ")
-                .replace(/&#8220;/g, "“")
-                .replace(/&#8221;/g, "”")
-                .trim()}
+              {formatDescription(channelDescription, 200)}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>

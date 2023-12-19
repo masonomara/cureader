@@ -15,6 +15,7 @@ import {
 import Dots20 from "./icons/20/Dots20";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
+import { formatDescription } from "../app/utils/Formatting";
 
 export default function FeedCardToolTip({ item }) {
   const { feeds } = useContext(FeedContext);
@@ -403,14 +404,7 @@ export default function FeedCardToolTip({ item }) {
               </Text>
               {item.channel_description ? (
                 <Text style={styles.tooltipDescription} numberOfLines={2}>
-                  {item.channel_description
-                    .replace(/<[^>]*>/g, "")
-                    .replace(/&#8216;/g, "‘")
-                    .replace(/&#8217;/g, "’")
-                    .replace(/&#160;/g, " ")
-                    .replace(/&#8220;/g, "“")
-                    .replace(/&#8221;/g, "”")
-                    .trim()}
+                  {formatDescription(item.channel_description, 200)}
                 </Text>
               ) : (
                 <Text numberOfLines={2} style={styles.description}></Text>
