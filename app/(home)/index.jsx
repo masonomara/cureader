@@ -87,9 +87,9 @@ export default function Index() {
     if (user && feeds && userSubscriptionUrls) {
       fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
-        if (rssItems.length > 0) {
-          console.log("First item in allItems:", rssItems[0]);
-        }
+        // if (rssItems.length > 0) {
+        //   console.log("First item in allItems:", rssItems[0]);
+        // }
       });
     }
   }, [user, feeds, userSubscriptionUrls]);
@@ -111,6 +111,7 @@ export default function Index() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.text();
+          console.log("[1] response data:", responseData)
           const parsedRss = await rssParser.parse(responseData);
 
           const channelImage = fallbackImages.find(
