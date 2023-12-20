@@ -14,11 +14,14 @@ import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
+import {
+  updateChannelSubscribers,
+  updateUserSubscriptions,
+} from "../hooks/FeedCardFunctions";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCard({ item, user }) {
-  const { feeds } = useContext(FeedContext);
   const {
     userSubscriptionUrls,
     userSubscriptionIds,
@@ -27,7 +30,7 @@ export default function FeedCard({ item, user }) {
   } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
-
+  const { feeds } = useContext(FeedContext);
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
@@ -54,61 +57,18 @@ export default function FeedCard({ item, user }) {
 
       await updateUserSubscriptions(
         updatedUserSubscriptionIds,
-        updatedUserSubscriptionUrls
+        updatedUserSubscriptionUrls,
+        user.id
       );
-      await updateChannelSubscribers(item.id, user.id, optimisticSubscribed);
+      await updateChannelSubscribers(
+        item.id,
+        user.id,
+        optimisticSubscribed,
+        feeds
+      );
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed); // Revert the state if there's an error
-    }
-  };
-
-  const updateUserSubscriptions = async (updatedIds, updatedUrls) => {
-    try {
-      await supabase
-        .from("profiles")
-        .update({
-          channel_subscriptions: updatedIds.map((id, index) => ({
-            channelId: id,
-            channelUrl: updatedUrls[index],
-          })),
-        })
-        .eq("id", user.id);
-    } catch (error) {
-      console.error("Error updating user profile:", error);
-      throw error;
-    }
-  };
-
-  const updateChannelSubscribers = async (
-    channelId,
-    userId,
-    subscribe = true
-  ) => {
-    try {
-      const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
-
-      if (channelIndex !== -1) {
-        const updatedFeeds = [...feeds];
-        const channelSubscribers =
-          updatedFeeds[channelIndex].channel_subscribers || [];
-
-        updatedFeeds[channelIndex].channel_subscribers = subscribe
-          ? [...channelSubscribers, userId]
-          : channelSubscribers.filter((sub) => sub !== userId);
-
-        await supabase
-          .from("channels")
-          .update({
-            channel_subscribers: updatedFeeds[channelIndex].channel_subscribers,
-          })
-          .eq("id", channelId);
-      } else {
-        console.error("Channel not found in the feeds prop");
-      }
-    } catch (error) {
-      console.error("Error updating channel subscribers:", error);
-      throw error;
     }
   };
 

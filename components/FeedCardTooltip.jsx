@@ -16,6 +16,7 @@ import Dots20 from "./icons/20/Dots20";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
+import { updateChannelSubscribers } from "../hooks/FeedCardFunctions";
 
 export default function FeedCardToolTip({ item }) {
   const { feeds } = useContext(FeedContext);
@@ -49,9 +50,15 @@ export default function FeedCardToolTip({ item }) {
 
       await updateUserSubscriptions(
         updatedUserSubscriptionIds,
-        updatedUserSubscriptionUrls
+        updatedUserSubscriptionUrls,
+        user.id
       );
-      await updateChannelSubscribers(item.id, user.id, optimisticSubscribed);
+      await updateChannelSubscribers(
+        item.id,
+        user.id,
+        optimisticSubscribed,
+        feeds
+      );
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed); // Revert the state if there's an error
@@ -71,38 +78,6 @@ export default function FeedCardToolTip({ item }) {
         .eq("id", user.id);
     } catch (error) {
       console.error("Error updating user profile:", error);
-      throw error;
-    }
-  };
-
-  const updateChannelSubscribers = async (
-    channelId,
-    userId,
-    subscribe = true
-  ) => {
-    try {
-      const channelIndex = feeds.findIndex((feed) => feed.id === channelId);
-
-      if (channelIndex !== -1) {
-        const updatedFeeds = [...feeds];
-        const channelSubscribers =
-          updatedFeeds[channelIndex].channel_subscribers || [];
-
-        updatedFeeds[channelIndex].channel_subscribers = subscribe
-          ? [...channelSubscribers, userId]
-          : channelSubscribers.filter((sub) => sub !== userId);
-
-        await supabase
-          .from("channels")
-          .update({
-            channel_subscribers: updatedFeeds[channelIndex].channel_subscribers,
-          })
-          .eq("id", channelId);
-      } else {
-        console.error("Channel not found in the feeds prop");
-      }
-    } catch (error) {
-      console.error("Error updating channel subscribers:", error);
       throw error;
     }
   };
