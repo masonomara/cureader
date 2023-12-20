@@ -19,6 +19,8 @@ export const FeedContext = createContext({
   popularFeeds: null,
   randomFeeds: null,
   dailyQuote: null,
+  feedsFetched: false,
+  userFetched: false,
 });
 
 export const AuthContext = createContext({
@@ -26,6 +28,7 @@ export const AuthContext = createContext({
   user: null,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
+  userSubscriptionUrlsFetched: false,
   userBookmarks: [],
   setUserSubscriptionIds: () => {},
   setUserSubscriptionUrls: () => {},
@@ -75,7 +78,9 @@ function RootLayoutNav() {
   const [user, setUser] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
+  const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] = useState(false)
   const [userBookmarks, setUserBookmarks] = useState(null);
+  const [userFetched, setUserFetched] = useState(false);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [dailyQuote, setDailyQuote] = useState(null);
   const [session, setSession] = useState(null);
@@ -183,10 +188,12 @@ function RootLayoutNav() {
       } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
+        setUserFetched(true);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
+        setUserSubscriptionUrlsFetched(true)
         setUserBookmarks(bookmarks);
       }
 
@@ -216,11 +223,12 @@ function RootLayoutNav() {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
-
+        setUserFetched(true);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
+        setUserSubscriptionUrlsFetched(true)
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
@@ -295,6 +303,8 @@ function RootLayoutNav() {
             popularFeeds,
             randomFeeds,
             dailyQuote,
+            feedsFetched,
+            userFetched,
           }}
         >
           <AuthContext.Provider
@@ -306,6 +316,7 @@ function RootLayoutNav() {
               userBookmarks,
               setUserSubscriptionIds,
               setUserSubscriptionUrls,
+              userSubscriptionUrlsFetched,
               setUserBookmarks,
             }}
           >
