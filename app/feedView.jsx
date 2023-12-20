@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext, FeedContext } from "./_layout";
-import {
-  Alert,
-  useColorScheme,
-  Text,
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+import { Alert, useColorScheme } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
