@@ -25,6 +25,7 @@ import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
 import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import { useScrollToTop } from "@react-navigation/native";
+import { chunkArray } from "../utils/Formatting";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -146,40 +147,34 @@ export default function Explore() {
   }, [parserInput]);
 
   useEffect(() => {
-    const filterResults = () => {
-      if (searchInput !== null) {
-        const lowercasedInput = searchInput.toLowerCase();
+    if (feeds != null) {
+      const filterResults = () => {
+        if (searchInput !== null) {
+          const lowercasedInput = searchInput.toLowerCase();
 
-        const filteredFeeds = feeds.filter((feed) => {
-          const titleMatch = feed.channel_title
-            .toLowerCase()
-            .includes(lowercasedInput);
-          const urlMatch = feed.channel_url
-            .toLowerCase()
-            .includes(lowercasedInput);
-          const descriptionMatch = feed.channel_description
-            ? feed.channel_description.toLowerCase().includes(lowercasedInput)
-            : "";
+          const filteredFeeds = feeds.filter((feed) => {
+            const titleMatch = feed.channel_title
+              .toLowerCase()
+              .includes(lowercasedInput);
+            const urlMatch = feed.channel_url
+              .toLowerCase()
+              .includes(lowercasedInput);
+            const descriptionMatch = feed.channel_description
+              ? feed.channel_description.toLowerCase().includes(lowercasedInput)
+              : "";
 
-          return titleMatch || urlMatch || descriptionMatch;
-        });
+            return titleMatch || urlMatch || descriptionMatch;
+          });
 
-        setSearchResults(filteredFeeds);
-      } else {
-        setSearchResults([]);
-      }
-    };
+          setSearchResults(filteredFeeds);
+        } else {
+          setSearchResults([]);
+        }
+      };
 
-    filterResults();
-  }, [searchInput, feeds]);
-
-  const chunkArray = (arr, chunkSize) => {
-    const chunkedArray = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-      chunkedArray.push(arr.slice(i, i + chunkSize));
+      filterResults();
     }
-    return chunkedArray;
-  };
+  }, [searchInput, feeds]);
 
   const styles = {
     container: {
@@ -328,11 +323,11 @@ export default function Explore() {
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
       paddingBottom: 24,
-      paddingTop: 20,
       paddingHorizontal: 16,
     },
     noResultsHeader: {
       paddingBottom: 3,
+      paddingTop: 20,
       width: "100%",
       maxWidth: 304,
     },
@@ -534,7 +529,7 @@ export default function Explore() {
           </Text>
         </View>
 
-        {randomFeeds ? (
+        {randomFeeds != null ? (
           <ScrollView
             horizontal
             showsVerticalScrollIndicator={false}
@@ -570,7 +565,7 @@ export default function Explore() {
           </Text>
         </View>
 
-        {popularFeeds ? (
+        {popularFeeds != null ? (
           <ScrollView
             horizontal
             showsVerticalScrollIndicator={false}
