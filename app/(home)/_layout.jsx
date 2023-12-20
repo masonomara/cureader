@@ -89,8 +89,8 @@ export default function TabLayout() {
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
     logoWrapper: {
-      paddingVertical: 20,
-      paddingTop: 16,
+      paddingVertical: 18,
+      paddingTop: 14,
     },
     optionWrapper: {
       margin: 5,
@@ -118,7 +118,7 @@ export default function TabLayout() {
     },
     optionTextCreditWrapper: {
       color: Colors[colorScheme || "light"].textLow,
-      textAlign: "left",
+      textAlign: "center",
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 13,
@@ -127,14 +127,14 @@ export default function TabLayout() {
       maxWidth: 450,
       display: "flex",
       flexDirection: "row",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       flex: 1,
       flexWrap: "wrap",
       width: "100%",
     },
     optionTextCredit: {
       color: Colors[colorScheme || "light"].textLow,
-      textAlign: "left",
+      textAlign: "center",
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 13,
@@ -370,7 +370,6 @@ export default function TabLayout() {
                     <Text style={styles.optionTextCredit}>.</Text>
                   </View>
                 </View>
-                <View style={styles.tooltipDivider}></View>
               </MenuOptions>
             </Menu>
           ),
