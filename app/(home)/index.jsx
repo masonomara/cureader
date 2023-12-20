@@ -16,8 +16,10 @@ import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
 
 export default function Index() {
-  const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
-  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const { feeds, popularFeeds, dailyQuote, feedsFetched, userFetched } =
+    useContext(FeedContext);
+  const { user, userSubscriptionUrls, userSubscriptionUrlsFetched } =
+    useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -38,26 +40,41 @@ export default function Index() {
     Alert.alert("Error", message);
   };
 
+  const [initialParsingComplete, setInitialParsingComplete] = useState(false);
+
   useEffect(() => {
-    if (user !== null && feeds !== null && userSubscriptionUrls !== null) {
+    if (feedsFetched && userFetched && userSubscriptionUrlsFetched) {
+      initialFetchAndParseFeeds(userSubscriptionUrls).finally(() => {
+        setIsRefreshing(false);
+        setInitialParsingComplete(true); // Set the flag when initial parsing is complete
+      });
+    }
+  }, [userSubscriptionUrlsFetched, userFetched, feedsFetched]);
+
+  useEffect(() => {
+    if (
+      feedsFetched &&
+      userFetched &&
+      userSubscriptionUrlsFetched &&
+      initialParsingComplete
+    ) {
+      console.log(feedsFetched, userFetched, userSubscriptionUrlsFetched);
       fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
       });
     }
-  }, [user, feeds, userSubscriptionUrls]);
+  }, [userSubscriptionUrls]);
 
-  const fetchAndParseFeeds = async (urls) => {
+  const initialFetchAndParseFeeds = async (urls) => {
     console.log("[1] ready to parse feeds:");
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
     );
-    console.log("[2] created userFeeds:");
     const fallbackImages = userFeeds.map((feed) => ({
       channel_url: feed.channel_url,
       channel_image_url: feed.channel_image_url,
     }));
 
-    console.log("[3] fallbackImages:");
     const allChannels = [];
     const allItems = [];
 
@@ -73,7 +90,70 @@ export default function Index() {
 
         const responseData = await response.text();
 
-        console.log(responseData);
+        // console.log(responseData);
+        const parsedRss = await rssParser.parse(responseData);
+
+        const channelImage = fallbackImages.find(
+          (image) => image.channel_url === url
+        );
+        const feed = feeds.find((feed) => feed.channel_url === url);
+
+        allChannels.push({
+          title: parsedRss.title,
+          description: parsedRss.description,
+        });
+
+        allItems.push(
+          ...parsedRss.items.map((item) => ({
+            ...item,
+            publicationDate: new Date(item.published),
+            feed: feed,
+            image: parsedRss.image,
+            fallbackImage: channelImage ? channelImage.channel_image_url : null,
+            channelUrl: parsedRss.links[0].url,
+          }))
+        );
+      } catch (error) {
+        console.error(`Error parsing URL: ${url}`, error);
+        showErrorAlert(
+          `Error fetching RSS feed from ${url}. Please try again.`
+        );
+      }
+    };
+
+    await Promise.all(urls.map(parseAndSort));
+
+    allItems.sort((a, b) => b.publicationDate - a.publicationDate);
+
+    setRssItems(allItems);
+    setFeedsParsed(true);
+  };
+
+  const fetchAndParseFeeds = async (urls) => {
+    const userFeeds = feeds.filter((feed) =>
+      userSubscriptionUrls.includes(feed.channel_url)
+    );
+    const fallbackImages = userFeeds.map((feed) => ({
+      channel_url: feed.channel_url,
+      channel_image_url: feed.channel_image_url,
+    }));
+
+    const allChannels = [];
+    const allItems = [];
+
+    const parseAndSort = async (url) => {
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(
+            `Network response not OK. Status: ${response.status}`
+          );
+        }
+
+        const responseData = await response.text();
+
+        // console.log(responseData);
         const parsedRss = await rssParser.parse(responseData);
 
         const channelImage = fallbackImages.find(
@@ -129,7 +209,7 @@ export default function Index() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.text();
-          console.log("[1] response data:", responseData);
+          // console.log("[1] response data:", responseData);
           const parsedRss = await rssParser.parse(responseData);
 
           const channelImage = fallbackImages.find(
@@ -233,7 +313,6 @@ export default function Index() {
       //backgroundColor: `${Colors[colorScheme || "light"].background}`,
       width: "100%",
       flex: 1,
-      display: "none",
     },
     feedList: {
       width: "100%",
