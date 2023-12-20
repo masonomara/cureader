@@ -4,11 +4,11 @@
     "slug": "cureader",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon.webp",
     "scheme": "cureader",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/splash.webp",
       "resizeMode": "cover",
       "backgroundColor": "#FF3E39"
     },
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/adaptive-icon.webp",
         "backgroundColor": "#FF3E39"
       },
       "package": "cureader.android"
@@ -29,7 +29,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.webp"
     },
     "plugins": [
       "expo-router"
