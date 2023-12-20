@@ -106,6 +106,89 @@ export default function ArticleCard({
     }
   };
 
+  const renderCardContent = () => (
+    <View style={styles.cardContent}>
+      <View style={styles.cardContentWrapper}>
+        <Text style={styles.publicationWrapper}>
+          {publication}&nbsp;&nbsp;
+          <Text style={styles.articleDate}>
+            {formatPublicationDate(item.published)}
+          </Text>
+        </Text>
+        <Text style={styles.title}>{item.title || ""}</Text>
+        <Text numberOfLines={4} style={styles.description}>
+          {item.description ? formatDescription(item.description, 300) : ""}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderImage = () => (
+    <View
+      style={{
+        aspectRatio: "4/3",
+        width: "100%",
+        borderRadius: 12,
+        overflow: "hidden",
+        marginBottom: 12,
+      }}
+    >
+      <Image
+        style={{
+          flex: 1,
+          borderRadius: 12,
+          borderWidth: 0.67,
+          borderColor: `${Colors[colorScheme || "light"].border}`,
+        }}
+        contentFit="cover"
+        source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+      />
+    </View>
+  );
+
+  const renderNoImageContainer = () => (
+    <View style={styles.noImageContainer}>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication}
+      </Text>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication} {publication}
+      </Text>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication}
+      </Text>
+    </View>
+  );
+
+  const renderCardControls = () => (
+    <View style={styles.cardControls}>
+      <View style={styles.cardButtons}>
+        <TouchableOpacity style={styles.buttonWrapper} onPress={handleBookmark}>
+          {isBookmarked ? (
+            <BookmarkFilled20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+          ) : (
+            <BookmarkOutline20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+          )}
+          <Text style={styles.buttonText}>Bookmark</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
+          <Share20
+            style={styles.buttonImage}
+            color={Colors[colorScheme || "light"].buttonActive}
+          />
+          <Text style={styles.buttonText}>Share</Text>
+        </TouchableOpacity>
+      </View>
+      <FeedCardToolTip item={feed} />
+    </View>
+  );
+
   const styles = {
     card: {
       borderBottomWidth: 1,
@@ -293,85 +376,16 @@ export default function ArticleCard({
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
       {imageUrl ? (
         <>
-          <View
-            style={{
-              aspectRatio: "4/3",
-              width: "100%",
-              borderRadius: 12,
-              overflow: "hidden",
-              marginBottom: 12,
-            }}
-          >
-            <Image
-              style={{
-                flex: 1,
-                borderRadius: 12,
-                borderWidth: 0.67,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
-              }}
-              contentFit="cover"
-              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-            />
-          </View>
-          <View style={styles.cardContent}>
-            <View style={styles.cardContentWrapper}>
-              <Text style={styles.publicationWrapper}>
-                {publication}&nbsp;&nbsp;
-                <Text style={styles.articleDate}>
-                  {formatPublicationDate(item.published)}
-                </Text>
-              </Text>
-              <Text style={styles.title}>{item.title ? item.title : ""}</Text>
-
-              <Text numberOfLines={4} style={styles.description}>
-                {item.description ? (
-                  <Text style={styles.description}>
-                    {formatDescription(item.description, 300)}
-                  </Text>
-                ) : (
-                  <Text style={styles.description}></Text>
-                )}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.cardControls}>
-            <View style={styles.cardButtons}>
-              <TouchableOpacity
-                style={styles.buttonWrapper}
-                onPress={handleBookmark}
-              >
-                {isBookmarked ? (
-                  <BookmarkFilled20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                ) : (
-                  <BookmarkOutline20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                )}
-
-                <Text style={styles.buttonText}>Bookmark</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-                <Share20
-                  style={styles.buttonImage}
-                  color={Colors[colorScheme || "light"].buttonActive}
-                />
-                <Text style={styles.buttonText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-
-            <FeedCardToolTip item={feed} />
-          </View>
+          {renderImage()}
+          {renderCardContent()}
+          {renderCardControls()}
         </>
       ) : (
         <>
           <View
             style={{
               width: "100%",
-              gap: 8,
+              gap: 10,
               flexDirection: "row",
             }}
           >
@@ -387,16 +401,13 @@ export default function ArticleCard({
                   {formatPublicationDate(item.published)}
                 </Text>
               </Text>
-
               <Text style={styles.title} numberOfLines={4}>
-                {item.title ? item.title : ""}
+                {item.title || ""}
               </Text>
               <Text style={styles.description} numberOfLines={3}>
-                {item.description ? (
-                  <Text>{formatDescription(item.description, 300)}</Text>
-                ) : (
-                  <Text></Text>
-                )}
+                {item.description
+                  ? formatDescription(item.description, 300)
+                  : ""}
               </Text>
             </View>
 
@@ -417,50 +428,10 @@ export default function ArticleCard({
                 source={{ uri: imageUrl || fallbackImage || item.image?.url }}
               />
             ) : (
-              <View style={styles.noImageContainer}>
-                <Text style={styles.noImageContainerText}>
-                  {publication} {publication}
-                </Text>
-                <Text style={styles.noImageContainerText}>
-                  {publication} {publication} {publication}
-                </Text>
-                <Text style={styles.noImageContainerText}>
-                  {publication} {publication}
-                </Text>
-              </View>
+              renderNoImageContainer()
             )}
           </View>
-          <View style={styles.cardControls}>
-            <View style={styles.cardButtons}>
-              <TouchableOpacity
-                style={styles.buttonWrapper}
-                onPress={handleBookmark}
-              >
-                {isBookmarked ? (
-                  <BookmarkFilled20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                ) : (
-                  <BookmarkOutline20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                )}
-
-                <Text style={styles.buttonText}>Bookmark</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-                <Share20
-                  style={styles.buttonImage}
-                  color={Colors[colorScheme || "light"].buttonActive}
-                />
-                <Text style={styles.buttonText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-
-            <FeedCardToolTip item={feed} />
-          </View>
+          {renderCardControls()}
         </>
       )}
     </Pressable>
