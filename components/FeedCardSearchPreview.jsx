@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useLayoutEffect } from "react";
 import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
@@ -16,203 +16,69 @@ export default function FeedCardSearchPreview({
   channelDescription,
   channelImageUrl,
 }) {
-  const { user } = useContext(AuthContext);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
+  const {
+    user,
+    userSubscriptionUrls,
+    userSubscriptionIds,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const colorScheme = useColorScheme();
 
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
-
   const handleSubmitUrl = async () => {
-    setIsOptimisticSubscribed(!isOptimisticSubscribed);
-
-    if (!channelUrl) {
-      showErrorAlert("Please fill in the field correctly");
-      return;
-    }
+    const optimisticSubscribed = !isSubscribed;
+    setIsSubscribed(optimisticSubscribed);
 
     try {
-      // Fetch the channel title
-      const response = await fetch(channelUrl);
+      // Create a new channel entry
+      const { data: channelData, error: channelError } = await supabase
+        .from("channels")
+        .upsert([
+          {
+            channel_url: channelUrl,
+            channel_title: channelTitle,
+            channel_subscribers: [user.id], // Create an array with the user's ID
+            channel_image_url: channelImageUrl,
+            channel_description: channelDescription,
+          },
+        ])
+        .select()
+        .single();
 
-      if (!response.ok) {
-        throw new Error(
-          "Network response was not ok, could not fetch channelUrl"
-        );
-      }
-
-      // Check if the channel already exists
-      const { data: existingChannelData, error: existingChannelError } =
-        await supabase.from("channels").select().eq("channel_url", channelUrl);
-
-      if (existingChannelError) {
-        showErrorAlert("Error checking channel data. Please try again.");
-        return;
-      }
-
-      if (existingChannelData.length > 0) {
-        const existingChannel = existingChannelData[0];
-        if (!existingChannel.channel_subscribers) {
-          existingChannel.channel_subscribers = []; // Create an empty subscribers array
-        }
-
-        if (existingChannel.channel_subscribers.includes(user.id)) {
-          showErrorAlert("You are already subscribed to this channel.");
-        } else {
-          const newSubscribers = [
-            ...existingChannel.channel_subscribers,
-            user.id,
-          ];
-          const { data: updateData, error: updateError } = await supabase
-            .from("channels")
-            .upsert([
-              {
-                id: existingChannel.id,
-                channel_subscribers: newSubscribers,
-              },
-            ]);
-
-          if (updateError) {
-            showErrorAlert("Error updating channel data. Please try again.");
-          } else {
-            showErrorAlert("Success", "You have subscribed to the channel.");
-
-            const channelId = existingChannel.id;
-            const channelUrl = existingChannel.channel_url;
-
-            // Fetch the user's existing channel subscriptions
-
-            const { data: userProfileData, error: userProfileError } =
-              await supabase
-                .from("profiles")
-                .select("channel_subscriptions")
-                .eq("id", user.id);
-
-            if (userProfileError) {
-              showErrorAlert(
-                "Error fetching user profile data. Please try again."
-              );
-            } else {
-              const existingSubscriptions =
-                userProfileData[0].channel_subscriptions || [];
-
-              // Create a new subscription object with channelId and channelUrl
-              const newSubscription = { channelId, channelUrl };
-
-              // Add the new subscription to the existing subscriptions
-              const newSubscriptions = [
-                ...existingSubscriptions,
-                newSubscription,
-              ];
-
-              // Update the user profile with the updated subscriptions
-              const { data: updatedProfileData, error: updatedProfileError } =
-                await supabase.from("profiles").upsert([
-                  {
-                    id: user.id,
-                    channel_subscriptions: newSubscriptions,
-                  },
-                ]);
-
-              if (updatedProfileError) {
-                showErrorAlert(
-                  "Error updating user profile. Please try again."
-                );
-              } else {
-                showErrorAlert(
-                  "Success",
-                  "Profile subscription successfully updated"
-                );
-              }
-            }
-          }
-        }
+      if (channelError) {
+        console.log("channelData is null:", error);
       } else {
-        // Create a new channel entry
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .upsert([
-            {
-              channel_url: channelUrl,
-              channel_title: channelTitle,
-              channel_subscribers: [user.id], // Create an array with the user's ID
-              channel_image_url: channelImageUrl,
-              channel_description: channelDescription,
-            },
-          ])
-          .select()
-          .single();
+        const updatedUserSubscriptionIds = [
+          ...userSubscriptionIds,
+          channelData.id,
+        ];
 
-        if (channelError) {
-          showErrorAlert("Error uploading channel data. Please try again.");
-        } else {
-          showErrorAlert("Success", "Channel data uploaded successfully.");
+        const updatedUserSubscriptionUrls = [
+          ...userSubscriptionUrls,
+          channelData.channel_url,
+        ];
 
-          const channelId = channelData.id;
-          const channelUrl = channelData.channel_url;
+        setUserSubscriptionIds(updatedUserSubscriptionIds);
+        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-          // Fetch the user's existing channel subscriptions
-
-          const { data: userProfileData, error: userProfileError } =
-            await supabase
-              .from("profiles")
-              .select("channel_subscriptions")
-              .eq("id", user.id);
-
-          if (userProfileError) {
-            showErrorAlert(
-              "Error fetching user profile data. Please try again."
-            );
-          } else {
-            const existingSubscriptions =
-              userProfileData[0].channel_subscriptions || [];
-
-            // Create a new subscription object with channelId and channelUrl
-            const newSubscription = { channelId, channelUrl };
-
-            // Add the new subscription to the existing subscriptions
-            const newSubscriptions = [
-              ...existingSubscriptions,
-              newSubscription,
-            ];
-
-            // Update the user profile with the updated subscriptions
-            const { data: updatedProfileData, error: updatedProfileError } =
-              await supabase.from("profiles").upsert([
-                {
-                  id: user.id,
-                  channel_subscriptions: newSubscriptions,
-                },
-              ]);
-
-            if (updatedProfileError) {
-              showErrorAlert("Error updating user profile. Please try again.");
-            } else {
-              showErrorAlert(
-                "Success",
-                "Profile subscription successfully updated"
-              );
-            }
-          }
-        }
+        // Wait for the update to complete before moving on
+        await supabase
+          .from("profiles")
+          .update({
+            channel_subscriptions: updatedUserSubscriptionIds.map(
+              (id, index) => ({
+                channelId: id,
+                channelUrl: updatedUserSubscriptionUrls[index],
+              })
+            ),
+          })
+          .eq("id", user.id);
       }
     } catch (error) {
-      setIsOptimisticSubscribed(!isOptimisticSubscribed);
-
+      setIsSubscribed(!isSubscribed);
       console.error("Error fetching or uploading channel data:", error);
-
-      if (error.message.includes("suitable URL request handler found")) {
-        console.log(
-          "Ignoring the 'no suitable URL request handler found' error."
-        );
-        // Optionally display a user-friendly message to the user or take appropriate action.
-      } else {
-        showErrorAlert(
-          "Error fetching or uploading channel data. Please try again."
-        );
-      }
     }
   };
 
@@ -390,22 +256,18 @@ export default function FeedCardSearchPreview({
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={
-              isOptimisticSubscribed
-                ? styles.subscribedButton
-                : styles.subscribeButton
+              isSubscribed ? styles.subscribedButton : styles.subscribeButton
             }
             onPress={handleSubmitUrl}
           >
             <Text
               style={
-                isOptimisticSubscribed.toString() === "true"
+                isSubscribed
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
             >
-              {isOptimisticSubscribed.toString() === "true"
-                ? "Following"
-                : "Follow"}
+              {isSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>
