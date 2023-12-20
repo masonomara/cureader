@@ -191,7 +191,7 @@ function RootLayoutNav() {
 
       if (feedsFetched) {
         //router.replace("(home)");
-        return null
+        return null;
       }
     } else {
       //router.replace("(login)");
