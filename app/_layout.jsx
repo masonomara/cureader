@@ -190,11 +190,11 @@ function RootLayoutNav() {
       }
 
       if (feedsFetched) {
-        //router.replace("(home)");
+        router.replace("(home)");
         return null;
       }
     } else {
-      //router.replace("(login)");
+      router.replace("(login)");
       setSession(null);
       setUser(null);
       setUserSubscriptionIds(null);
