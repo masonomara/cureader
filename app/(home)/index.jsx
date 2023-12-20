@@ -129,7 +129,7 @@ export default function Index() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.text();
-          console.log("[1] response data:", responseData)
+          console.log("[1] response data:", responseData);
           const parsedRss = await rssParser.parse(responseData);
 
           const channelImage = fallbackImages.find(
@@ -233,6 +233,7 @@ export default function Index() {
       //backgroundColor: `${Colors[colorScheme || "light"].background}`,
       width: "100%",
       flex: 1,
+      display: "none",
     },
     feedList: {
       width: "100%",
@@ -360,22 +361,23 @@ export default function Index() {
       gap: 12,
       alignContent: "center",
       justifyContent: "center",
-      paddingHorizontal: 12,
+      paddingHorizontal: 8,
     },
     dailyQuoteQuote: {
       textAlign: "center",
       color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 24,
-      lineHeight: 32,
-      letterSpacing: -0.18,
+      fontSize: 25,
+      lineHeight: 31,
+      letterSpacing: -0.187,
     },
     dailyQuoteAuthor: {
       textAlign: "center",
       color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
+      fontFamily: "InterMediumItalic",
       fontWeight: "500",
+      fontStyle: "italic",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
@@ -384,7 +386,7 @@ export default function Index() {
       opacity: 0,
     },
     feedsLoadingContainer: {
-      gap: 9,
+      gap: 6,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
@@ -395,9 +397,10 @@ export default function Index() {
       color: `${Colors[colorScheme || "light"].textPlaceholder}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
-      fontSize: 13,
-      lineHeight: 18,
-      letterSpacing: -0.13,
+
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
   };
 
@@ -418,7 +421,7 @@ export default function Index() {
               />
 
               <Text style={styles.feedsLoadingText}>
-                Your RSS feeds are loading.
+                Loading your RSS Feeds...
               </Text>
             </View>
           </View>
