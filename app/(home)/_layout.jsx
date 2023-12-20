@@ -1,10 +1,15 @@
 import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
-import { useColorScheme, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Pressable,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
-import { useContext } from "react";
-import { AuthContext } from "../_layout";
 import {
   Menu,
   MenuOptions,
@@ -12,6 +17,7 @@ import {
   MenuTrigger,
   renderers,
 } from "react-native-popup-menu";
+import * as WebBrowser from "expo-web-browser";
 import { supabase } from "../../config/supabase";
 
 function TabBarIcon(props) {
@@ -30,6 +36,14 @@ export default function TabLayout() {
     router.replace("(login)");
     if (error) {
       showErrorAlert("Error signing out: " + error.message);
+    }
+  };
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
     }
   };
 
@@ -73,6 +87,73 @@ export default function TabLayout() {
       height: 1,
       width: "100%",
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
+    },
+    logoWrapper: {
+      paddingVertical: 20,
+      paddingTop: 16,
+    },
+    optionWrapper: {
+      margin: 5,
+      alignItems: "flex-start",
+      justifyContent: "center",
+      paddingHorizontal: 0,
+      height: 44,
+    },
+    optionText: {
+      color: Colors[colorScheme || "light"].buttonActive,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    optionWrapperCredit: {
+      margin: 5,
+      alignItems: "flex-start",
+      justifyContent: "center",
+      paddingHorizontal: 0,
+      paddingVertical: 10,
+      display: "flex",
+      gap: 7,
+    },
+    optionTextCreditWrapper: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+      maxWidth: 450,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      flex: 1,
+      flexWrap: "wrap",
+      width: "100%",
+    },
+    optionTextCredit: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+    },
+    optionTextCreditPressableWrapper: {
+      height: 32,
+      marginVertical: -7,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    optionTextCreditPressable: {
+      color: Colors[colorScheme || "light"].textLow,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
     },
   };
 
@@ -211,6 +292,43 @@ export default function TabLayout() {
                   },
                 }}
               >
+                <View style={styles.logoWrapper}>
+                  {colorScheme === "dark" ? (
+                    <Image
+                      style={{ width: 141, height: 24 }}
+                      source={require("../../assets/images/wordmark--dark.webp")}
+                      contentFit="contain"
+                    />
+                  ) : (
+                    <Image
+                      style={{ width: 141, height: 24 }}
+                      source={require("../../assets/images/wordmark--light.webp")}
+                      contentFit="contain"
+                    />
+                  )}
+                </View>
+                <View style={styles.tooltipDivider}></View>
+
+                <Pressable
+                  style={styles.optionWrapper}
+                  onPress={() =>
+                    _handlePressButtonAsync("https://www.cureader.app/contact")
+                  }
+                >
+                  <Text style={styles.optionText}>Contact Us</Text>
+                </Pressable>
+                <View style={styles.tooltipDivider}></View>
+                <Pressable
+                  style={styles.optionWrapper}
+                  onPress={() =>
+                    _handlePressButtonAsync(
+                      "https://www.cureader.app/what-is-rss"
+                    )
+                  }
+                >
+                  <Text style={styles.optionText}>What is RSS?</Text>
+                </Pressable>
+                <View style={styles.tooltipDivider}></View>
                 <MenuOption
                   onSelect={() => {
                     doLogout();
@@ -218,10 +336,41 @@ export default function TabLayout() {
                   text="Log Out"
                 />
                 <View style={styles.tooltipDivider}></View>
-                {/* <MenuOption
-                  
-                  text="Turn off Daily Quote"
-                /> */}
+                <View style={styles.optionWrapperCredit}>
+                  <View style={styles.optionTextCreditWrapper}>
+                    <Text style={styles.optionTextCredit}>
+                      Cureader is designed, developed, and produced by{" "}
+                    </Text>
+                    <Pressable
+                      style={styles.optionTextCreditPressableWrapper}
+                      onPress={() =>
+                        _handlePressButtonAsync("https://masonomara.com/")
+                      }
+                    >
+                      <Text style={styles.optionTextCreditPressable}>
+                        Mason O'Mara
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.optionTextCredit}>.</Text>
+                  </View>
+                  <View style={styles.optionTextCreditWrapper}>
+                    <Text style={styles.optionTextCredit}>
+                      Inspirational quotes provided by{" "}
+                    </Text>
+                    <Pressable
+                      style={styles.optionTextCreditPressableWrapper}
+                      onPress={() =>
+                        _handlePressButtonAsync("https://zenquotes.io/")
+                      }
+                    >
+                      <Text style={styles.optionTextCreditPressable}>
+                        ZenQuotes API
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.optionTextCredit}>.</Text>
+                  </View>
+                </View>
+                <View style={styles.tooltipDivider}></View>
               </MenuOptions>
             </Menu>
           ),
