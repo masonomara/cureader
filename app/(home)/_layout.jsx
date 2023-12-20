@@ -296,13 +296,13 @@ export default function TabLayout() {
                   {colorScheme === "dark" ? (
                     <Image
                       style={{ width: 141, height: 24 }}
-                      source={require("../../assets/images/wordmark--dark.webp")}
+                      source={require("../../assets/images/wordmark--dark.png")}
                       contentFit="contain"
                     />
                   ) : (
                     <Image
                       style={{ width: 141, height: 24 }}
-                      source={require("../../assets/images/wordmark--light.webp")}
+                      source={require("../../assets/images/wordmark--light.png")}
                       contentFit="contain"
                     />
                   )}
