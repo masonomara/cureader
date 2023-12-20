@@ -129,7 +129,7 @@ export default function Index() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.text();
-          //console.log("[1] response data:", responseData)
+          console.log("[1] response data:", responseData)
           const parsedRss = await rssParser.parse(responseData);
 
           const channelImage = fallbackImages.find(

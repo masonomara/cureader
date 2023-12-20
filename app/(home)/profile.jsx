@@ -31,7 +31,6 @@ export default function Profile() {
 
   const fetchUserFeeds = useCallback(async () => {
     if (userSubscriptionUrls) {
-      // console.log(userSubscriptionUrls);
       const fetchedFeeds = feeds.filter((feed) =>
         userSubscriptionUrls.includes(feed.channel_url)
       );

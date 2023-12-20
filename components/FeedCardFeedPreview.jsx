@@ -13,10 +13,7 @@ import {
 } from "../hooks/FeedCardFunctions";
 
 export default function FeedCardFeedPreview({ item }) {
-  console.log("feedpreview item.channel_url type:", typeof item.url);
-  console.log("item.channel_url", item.url);
   const itemId = parseInt(item.id, 10);
-  //console.log("feedpreview itemId type:", typeof itemId);
   const {
     user,
     userSubscriptionUrls,
@@ -38,10 +35,6 @@ export default function FeedCardFeedPreview({ item }) {
   const handleSubscribe = async () => {
     const optimisticSubscribed = !isSubscribed;
     setIsSubscribed(optimisticSubscribed);
-
-    console.log("[2] itemId:", itemId);
-
-    console.log("[3] optimisticSubscribed:", optimisticSubscribed);
     try {
       const updatedUserSubscriptionIds = optimisticSubscribed
         ? [...userSubscriptionIds, itemId]
