@@ -253,7 +253,7 @@ export default function TabLayout() {
               <MenuOptions
                 customStyles={{
                   optionsContainer: {
-                    backgroundColor: Colors[colorScheme || "light"].background,
+                    backgroundColor: Colors[colorScheme || "light"].surfaceOne,
                     borderWidth: 0.5,
                     borderColor: Colors[colorScheme || "light"].border,
                     borderTopLeftRadius: 20,
@@ -275,8 +275,6 @@ export default function TabLayout() {
                     justifyContent: "center",
                     paddingHorizontal: 0,
                     height: 44,
-                    // borderWidth: 1,
-                    // borderColor: "red",
                   },
                   optionTouchable: {
                     underlayColor: "transparent",

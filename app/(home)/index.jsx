@@ -58,7 +58,7 @@ export default function Index() {
       userSubscriptionUrlsFetched &&
       initialParsingComplete
     ) {
-      console.log(feedsFetched, userFetched, userSubscriptionUrlsFetched);
+
       fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
       });
@@ -66,7 +66,7 @@ export default function Index() {
   }, [userSubscriptionUrls]);
 
   const initialFetchAndParseFeeds = async (urls) => {
-    console.log("[1] ready to parse feeds:");
+
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
     );
@@ -90,7 +90,6 @@ export default function Index() {
 
         const responseData = await response.text();
 
-        // console.log(responseData);
         const parsedRss = await rssParser.parse(responseData);
 
         const channelImage = fallbackImages.find(
@@ -153,7 +152,7 @@ export default function Index() {
 
         const responseData = await response.text();
 
-        // console.log(responseData);
+    
         const parsedRss = await rssParser.parse(responseData);
 
         const channelImage = fallbackImages.find(
@@ -209,7 +208,7 @@ export default function Index() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.text();
-          // console.log("[1] response data:", responseData);
+  
           const parsedRss = await rssParser.parse(responseData);
 
           const channelImage = fallbackImages.find(
