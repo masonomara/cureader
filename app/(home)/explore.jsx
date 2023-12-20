@@ -451,7 +451,11 @@ export default function Explore() {
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
-              {searchResults.length > 0 || channelData.title
+              {searchResults.length == 0 &&
+              !channelData.wait &&
+              channelData.title
+                ? "RSS Feed found from URL"
+                : searchResults.length > 0 || channelData.title
                 ? `Search Results (${searchResults.length})`
                 : searchResults.length === 0 && channelData.wait
                 ? "Searching..."
