@@ -61,7 +61,7 @@ export default function AuthLayout() {
           headerTitle: () => (
             <Image
               style={{ width: 200, height: 36 }}
-              source={require("../../assets/images/pin.png")}
+              source={require("../../assets/images/pin.webp")}
               contentFit="contain"
             />
           ),
