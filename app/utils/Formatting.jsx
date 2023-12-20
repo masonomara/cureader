@@ -12,7 +12,7 @@ export function formatPublicationDate(published) {
   return `${yearsAgo}y`;
 }
 
-export function formatDescription(description, maxLength = 300) {
+export function formatDescription(description, maxLength) {
   const formattedDescription = description
     .replace(/<[^>]*>/g, "")
     .replace(/&#8216;/g, "‘")
