@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { TouchableOpacity, Alert, useColorScheme } from "react-native";
+import {
+  TouchableOpacity,
+  Alert,
+  useColorScheme,
+  ActivityIndicator,
+} from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext, FeedContext } from "../_layout";
@@ -11,18 +16,14 @@ import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
 
 export default function Index() {
-  // const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
   const { feeds, popularFeeds, dailyQuote } = useContext(FeedContext);
-  const { user, userSubscriptionIds, userSubscriptionUrls, userBookmarkUrls } =
-    useContext(AuthContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
   const [rssItems, setRssItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [feedsParsed, setFeedsParsed] = useState(false);
-
-  //const [refreshTriggered, setRefreshTriggered] = useState(false);
 
   const ref = useRef(null);
 
@@ -36,6 +37,14 @@ export default function Index() {
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
+
+  useEffect(() => {
+    if (user !== null && feeds !== null && userSubscriptionUrls !== null) {
+      fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
+        setIsRefreshing(false);
+      });
+    }
+  }, [user, feeds, userSubscriptionUrls]);
 
   const fetchAndParseFeeds = async (urls) => {
     console.log("[1] ready to parse feeds:");
@@ -102,17 +111,6 @@ export default function Index() {
     setRssItems(allItems);
     setFeedsParsed(true);
   };
-
-  useEffect(() => {
-    if (user !== null && feeds !== null && userSubscriptionUrls !== null) {
-      fetchAndParseFeeds(userSubscriptionUrls).finally(() => {
-        setIsRefreshing(false);
-        // if (rssItems.length > 0) {
-        //   console.log("First item in allItems:", rssItems[0]);
-        // }
-      });
-    }
-  }, [user, feeds, userSubscriptionUrls]);
 
   const fetchAndParseFeedsRefresh = async () => {
     if (user && feeds && userSubscriptionUrls) {
@@ -229,7 +227,7 @@ export default function Index() {
       flex: 1,
       alignItems: "center",
       justifyContent: "flex-start",
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      // backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
       //backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -359,37 +357,47 @@ export default function Index() {
       zIndex: -1,
     },
     dailyQuoteWrapper: {
-      gap: 7,
+      gap: 12,
       alignContent: "center",
       justifyContent: "center",
+      paddingHorizontal: 12,
     },
     dailyQuoteQuote: {
       textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
+      color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.1425,
+      fontSize: 24,
+      lineHeight: 32,
+      letterSpacing: -0.18,
     },
     dailyQuoteAuthor: {
-      textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-    },
-    feedsLoadingText: {
       textAlign: "center",
       color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-      marginTop: 20,
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    seeThrough: {
+      opacity: 0,
+    },
+    feedsLoadingContainer: {
+      gap: 9,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      marginTop: 64,
+    },
+    feedsLoadingText: {
+      textAlign: "center",
+      color: `${Colors[colorScheme || "light"].textPlaceholder}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
     },
   };
 
@@ -399,39 +407,27 @@ export default function Index() {
         {dailyQuote && dailyQuote.length > 0 && (
           <View style={styles.dailyQuoteWrapper}>
             <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
-            <Text style={styles.dailyQuoteAuthor}>- {dailyQuote[0].a}</Text>
-            <Text style={styles.feedsLoadingText}>
-              Your Feeds are Loading...
+            <Text style={styles.dailyQuoteAuthor}>
+              — {dailyQuote[0].a}
+              <Text style={styles.seeThrough}> —</Text>
             </Text>
+            <View style={styles.feedsLoadingContainer}>
+              <ActivityIndicator
+                size="small"
+                color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+              />
+
+              <Text style={styles.feedsLoadingText}>
+                Your RSS feeds are loading.
+              </Text>
+            </View>
           </View>
         )}
       </View>
-      {/* <View style={styles.dailyQuoteContainerLoading}>
-        {dailyQuote && dailyQuote.length > 0 && (
-          <View style={styles.dailyQuoteWrapper}>
-            <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
-            <Text style={styles.dailyQuoteAuthor}>- {dailyQuote[0].a}</Text>
-          </View>
-        )}
-      </View> */}
       {feedsParsed ? (
         rssItems.length > 0 ? (
           <View style={styles.articleList}>
             <FlashList
-              // ListHeaderComponent={() => (
-              //   <View style={styles.dailyQuoteContainer}>
-              //     {dailyQuote && dailyQuote.length > 0 && (
-              //       <View style={styles.dailyQuoteWrapper}>
-              //         <Text style={styles.dailyQuoteQuote}>
-              //           “{dailyQuote[0].q}”
-              //         </Text>
-              //         <Text style={styles.dailyQuoteAuthor}>
-              //           - {dailyQuote[0].a}
-              //         </Text>
-              //       </View>
-              //     )}
-              //   </View>
-              // )}
               data={rssItems}
               ref={ref}
               showsVerticalScrollIndicator={false}
