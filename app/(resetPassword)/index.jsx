@@ -24,7 +24,6 @@ export default function Auth() {
 
   useEffect(() => {
     setRemovalDisabled(email == "");
-    console.log(email, removalDisabled);
   }, [email]);
 
   // Function for handling search input focus

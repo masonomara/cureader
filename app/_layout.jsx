@@ -88,13 +88,11 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    console.log("[1] initializing");
     fetchDailyQuote();
     SplashScreen.hideAsync();
   }, []);
 
   const fetchDailyQuote = async () => {
-    console.log("[2-1] fetching daily quote");
     try {
       const response = await fetch("https://zenquotes.io/api/today");
 
@@ -106,14 +104,12 @@ function RootLayoutNav() {
 
       const data = await response.json();
       setDailyQuote(data);
-      console.log("[2-2] daily quote fetched");
     } catch (error) {
       console.error("Error fetching daily quote:", error.message);
     }
   };
 
   useEffect(() => {
-    console.log("[3-1] fetching feeds");
     async function fetchFeeds() {
       try {
         const { data: feedsData, error } = await supabase
@@ -125,7 +121,6 @@ function RootLayoutNav() {
         }
         setFeeds(feedsData);
         setFeedsFetched(true);
-        console.log("[3-2] feeds fetched");
       } catch (error) {
         console.error("Error fetching feeds:", error);
       }
@@ -149,7 +144,6 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (feeds) {
-      console.log("[4-1] sorting feeds");
 
       const sortedFeeds = sortFeedsBySubscribers(feeds);
       const popularFeeds = sortedFeeds.slice(0, 24);
@@ -184,20 +178,16 @@ function RootLayoutNav() {
       );
 
       setRandomFeeds(randomFeeds);
-      console.log("[4-2] feeds sorted");
     }
   }, [feeds]);
 
   const handleAuthStateChange = async (event, session) => {
-    console.log("[5-1] fetching session");
     if (session) {
       setSession(session);
-      console.log("[5-2] set session");
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        console.log("[6-1] initializing user");
         setUser(user);
         setUserFetched(true);
         const { channelIds, channelUrls, bookmarks } =
@@ -206,17 +196,13 @@ function RootLayoutNav() {
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
-        console.log("[6-2] set user");
         router.replace("(home)");
       } else {
-        console.log("[6-1] initializing no-user");
         router.replace("(login)");
         SplashScreen.hideAsync();
-        console.log("[6-2] set no-user");
         return null;
       }
     } else {
-      console.log("[6-1] initializing no-user");
 
       router.replace("(login)");
 
@@ -225,12 +211,10 @@ function RootLayoutNav() {
       setUserSubscriptionIds(null);
       setUserSubscriptionUrls(null);
       setUserBookmarks(null);
-      console.log("[6-2] set no-user");
     }
   };
 
   useEffect(() => {
-    console.log("[7-1] fetching user subscriptions");
 
     const fetchUserAndSubscriptions = async () => {
       const {
