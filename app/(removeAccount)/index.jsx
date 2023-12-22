@@ -9,7 +9,7 @@ import {
   Pressable,
   useColorScheme,
 } from "react-native";
-import { supabaseAuth } from "../../config/supabase";
+import { supabaseAuth, supabase } from "../../config/supabase";
 
 import Colors from "../../constants/Colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -22,7 +22,7 @@ export default function Auth() {
     useState(false);
   const [scrollView, setScrollView] = useState(true);
   const [email, setEmail] = useState("");
-  const { user } = useContext(AuthContext);
+  const { user, setSession } = useContext(AuthContext);
   const [removalDisabled, setRemovalDisabled] = useState(true);
 
   useEffect(() => {
@@ -44,21 +44,26 @@ export default function Auth() {
 
   async function deleteAccount() {
     try {
-      const { data, error } = await supabaseAuth.auth.admin.deleteUser(user.id);
+      // Sign out the user
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        showErrorAlert("Error signing out: " + signOutError.message);
+      }
 
-      if (error) {
-        Alert.alert("Account Deletion Failed", error.message);
+      // Delete the user account
+      const { data, error: deleteUserError } =
+        await supabaseAuth.auth.admin.deleteUser(user.id);
+      if (deleteUserError) {
+        Alert.alert("Account Deletion Failed", deleteUserError.message);
       } else {
+        // Fetch user profile data
         const { data: userProfileData, error: userProfileError } =
           await supabaseAuth.from("profiles").select().eq("id", user.id);
 
-          router.replace("(signup)");
         if (userProfileError) {
           console.error("Error fetching user profile data:", userProfileError);
           return { channelIds: [], channelUrls: [], bookmarks: [] };
         }
-
-        // Additional logic for handling userProfileData if needed
       }
     } catch (error) {
       console.error("An error occurred during account deletion:", error);
