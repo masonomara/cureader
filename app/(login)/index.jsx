@@ -12,6 +12,8 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
+import * as WebBrowser from "expo-web-browser";
+
 import { supabase } from "../../config/supabase";
 
 export default function Auth() {
@@ -29,6 +31,14 @@ export default function Auth() {
     isSearchInputSelectedTwo: false,
     scrollView: true,
   });
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
+  };
 
   const handleInputFocus = (inputName) => {
     setInputStates((prevState) => ({
@@ -139,6 +149,39 @@ export default function Auth() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    optionTextCreditWrapper: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "center",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+      maxWidth: 450,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      flex: 1,
+      flexWrap: "wrap",
+      width: "100%",
+      paddingTop: 16,
+    },
+    optionTextCredit: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "center",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+
+      letterSpacing: -0.13,
+    },
+    optionTextCreditPressableWrapper: {
+      height: 32,
+      marginVertical: -7,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     inputSelected: {
       borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
     },
@@ -191,6 +234,14 @@ export default function Auth() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
+    optionTextCreditPressable: {
+      color: Colors[colorScheme || "light"].textLow,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+    },
   };
 
   return (
@@ -207,6 +258,18 @@ export default function Auth() {
           <Text style={styles.subtitle}>Please log in to continue</Text>
           {renderInput("Email", "email")}
           {renderInput("Password", "password", true)}
+          <View style={styles.optionTextCreditWrapper}>
+            <Text style={styles.optionTextCredit}>Forgot your password?</Text>
+            <Pressable
+              style={styles.optionTextCreditPressableWrapper}
+              onPress={() =>
+                _handlePressButtonAsync("https://cureader.app/contact/")
+              }
+            >
+              <Text style={styles.optionTextCreditPressable}> Email us </Text>
+            </Pressable>
+            <Text style={styles.optionTextCredit}>to have it reset.</Text>
+          </View>
         </View>
         {renderButton("Log in", signInWithEmail)}
       </KeyboardAwareScrollView>
