@@ -109,7 +109,7 @@ export default function TabLayout() {
     },
     optionWrapperCredit: {
       margin: 5,
-      alignItems: "flex-start",
+      alignItems: "center",
       justifyContent: "center",
       paddingHorizontal: 0,
       paddingVertical: 10,
@@ -306,7 +306,6 @@ export default function TabLayout() {
                   )}
                 </View>
                 <View style={styles.tooltipDivider}></View>
-
                 <Pressable
                   style={styles.optionWrapper}
                   onPress={() =>
@@ -332,6 +331,11 @@ export default function TabLayout() {
                     doLogout();
                   }}
                   text="Log Out"
+                />
+                <View style={styles.tooltipDivider}></View>
+                <MenuOption
+                  onSelect={() => router.replace("(removeAccount)")}
+                  text="Delete Account"
                 />
                 <View style={styles.tooltipDivider}></View>
                 <View style={styles.optionWrapperCredit}>
