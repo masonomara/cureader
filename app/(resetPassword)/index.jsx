@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   useColorScheme,
 } from "react-native";
-import { supabaseAuth, supabase } from "../../config/supabase";
+import { supabase } from "../../config/supabase";
 
 import Colors from "../../constants/Colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -20,13 +20,12 @@ export default function Auth() {
     useState(false);
   const [scrollView, setScrollView] = useState(true);
   const [email, setEmail] = useState("");
-  const { user } = useContext(AuthContext);
   const [removalDisabled, setRemovalDisabled] = useState(true);
 
   useEffect(() => {
-    setRemovalDisabled(email != user.email);
-    console.log(email, user.email, removalDisabled);
-  }, [email, user.email]);
+    setRemovalDisabled(email == "");
+    console.log(email, removalDisabled);
+  }, [email]);
 
   // Function for handling search input focus
   const handleFocusTwo = () => {
@@ -40,29 +39,9 @@ export default function Auth() {
     setScrollView(true);
   };
 
-  async function deleteAccount() {
+  async function resetPassword() {
     try {
-      // Sign out the user
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) {
-        showErrorAlert("Error signing out: " + signOutError.message);
-      }
-
-      // Delete the user account
-      const { data, error: deleteUserError } =
-        await supabaseAuth.auth.admin.deleteUser(user.id);
-      if (deleteUserError) {
-        Alert.alert("Account Deletion Failed", deleteUserError.message);
-      } else {
-        // Fetch user profile data
-        const { data: userProfileData, error: userProfileError } =
-          await supabaseAuth.from("profiles").select().eq("id", user.id);
-
-        if (userProfileError) {
-          console.error("Error fetching user profile data:", userProfileError);
-          return { channelIds: [], channelUrls: [], bookmarks: [] };
-        }
-      }
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
     } catch (error) {
       console.error("An error occurred during account deletion:", error);
       // Handle the error as needed
@@ -258,11 +237,9 @@ export default function Auth() {
         showsHorizontalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Deleting your acccount</Text>
-          <Text style={styles.subtitle}>We're sad to see you go.</Text>
-          <Text style={styles.label}>
-            Enter your email address to delete your account.
-          </Text>
+          <Text style={styles.title}>Reset your password</Text>
+          <Text style={styles.subtitle}>Enter your email to get started.</Text>
+          <Text style={styles.label}>Account email address</Text>
           <TextInput
             style={[
               styles.input,
@@ -271,7 +248,7 @@ export default function Auth() {
             label="Email"
             onChangeText={(text) => setEmail(text)}
             value={email}
-            placeholder={user.email}
+            placeholder="email"
             autoCapitalize={"none"}
             autoCorrect={false}
             onFocus={handleFocusTwo}
@@ -289,18 +266,18 @@ export default function Auth() {
               title="Sign up"
               disabled={removalDisabled}
               style={styles.button}
-              onPress={() => deleteAccount()}
+              onPress={() => resetPassword()}
             >
-              <Text style={styles.buttonText}>Delete Account</Text>
+              <Text style={styles.buttonText}>Reset Password</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               title="Sign up"
               disabled={removalDisabled}
               style={styles.buttonDisabled}
-              onPress={() => deleteAccount()}
+              onPress={() => resetPassword()}
             >
-              <Text style={styles.buttonText}>Delete Account</Text>
+              <Text style={styles.buttonText}>Reset Password</Text>
             </TouchableOpacity>
           )}
         </View>

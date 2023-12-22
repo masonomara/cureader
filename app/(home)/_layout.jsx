@@ -334,6 +334,11 @@ export default function TabLayout() {
                 />
                 <View style={styles.tooltipDivider}></View>
                 <MenuOption
+                  onSelect={() => router.replace("(resetPassword)")}
+                  text="Change Password"
+                />
+                <View style={styles.tooltipDivider}></View>
+                <MenuOption
                   onSelect={() => router.replace("(removeAccount)")}
                   text="Delete Account"
                 />

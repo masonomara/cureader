@@ -32,7 +32,6 @@ export const AuthContext = createContext({
   setUserSubscriptionIds: () => {},
   setUserSubscriptionUrls: () => {},
   setUserBookmarks: () => {},
-  setSession: () => {},
 });
 
 export const unstable_settings = {
@@ -339,7 +338,6 @@ function RootLayoutNav() {
               setUserSubscriptionUrls,
               userSubscriptionUrlsFetched,
               setUserBookmarks,
-              setSession,
             }}
           >
             <Stack>
@@ -347,6 +345,10 @@ function RootLayoutNav() {
               <Stack.Screen name="(login)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="(removeAccount)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="(resetPassword)"
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="(signup)" options={{ headerShown: false }} />
