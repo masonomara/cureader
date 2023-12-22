@@ -89,9 +89,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     console.log("[1] initializing");
-
     fetchDailyQuote();
-
     SplashScreen.hideAsync();
   }, []);
 
@@ -213,13 +211,15 @@ function RootLayoutNav() {
       } else {
         console.log("[6-1] initializing no-user");
         router.replace("(login)");
-
+        SplashScreen.hideAsync();
         console.log("[6-2] set no-user");
         return null;
       }
     } else {
       console.log("[6-1] initializing no-user");
+
       router.replace("(login)");
+
       setSession(null);
       setUser(null);
       setUserSubscriptionIds(null);
@@ -255,9 +255,7 @@ function RootLayoutNav() {
           //router.replace("(home)");
         }
       } else {
-        setTimeout(() => {
-          router.replace("(login)");
-        }, 800);
+        router.replace("(login)");
       }
     };
 
@@ -345,10 +343,6 @@ function RootLayoutNav() {
               <Stack.Screen name="(login)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="(removeAccount)"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="(resetPassword)"
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="(signup)" options={{ headerShown: false }} />
