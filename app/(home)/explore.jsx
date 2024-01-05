@@ -436,7 +436,7 @@ export default function Explore() {
         <TouchableOpacity
           style={[
             styles.closeIconWrapper,
-            searchInput ? { opacity: 1 } : { opacity: 0 },
+            textInputFocused ? { opacity: 1 } : { opacity: 0 },
           ]}
           onPress={handleClearInput}
         >
@@ -447,7 +447,7 @@ export default function Explore() {
           />
         </TouchableOpacity>
       </View>
-      {searchInput !== null && (
+      {textInputFocused && (
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
@@ -492,7 +492,9 @@ export default function Explore() {
             <View style={[styles.searchResultsList]}>
               <View style={styles.noResultsHeader}>
                 <Text style={styles.noResultsHeaderText}>
-                  Can't find your feed?
+                  {isSearchInputSelected && searchInput == null
+                    ? "Can't find your feed?"
+                    : "Looking for a feed?"}
                 </Text>
               </View>
               <View style={styles.noResultsTextWrapper}>
@@ -511,7 +513,7 @@ export default function Explore() {
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        style={isSearching ? { display: "none" } : {}}
+        style={textInputFocused ? { display: "none" } : {}}
         ref={ref}
       >
         <View style={styles.headerWrapper}>
