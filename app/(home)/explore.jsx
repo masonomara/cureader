@@ -57,6 +57,8 @@ export default function Explore() {
     error: null,
   });
 
+  console.log("seachInput:", searchInput);
+
   const ref = useRef(null);
 
   useScrollToTop(
@@ -447,23 +449,25 @@ export default function Explore() {
           />
         </TouchableOpacity>
       </View>
-      {textInputFocused && (
+      {textInputFocused ? (
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
-              {searchResults.length == 0 &&
-              !channelData.wait &&
-              channelData.title
-                ? "RSS Feed found from URL"
-                : searchResults.length > 0 || channelData.title
-                ? `Search Results (${searchResults.length})`
-                : searchResults.length === 0 && channelData.wait
-                ? "Searching..."
-                : "No Search Results Found"}
+              {searchInput.length > 0
+                ? searchResults.length == 0 &&
+                  !channelData.wait &&
+                  channelData.title
+                  ? "RSS Feed found from URL"
+                  : searchResults.length > 0 || channelData.title
+                  ? `Search Results (${searchResults.length})`
+                  : searchResults.length === 0 && channelData.wait
+                  ? "Searching..."
+                  : "No Search Results Found"
+                : "Search Results"}
             </Text>
           </View>
 
-          {searchInput != null && (
+          {searchInput.length > 0 && (
             <View
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
@@ -508,6 +512,8 @@ export default function Explore() {
             </View>
           </View>
         </ScrollView>
+      ) : (
+        <View style={styles.searchContainer}></View>
       )}
       <ScrollView
         contentContainerStyle={styles.scrollViewContainer}
