@@ -13,7 +13,6 @@ import {
   useColorScheme,
   Dimensions,
   TouchableOpacity,
-  ActivityIndicator,
   Keyboard,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
