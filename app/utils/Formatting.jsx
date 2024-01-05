@@ -20,6 +20,11 @@ export function formatDescription(description, maxLength) {
     .replace(/&#160;/g, " ")
     .replace(/&#8220;/g, "“")
     .replace(/&#8221;/g, "”")
+    .replace(/&#x2018;/g, "‘")
+    .replace(/&#x2019;/g, "’")
+    .replace(/&#x201A;/g, "‚")
+    .replace(/&#x201C;/g, "“")
+    .replace(/&#x201D;/g, "”")
     .trim()
     .slice(0, maxLength);
 
