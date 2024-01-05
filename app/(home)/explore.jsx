@@ -26,6 +26,7 @@ import * as rssParser from "react-native-rss-parser";
 import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import { useScrollToTop } from "@react-navigation/native";
 import { chunkArray } from "../utils/Formatting";
+import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeaturedSkeleton";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -56,8 +57,6 @@ export default function Explore() {
     wait: false,
     error: null,
   });
-
-  console.log("seachInput:", searchInput);
 
   const ref = useRef(null);
 
@@ -405,14 +404,36 @@ export default function Explore() {
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     loadingContainer: {
+      paddingHorizontal: 16,
+      marginBottom: 16,
       flex: 1,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      width: "100%",
+      borderWidth: 1,
+      borderColor: "red",
     },
     searchResultsList: {
       alignItems: "center",
       justifyContent: "center",
+    },
+    feedsLoadingScreen: {},
+    feedsLoadingContainer: {
+      gap: 10,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      width: CARD_WIDTH,
+    },
+    feedsLoadingText: {
+      textAlign: "center",
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
   };
 
@@ -536,11 +557,13 @@ export default function Explore() {
               <Text style={styles.textButtonText}>View more</Text>
             </TouchableOpacity>
           </View>
+
           <Text style={styles.headerSubtitle}>
-            Explore some randomly selected feeds.
+            {randomFeeds == null
+              ? "Explore some randomly selected feeds."
+              : "Loading..."}
           </Text>
         </View>
-
         {randomFeeds != null ? (
           <ScrollView
             horizontal
@@ -556,7 +579,19 @@ export default function Explore() {
             ))}
           </ScrollView>
         ) : (
-          <Text>Loading...</Text>
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.randomChannelList}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8}
+            snapToAlignment={"left"}
+          >
+            <FeedCardFeaturedSkeleton />
+            <FeedCardFeaturedSkeleton />
+            <FeedCardFeaturedSkeleton />
+          </ScrollView>
         )}
         <View style={styles.headerWrapper}>
           <View style={styles.titleWrapper}>
@@ -573,10 +608,11 @@ export default function Explore() {
             </TouchableOpacity>
           </View>
           <Text style={styles.headerSubtitle}>
-            Follow some of our most popular feeds.
+            {popularFeeds == null
+              ? "Follow some of our most popular feeds."
+              : "Loading..."}
           </Text>
         </View>
-
         {popularFeeds != null ? (
           <ScrollView
             horizontal
@@ -603,12 +639,19 @@ export default function Explore() {
             ))}
           </ScrollView>
         ) : (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="large"
-              color={Colors[colorScheme || "light"].colorPrimary}
-            />
-          </View>
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.randomChannelList]}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8}
+            snapToAlignment={"left"}
+          >
+            <FeedCardFeaturedSkeleton />
+            <FeedCardFeaturedSkeleton />
+            <FeedCardFeaturedSkeleton />
+          </ScrollView>
         )}
       </ScrollView>
     </View>
