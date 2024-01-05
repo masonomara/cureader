@@ -443,7 +443,7 @@ export default function Index() {
     },
     dailyQuoteQuote: {
       textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textLow}`,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 25,
@@ -452,7 +452,7 @@ export default function Index() {
     },
     dailyQuoteAuthor: {
       textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textLow}`,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterMediumItalic",
       fontWeight: "500",
       fontStyle: "italic",
@@ -464,7 +464,7 @@ export default function Index() {
       opacity: 0,
     },
     feedsLoadingContainer: {
-      gap: 6,
+      gap: 10,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
@@ -472,10 +472,9 @@ export default function Index() {
     },
     feedsLoadingText: {
       textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textPlaceholder}`,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
-
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -495,7 +494,7 @@ export default function Index() {
             <View style={styles.feedsLoadingContainer}>
               <ActivityIndicator
                 size="small"
-                color={`${Colors[colorScheme || "light"].textPlaceholder}`}
+                color={`${Colors[colorScheme || "light"].textMedium}`}
               />
 
               <Text style={styles.feedsLoadingText}>
