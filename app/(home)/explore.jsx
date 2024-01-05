@@ -27,6 +27,7 @@ import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import { useScrollToTop } from "@react-navigation/native";
 import { chunkArray } from "../utils/Formatting";
 import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeaturedSkeleton";
+import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -559,7 +560,7 @@ export default function Explore() {
           </View>
 
           <Text style={styles.headerSubtitle}>
-            {randomFeeds == null
+            {randomFeeds != null
               ? "Explore some randomly selected feeds."
               : "Loading..."}
           </Text>
@@ -608,7 +609,7 @@ export default function Explore() {
             </TouchableOpacity>
           </View>
           <Text style={styles.headerSubtitle}>
-            {popularFeeds == null
+            {popularFeeds != null
               ? "Follow some of our most popular feeds."
               : "Loading..."}
           </Text>
@@ -648,9 +649,20 @@ export default function Explore() {
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
           >
-            <FeedCardFeaturedSkeleton />
-            <FeedCardFeaturedSkeleton />
-            <FeedCardFeaturedSkeleton />
+            {chunkArray(new Array(12).fill(null), 4).map((chunk, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  borderColor: `${Colors[colorScheme || "light"].border}`,
+                }}
+              >
+                {chunk.map((_, skeletonIndex) => (
+                  <FeedCardSkeleton key={skeletonIndex} />
+                ))}
+              </View>
+            ))}
           </ScrollView>
         )}
       </ScrollView>
