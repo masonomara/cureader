@@ -1,5 +1,4 @@
-import { useState, useContext, useLayoutEffect } from "react";
-import { View, Dimensions, Text } from "react-native";
+import { View, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import Colors from "../../constants/Colors";
@@ -117,7 +116,6 @@ export default function FeedCardFeaturedSkeleton() {
             <View style={styles.descriptionSkeletonOne}></View>
             <View style={styles.descriptionSkeletonTwo}></View>
           </View>
-
           <View style={styles.subscribedButtonSkeleton}></View>
         </View>
       </View>
