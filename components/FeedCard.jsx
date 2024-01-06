@@ -103,7 +103,7 @@ export default function FeedCard({ item, user }) {
       overflow: "hidden",
       height: 64,
       marginTop: -2,
-      arginBottom: -2,
+      marginBottom: -2,
     },
     title: {
       display: "flex",
