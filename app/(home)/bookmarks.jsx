@@ -13,6 +13,7 @@ import ArticleCard from "../../components/ArticleCard";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { useScrollToTop } from "@react-navigation/native";
+import ArticleCardSkeleton from "../../components/skeletons/ArticleCardSkeleton";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
@@ -30,13 +31,15 @@ export default function Bookmarks() {
   );
 
   useEffect(() => {
-    // Set userInitialBookmarks to userBookmarks on initial build
-    setUserInitialBookmarks(userBookmarks);
-  }, []);
+    if (userBookmarks != null) {
+      // Set userInitialBookmarks to userBookmarks on initial build
+      setUserInitialBookmarks(userBookmarks);
+    }
+  }, [userBookmarks]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    setUserInitialBookmarks(userBookmarks);
+    // Fetch or update userBookmarks here
     setRefreshing(false);
   };
 
@@ -65,7 +68,7 @@ export default function Bookmarks() {
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 8,
-      paddingBottom: userInitialBookmarks.length > 0 ? 0 : 48,
+      paddingBottom: userInitialBookmarks?.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
       width: "100%",
@@ -236,45 +239,60 @@ export default function Bookmarks() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.articleList}>
-        <FlashList
-          ref={ref}
-          ListEmptyComponent={() => (
-            <View style={styles.noFeedsHeader}>
-              <Text style={styles.username}>Like anything?</Text>
-              <Text style={styles.subtitle}>
-                Feel free to save any articles you find interesting or can't get
-                to yet.
-              </Text>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => {
-                  router.push({
-                    pathname: "/explore",
-                  });
-                }}
-              >
-                <Text style={styles.buttonText}>View Explore Page</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          data={userInitialBookmarks}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          estimatedItemSize={200}
-          onRefresh={onRefresh}
-          refreshing={refreshing}
-          renderItem={({ item }) => (
-            <ArticleCard
-              fallbackImage={item.fallbackImage}
-              item={item}
-              feed={item.feed}
-              publication={item.feed.channel_title}
-              user={user}
-            />
-          )}
-        />
-      </View>
+      {userBookmarks != null ? (
+        <View style={styles.articleList}>
+          <FlashList
+            ref={ref}
+            ListEmptyComponent={() => (
+              <View style={styles.noFeedsHeader}>
+                <Text style={styles.username}>Like anything?</Text>
+                <Text style={styles.subtitle}>
+                  Feel free to save any articles you find interesting or can't
+                  get to yet.
+                </Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/explore",
+                    });
+                  }}
+                >
+                  <Text style={styles.buttonText}>View Explore Page</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            data={userInitialBookmarks}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            renderItem={({ item }) => (
+              <ArticleCard
+                fallbackImage={item.fallbackImage}
+                item={item}
+                feed={item.feed}
+                publication={item.feed.channel_title}
+                user={user}
+              />
+            )}
+          />
+        </View>
+      ) : (
+        <View style={styles.articleList}>
+          <FlashList
+            ref={ref}
+            data={Array(4).fill(null)}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            renderItem={() => <ArticleCardSkeleton />}
+          />
+        </View>
+      )}
     </View>
   );
 }
