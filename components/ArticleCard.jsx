@@ -305,7 +305,7 @@ export default function ArticleCard({
       fontFamily: "NotoSerifRegular",
       fontWeight: "400",
       fontSize: 15,
-      lineHeight: 25,
+      lineHeight: 22,
       letterSpacing: -0.225,
     },
     cardControls: {
