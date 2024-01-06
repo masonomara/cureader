@@ -20,6 +20,7 @@ export const FeedContext = createContext({
   dailyQuote: null,
   feedsFetched: false,
   userFetched: false,
+  setFeeds: () => {},
 });
 
 export const AuthContext = createContext({
@@ -144,7 +145,6 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (feeds) {
-
       const sortedFeeds = sortFeedsBySubscribers(feeds);
       const popularFeeds = sortedFeeds.slice(0, 24);
       setPopularFeeds(popularFeeds);
@@ -203,7 +203,6 @@ function RootLayoutNav() {
         return null;
       }
     } else {
-
       router.replace("(login)");
 
       setSession(null);
@@ -215,7 +214,6 @@ function RootLayoutNav() {
   };
 
   useEffect(() => {
-
     const fetchUserAndSubscriptions = async () => {
       const {
         data: { session },
@@ -307,6 +305,7 @@ function RootLayoutNav() {
             dailyQuote,
             feedsFetched,
             userFetched,
+            setFeeds,
           }}
         >
           <AuthContext.Provider
