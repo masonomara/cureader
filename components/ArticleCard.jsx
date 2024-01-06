@@ -41,8 +41,24 @@ export default function ArticleCard({
     setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
   }, [userBookmarks, item]);
 
+  const [imageWidth, setImageWidth] = useState(0);
+
   const imageUrl =
     (item.description?.match(/<img.*?src=['"](.*?)['"].*?>/)?.[1] ?? "") || "";
+
+  const imgElement = new Image();
+
+  imgElement.onload = function () {
+    setImageWidth(imgElement.width);
+
+    // Check if the image width is less than 200px
+    if (imgElement.width < 200) {
+      // Treat it as if there is no imageUrl
+      setImageWidth(0);
+    }
+  };
+
+  imgElement.src = imageUrl;
 
   const _handlePressButtonAsync = async () => {
     try {
@@ -123,28 +139,34 @@ export default function ArticleCard({
     </View>
   );
 
-  const renderImage = () => (
-    <View
-      style={{
-        aspectRatio: "4/3",
-        width: "100%",
-        borderRadius: 12,
-        overflow: "hidden",
-        marginBottom: 12,
-      }}
-    >
-      <Image
-        style={{
-          flex: 1,
-          borderRadius: 12,
-          borderWidth: 0.67,
-          borderColor: `${Colors[colorScheme || "light"].border}`,
-        }}
-        contentFit="cover"
-        source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-      />
-    </View>
-  );
+  const renderImage = () => {
+    if (imageUrl && imageWidth >= 200) {
+      return (
+        <View
+          style={{
+            aspectRatio: "4/3",
+            width: "100%",
+            borderRadius: 12,
+            overflow: "hidden",
+            marginBottom: 12,
+          }}
+        >
+          <Image
+            style={{
+              flex: 1,
+              borderRadius: 12,
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
+            }}
+            contentFit="cover"
+            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+          />
+        </View>
+      );
+    } else {
+      return null; // Render no image or handle it as needed
+    }
+  };
 
   const renderNoImageContainer = () => (
     <View style={styles.noImageContainer}>
@@ -352,7 +374,7 @@ export default function ArticleCard({
       height: 76,
       width: 76,
       borderRadius: 12,
-      marginTop: 20.3,
+      marginTop: 25.3,
       backgroundColor: getColorForLetter(publication),
       display: "flex",
       alignItems: "center",
@@ -375,7 +397,7 @@ export default function ArticleCard({
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {imageUrl ? (
+      {imageUrl && imageWidth >= 200 ? (
         <>
           {renderImage()}
           {renderCardContent()}
@@ -418,7 +440,7 @@ export default function ArticleCard({
                   aspectRatio: 1 / 1,
                   flex: 1,
                   borderRadius: 12,
-                  marginTop: 20.3,
+                  marginTop: 25.3,
                   marginBottom: 3,
                   maxWidth: 76,
                   width: 76,
@@ -426,7 +448,7 @@ export default function ArticleCard({
                   borderColor: `${Colors[colorScheme || "light"].border}`,
                 }}
                 contentFit="cover"
-                source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+                source={{ uri: fallbackImage || item.image?.url }}
               />
             ) : (
               renderNoImageContainer()
