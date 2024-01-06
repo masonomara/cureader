@@ -12,6 +12,7 @@ import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
 import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
+import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
@@ -52,10 +53,12 @@ export default function Profile() {
     <>
       <View style={styles.profileHeader}>
         <Text style={styles.username}>
-          Hello {user.user_metadata.displayName || null}
+          Hello {user?.user_metadata?.displayName || null}
         </Text>
         <Text style={styles.subtitle}>
-          {userInitialFeeds.length === 1
+          {userSubscriptionUrls === null
+            ? "Your feeds are currently loading..."
+            : userInitialFeeds.length === 1
             ? "You are currently subscribed to 1 feed."
             : userInitialFeeds.length > 1
             ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
@@ -91,7 +94,9 @@ export default function Profile() {
           )}
         </View>
         <Text style={styles.headerSubtitle}>
-          {userInitialFeeds.length > 0
+          {userSubscriptionUrls == null
+            ? "Loading..."
+            : userInitialFeeds.length > 0
             ? "Manage all your favorite feeds."
             : "Get started with our most popular feeds."}
         </Text>
@@ -292,22 +297,39 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.feedList}>
-        <FlashList
-          data={userInitialFeeds.length > 0 ? userInitialFeeds : popularFeeds}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          estimatedItemSize={200}
-          ref={ref}
-          renderItem={({ item }) => (
-            <FeedCard key={item.id} item={item} user={user} />
-          )}
-          ListHeaderComponent={renderHeaderText}
-          ListFooterComponent={() => <View style={styles.feedListFooter} />}
-          onRefresh={onRefresh}
-          refreshing={refreshing}
-        />
-      </View>
+      {userSubscriptionUrls != null ? (
+        <View style={styles.feedList}>
+          <FlashList
+            data={userInitialFeeds.length > 0 ? userInitialFeeds : popularFeeds}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            ref={ref}
+            renderItem={({ item }) => (
+              <FeedCard key={item.id} item={item} user={user} />
+            )}
+            ListHeaderComponent={renderHeaderText}
+            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        </View>
+      ) : (
+        <View style={styles.feedList}>
+          <FlashList
+            data={Array(4).fill(null)}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            ref={ref}
+            renderItem={() => <FeedCardSkeleton />}
+            ListHeaderComponent={renderHeaderText}
+            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        </View>
+      )}
     </View>
   );
 }
