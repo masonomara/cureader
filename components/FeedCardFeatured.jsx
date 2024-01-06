@@ -9,7 +9,6 @@ import {
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
-import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
