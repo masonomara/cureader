@@ -163,6 +163,13 @@ export default function ArticleCard({
   const renderCardControls = () => (
     <View style={styles.cardControls}>
       <View style={styles.cardButtons}>
+        <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
+          <Share20
+            style={styles.buttonImage}
+            color={Colors[colorScheme || "light"].buttonActive}
+          />
+          <Text style={styles.buttonText}>Share</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.buttonWrapper} onPress={handleBookmark}>
           {isBookmarked ? (
             <BookmarkFilled20
@@ -176,13 +183,6 @@ export default function ArticleCard({
             />
           )}
           <Text style={styles.buttonText}>Bookmark</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-          <Share20
-            style={styles.buttonImage}
-            color={Colors[colorScheme || "light"].buttonActive}
-          />
-          <Text style={styles.buttonText}>Share</Text>
         </TouchableOpacity>
       </View>
       <FeedCardToolTip item={feed} />
