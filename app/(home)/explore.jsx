@@ -459,7 +459,9 @@ export default function Explore() {
         <TouchableOpacity
           style={[
             styles.closeIconWrapper,
-            textInputFocused ? { opacity: 1 } : { opacity: 0 },
+            textInputFocused || searchInput.length > 0
+              ? { opacity: 1 }
+              : { opacity: 0 },
           ]}
           onPress={handleClearInput}
         >
@@ -470,7 +472,7 @@ export default function Explore() {
           />
         </TouchableOpacity>
       </View>
-      {textInputFocused ? (
+      {textInputFocused || searchInput.length > 0 ? (
         <ScrollView style={styles.searchContainer}>
           <View style={styles.searchHeader}>
             <Text style={styles.searchHeaderText}>
@@ -540,7 +542,7 @@ export default function Explore() {
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        style={textInputFocused ? { display: "none" } : {}}
+        style={textInputFocused || searchInput.length > 0 ? { display: "none" } : {}}
         ref={ref}
       >
         <View style={styles.headerWrapper}>
