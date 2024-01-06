@@ -284,15 +284,23 @@ export default function ArticleCard({
       display: "flex",
       flexDirection: "row",
       width: "100%",
-      alignItems: "flex-start",
+      alignItems: "center",
+      justifyContent: "flex-start",
       flexWrap: "wrap",
       marginBottom: 6,
+
+      overflow: "hidden",
+      height: 19,
+      gap: 7,
+    },
+    publicationText: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
+      maxWidth: "85%",
     },
     articleDate: {
       color: `${Colors[colorScheme || "light"].textLow}`,
@@ -418,12 +426,12 @@ export default function ArticleCard({
                 flexDirection: "column",
               }}
             >
-              <Text style={styles.publicationWrapper}>
-                {publication}&nbsp;&nbsp;
+              <View style={styles.publicationWrapper}>
+                <Text style={styles.publicationText}>{publication}</Text>
                 <Text style={styles.articleDate}>
                   {formatPublicationDate(item.published)}
                 </Text>
-              </Text>
+              </View>
               <Text style={styles.title} numberOfLines={4}>
                 {item.title || ""}
               </Text>
