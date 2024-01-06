@@ -542,7 +542,9 @@ export default function Explore() {
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        style={textInputFocused || searchInput.length > 0 ? { display: "none" } : {}}
+        style={
+          textInputFocused || searchInput.length > 0 ? { display: "none" } : {}
+        }
         ref={ref}
       >
         <View style={styles.headerWrapper}>
