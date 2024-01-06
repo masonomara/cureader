@@ -4,12 +4,6 @@ import { useColorScheme } from "react-native";
 
 import Colors from "../../constants/Colors";
 
-import {
-  getColorForLetter,
-  getTextColorForLetter,
-} from "../../app/utils/Styling";
-import { formatDescription } from "../../app/utils/Formatting";
-
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCardSkeleton() {
