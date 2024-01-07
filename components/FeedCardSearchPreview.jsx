@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
-import { AuthContext } from "../app/_layout";
+import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
 
@@ -24,12 +24,13 @@ export default function FeedCardSearchPreview({
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
   const colorScheme = useColorScheme();
-
+  const { feeds, setFeeds } = useContext(FeedContext);
   const handleSubmitUrl = async () => {
-    const optimisticSubscribed = !isSubscribed;
-    setIsSubscribed(optimisticSubscribed);
+    setIsOptimisticSubscribed(true);
+    setIsSubscribed(!isSubscribed);
 
     try {
       // Create a new channel entry
@@ -39,46 +40,95 @@ export default function FeedCardSearchPreview({
           {
             channel_url: channelUrl,
             channel_title: channelTitle,
-            channel_subscribers: [user.id], // Create an array with the user's ID
+            channel_subscribers: [user.id],
             channel_image_url: channelImageUrl,
             channel_description: channelDescription,
+            channel_creator: user.id,
           },
         ])
         .select()
         .single();
 
       if (channelError) {
-        console.log("channelData is null:", error);
-      } else {
-        const updatedUserSubscriptionIds = [
-          ...userSubscriptionIds,
-          channelData.id,
-        ];
-
-        const updatedUserSubscriptionUrls = [
-          ...userSubscriptionUrls,
-          channelData.channel_url,
-        ];
-
-        setUserSubscriptionIds(updatedUserSubscriptionIds);
-        setUserSubscriptionUrls(updatedUserSubscriptionUrls);
-
-        // Wait for the update to complete before moving on
-        await supabase
-          .from("profiles")
-          .update({
-            channel_subscriptions: updatedUserSubscriptionIds.map(
-              (id, index) => ({
-                channelId: id,
-                channelUrl: updatedUserSubscriptionUrls[index],
-              })
-            ),
-          })
-          .eq("id", user.id);
+        console.error("Error creating channel:", channelError);
+        setIsSubscribed(!isSubscribed);
+        return;
       }
-    } catch (error) {
+
+      try {
+        const { data: feedsData, error: feedsError } = await supabase
+          .from("channels")
+          .select("*");
+
+        if (feedsError) {
+          console.error("Error fetching feeds:", feedsError);
+          setIsSubscribed(!isSubscribed);
+          return;
+        }
+
+        setFeeds(feedsData);
+
+        try {
+          const { data: newChannelData, error: newChannelError } =
+            await supabase
+              .from("channels")
+              .select("*")
+              .eq("id", channelData.id) // Filter by the ID of the newly created channel
+              .single();
+
+          if (newChannelError) {
+            console.error("Error fetching new channel data:", newChannelError);
+            setIsSubscribed(!isSubscribed);
+            return;
+          }
+
+          const updatedUserSubscriptionIds = [
+            ...userSubscriptionIds,
+            newChannelData.id,
+          ];
+          const updatedUserSubscriptionUrls = [
+            ...userSubscriptionUrls,
+            newChannelData.channel_url,
+          ];
+
+          setUserSubscriptionIds(updatedUserSubscriptionIds);
+          setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+
+          try {
+            await supabase
+              .from("profiles")
+              .update({
+                channel_subscriptions: updatedUserSubscriptionIds.map(
+                  (id, index) => ({
+                    channelId: id,
+                    channelUrl: updatedUserSubscriptionUrls[index],
+                  })
+                ),
+              })
+              .eq("id", user.id);
+          } catch (updateProfileError) {
+            console.error("Error updating user profile:", updateProfileError);
+            throw updateProfileError;
+          }
+        } catch (fetchNewChannelError) {
+          console.error(
+            "Error fetching new channel data:",
+            fetchNewChannelError
+          );
+          setIsSubscribed(!isSubscribed);
+          throw fetchNewChannelError;
+        }
+      } catch (fetchFeedsError) {
+        console.error("Error fetching feeds:", fetchFeedsError);
+        setIsSubscribed(!isSubscribed);
+        throw fetchFeedsError;
+      }
+    } catch (fetchOrUploadError) {
+      console.error(
+        "Error fetching or uploading channel data:",
+        fetchOrUploadError
+      );
       setIsSubscribed(!isSubscribed);
-      console.error("Error fetching or uploading channel data:", error);
     }
   };
 
@@ -262,12 +312,12 @@ export default function FeedCardSearchPreview({
           >
             <Text
               style={
-                isSubscribed
+                isOptimisticSubscribed
                   ? styles.subscribedButtonText
                   : styles.subscribeButtonText
               }
             >
-              {isSubscribed ? "Following" : "Follow"}
+              {isOptimisticSubscribed ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         </View>
