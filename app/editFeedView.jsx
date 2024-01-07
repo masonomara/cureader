@@ -30,7 +30,6 @@ export default function TabOneScreen() {
     setDummyImageUrl(params.image || ""); // Set your initial image URL here
   }, [params.title]);
 
-
   const colorScheme = useColorScheme();
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
