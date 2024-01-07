@@ -6,8 +6,8 @@ import {
   Pressable,
   useColorScheme,
   Share,
+  Image as RNImage,
 } from "react-native";
-import { Image } from "expo-image";
 import * as WebBrowser from "expo-web-browser";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
@@ -46,19 +46,19 @@ export default function ArticleCard({
   const imageUrl =
     (item.description?.match(/<img.*?src=['"](.*?)['"].*?>/)?.[1] ?? "") || "";
 
-  const imgElement = new Image();
-
-  imgElement.onload = function () {
-    setImageWidth(imgElement.width);
-
-    // Check if the image width is less than 200px
-    if (imgElement.width < 200) {
-      // Treat it as if there is no imageUrl
-      setImageWidth(0);
-    }
+  const getImageSize = () => {
+    RNImage.getSize(imageUrl, (width, height) => {
+      // Callback function that gets called with the width and height of the image
+      setImageWidth(width);
+      // You can add further logic based on the image size if needed
+    });
   };
 
-  imgElement.src = imageUrl;
+  useLayoutEffect(() => {
+    if (imageUrl) {
+      getImageSize();
+    }
+  }, [imageUrl]);
 
   const _handlePressButtonAsync = async () => {
     try {
@@ -140,7 +140,7 @@ export default function ArticleCard({
   );
 
   const renderImage = () => {
-    if (imageUrl && imageWidth >= 200) {
+    if (imageUrl && imageWidth > 200) {
       return (
         <View
           style={{
@@ -151,7 +151,7 @@ export default function ArticleCard({
             marginBottom: 12,
           }}
         >
-          <Image
+          <RNImage
             style={{
               flex: 1,
               borderRadius: 12,
@@ -405,7 +405,7 @@ export default function ArticleCard({
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {imageUrl && imageWidth >= 200 ? (
+      {imageUrl && imageWidth > 200 ? (
         <>
           {renderImage()}
           {renderCardContent()}
@@ -443,7 +443,7 @@ export default function ArticleCard({
             </View>
 
             {fallbackImage || item.image?.url ? (
-              <Image
+              <RNImage
                 style={{
                   aspectRatio: 1 / 1,
                   flex: 1,
