@@ -43,10 +43,24 @@ export default function Index() {
   const [initialParsingComplete, setInitialParsingComplete] = useState(false);
 
   useEffect(() => {
+    console.log("[0.1] feedsFetched:", feedsFetched);
+    // console.log("[0.2] userFetched:", userFetched);
+    // console.log(
+    //   "[0.3] userSubscriptionUrlsFetched:",
+    //   userSubscriptionUrlsFetched
+    // );
     if (feedsFetched && userFetched && userSubscriptionUrlsFetched) {
+      console.log(
+        "[1.1] about to run initialFetchAndParseFeeds:",
+        userSubscriptionUrls.toString().slice(0, 30)
+      );
+
       initialFetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
-        setInitialParsingComplete(true); // Set the flag when initial parsing is complete
+
+        console.log("[1.2] isRefreshing set to false:", isRefreshing);
+        setInitialParsingComplete(true);
+        console.log("[1.3] initialParsingComplete:", initialParsingComplete);
       });
     }
   }, [userSubscriptionUrlsFetched, userFetched, feedsFetched]);
@@ -65,20 +79,51 @@ export default function Index() {
   }, [userSubscriptionUrls]);
 
   const initialFetchAndParseFeeds = async (urls) => {
+    // console.log(
+    //   "[2.1] beginning initialFetchAndParseFeeds:",
+    //   userSubscriptionUrls.toString().slice(0, 30)
+    // );
+
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
     );
+
+    // console.log(
+    //   "[2.2] fetched userFeeds:",
+    //   userFeeds
+    //     .map((feed) => feed.channel_title)
+    //     .toString()
+    //     .slice(0, 30)
+    // );
+
     const fallbackImages = userFeeds.map((feed) => ({
       channel_url: feed.channel_url,
       channel_image_url: feed.channel_image_url,
     }));
 
+    // console.log(
+    //   "[2.3] fetched fallbackImages:",
+    //   fallbackImages
+    //     .map((image) => image)
+    //     .toString()
+    //     .slice(0, 30)
+    // );
+
     const allChannels = [];
     const allItems = [];
 
+    // console.log("[2.4] check allChannels:", allChannels);
+    // console.log("[2.5] check allItems:", allItems);
+
     const parseAndSort = async (url) => {
+      // console.log("[6] beginning parseAndSort:", url);
       try {
         const response = await fetch(url);
+
+        // console.log(
+        //   "[6.1] parseAndSort response:",
+        //   response.toString().slice(0, 30)
+        // );
 
         if (!response.ok) {
           throw new Error(
@@ -88,17 +133,43 @@ export default function Index() {
 
         const responseData = await response.text();
 
+        // console.log(
+        //   "[6.2] parseAndSort responseData:",
+        //   responseData.toString().slice(0, 30)
+        // );
+
         const parsedRss = await rssParser.parse(responseData);
+
+        // console.log(
+        //   "[6.3] parseAndSort parsedRss:",
+        //   parsedRss.toString().slice(0, 30)
+        // );
 
         const channelImage = fallbackImages.find(
           (image) => image.channel_url === url
         );
+
+        // console.log(
+        //   "[6.4] parseAndSort channelImage:",
+        //   channelImage.toString().slice(0, 30)
+        // );
+
         const feed = feeds.find((feed) => feed.channel_url === url);
+
+        // console.log(
+        //   "[6.5] parseAndSort channelImage:",
+        //   channelImage.toString().slice(0, 30)
+        // );
 
         allChannels.push({
           title: parsedRss.title,
           description: parsedRss.description,
         });
+
+        // console.log(
+        //   "[6.6] parseAndSort allChannels:",
+        //   allChannels.toString().slice(0, 30)
+        // );
 
         allItems.push(
           ...parsedRss.items.map((item) => ({
@@ -110,6 +181,16 @@ export default function Index() {
             channelUrl: parsedRss.links[0].url,
           }))
         );
+
+        // console.log(
+        //   "[6.7] parseAndSort allItems:",
+        //   allItems.toString().slice(0, 30)
+        // );
+
+        // console.log(
+        //   "[7] completed parseAndSort:",
+        //   allItems.toString().slice(0, 30)
+        // );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
         showErrorAlert(
@@ -118,12 +199,31 @@ export default function Index() {
       }
     };
 
+    // console.log(
+    //   "[2.6] completed all parseAndSort:",
+    //   allItems.toString().slice(0, 30)
+    // );
+
     await Promise.all(urls.map(parseAndSort));
 
     allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
+    // console.log(
+    //   "[2.7] completed Promise.all:",
+    //   allItems
+    //     .sort((a, b) => b.publicationDate - a.publicationDate)
+    //     .toString()
+    //     .slice(0, 30)
+    // );
+
     setRssItems(allItems);
+
+    // console.log("[2.8] completed rssItems:", rssItems.toString().slice(0, 30));
     setFeedsParsed(true);
+    //   console.log(
+    //     "[2.9] completed feedsParsed:",
+    //     feedsParsed.toString().slice(0, 30)
+    //   );
   };
 
   const fetchAndParseFeeds = async (urls) => {
@@ -479,109 +579,122 @@ export default function Index() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.dailyQuoteContainer}>
-        {dailyQuote && dailyQuote.length > 0 && (
-          <View style={styles.dailyQuoteWrapper}>
-            <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
-            <Text style={styles.dailyQuoteAuthor}>
-              — {dailyQuote[0].a}
-              <Text style={styles.seeThrough}> —</Text>
-            </Text>
-            <View style={styles.feedsLoadingContainer}>
-              <ActivityIndicator
-                size="small"
-                color={`${Colors[colorScheme || "light"].textMedium}`}
-              />
-
-              <Text style={styles.feedsLoadingText}>
-                Loading your RSS Feeds...
+    <>
+      {/* <Text style={styles.feedsLoadingText}>
+        feedsFetched: {feedsFetched && "true"}
+      </Text>
+      <Text style={styles.feedsLoadingText}>
+        userFetched: {userFetched && "true"}
+      </Text>
+      <Text style={styles.feedsLoadingText}>
+        userSubscriptionUrlsFetched: {userSubscriptionUrlsFetched && "true"}
+      </Text> */}
+      <View style={styles.container}>
+        <View style={styles.dailyQuoteContainer}>
+          {dailyQuote && dailyQuote.length > 0 && (
+            <View style={styles.dailyQuoteWrapper}>
+              <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
+              <Text style={styles.dailyQuoteAuthor}>
+                — {dailyQuote[0].a}
+                <Text style={styles.seeThrough}> —</Text>
               </Text>
-            </View>
-          </View>
-        )}
-      </View>
-      {feedsParsed ? (
-        rssItems.length > 0 ? (
-          <View style={styles.articleList}>
-            <FlashList
-              data={rssItems}
-              ref={ref}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              refreshing={isRefreshing}
-              onRefresh={onRefresh}
-              estimatedItemSize={200}
-              //onScroll={onScroll} // Add this line to handle scroll events
-              renderItem={({ item }) => (
-                <ArticleCard
-                  fallbackImage={item.fallbackImage}
-                  item={item}
-                  feed={item.feed}
-                  publication={item.feed.channel_title}
-                  user={user}
+              <View style={styles.feedsLoadingContainer}>
+                <ActivityIndicator
+                  size="small"
+                  color={`${Colors[colorScheme || "light"].textMedium}`}
                 />
-              )}
-            />
-          </View>
-        ) : (
-          <View style={styles.feedList}>
-            <FlashList
-              //onScroll={onScroll} // Add this line to handle scroll events
-              ref={ref}
-              ListHeaderComponent={() => (
-                <>
-                  <View style={styles.noFeedsHeader}>
-                    <Text style={styles.username}>Welcome to Cureader!</Text>
-                    <Text style={styles.subtitle}>
-                      Feed free to view your Explore Page or see our most
-                      popular feeds below.
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.button}
-                      onPress={() => {
-                        router.push({
-                          pathname: "/explore",
-                        });
-                      }}
-                    >
-                      <Text style={styles.buttonText}>View Explore Page</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.headerWrapper}>
-                    <View style={styles.titleWrapper}>
-                      <Text style={styles.title}>Popular Feeds</Text>
+
+                <Text style={styles.feedsLoadingText}>
+                  Loading your RSS Feeds...
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+        {feedsParsed ? (
+          rssItems.length > 0 ? (
+            <View style={styles.articleList}>
+              <FlashList
+                data={rssItems}
+                ref={ref}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                refreshing={isRefreshing}
+                onRefresh={onRefresh}
+                estimatedItemSize={200}
+                //onScroll={onScroll} // Add this line to handle scroll events
+                renderItem={({ item }) => (
+                  <ArticleCard
+                    fallbackImage={item.fallbackImage}
+                    item={item}
+                    feed={item.feed}
+                    publication={item.feed.channel_title}
+                    user={user}
+                  />
+                )}
+              />
+            </View>
+          ) : (
+            <View style={styles.feedList}>
+              <FlashList
+                //onScroll={onScroll} // Add this line to handle scroll events
+                ref={ref}
+                ListHeaderComponent={() => (
+                  <>
+                    <View style={styles.noFeedsHeader}>
+                      <Text style={styles.username}>Welcome to Cureader!</Text>
+                      <Text style={styles.subtitle}>
+                        Feed free to view your Explore Page or see our most
+                        popular feeds below.
+                      </Text>
                       <TouchableOpacity
-                        style={styles.textButton}
+                        style={styles.button}
                         onPress={() => {
                           router.push({
-                            pathname: "/allPopularFeeds",
+                            pathname: "/explore",
                           });
                         }}
                       >
-                        <Text style={styles.textButtonText}>View more</Text>
+                        <Text style={styles.buttonText}>View Explore Page</Text>
                       </TouchableOpacity>
                     </View>
-                    <Text style={styles.headerSubtitle}>
-                      Get started with our most popular feeds.
-                    </Text>
-                  </View>
-                </>
-              )}
-              data={popularFeeds}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              estimatedItemSize={200}
-              renderItem={({ item }) => (
-                <FeedCard key={item.id} item={item} user={user} />
-              )}
-              ListFooterComponent={() => <View style={styles.feedListFooter} />}
-            />
-          </View>
-        )
-      ) : (
-        <></>
-      )}
-    </View>
+                    <View style={styles.headerWrapper}>
+                      <View style={styles.titleWrapper}>
+                        <Text style={styles.title}>Popular Feeds</Text>
+                        <TouchableOpacity
+                          style={styles.textButton}
+                          onPress={() => {
+                            router.push({
+                              pathname: "/allPopularFeeds",
+                            });
+                          }}
+                        >
+                          <Text style={styles.textButtonText}>View more</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={styles.headerSubtitle}>
+                        Get started with our most popular feeds.
+                      </Text>
+                    </View>
+                  </>
+                )}
+                data={popularFeeds}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                estimatedItemSize={200}
+                renderItem={({ item }) => (
+                  <FeedCard key={item.id} item={item} user={user} />
+                )}
+                ListFooterComponent={() => (
+                  <View style={styles.feedListFooter} />
+                )}
+              />
+            </View>
+          )
+        ) : (
+          <></>
+        )}
+      </View>
+    </>
   );
 }
