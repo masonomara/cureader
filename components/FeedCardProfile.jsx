@@ -34,7 +34,6 @@ export default function FeedCardProfile({ item, user }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
-  console.log(item.channel_creator);
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);

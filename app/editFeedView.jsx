@@ -30,9 +30,6 @@ export default function TabOneScreen() {
     setDummyImageUrl(params.image || ""); // Set your initial image URL here
   }, [params.title]);
 
-  console.log("dummyTitle", dummyTitle);
-  console.log("dummyDescription", dummyDescription);
-  console.log("dummyImageUrl", dummyImageUrl);
 
   const colorScheme = useColorScheme();
   const [loading, setLoading] = useState(false);
