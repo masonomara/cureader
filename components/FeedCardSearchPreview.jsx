@@ -27,7 +27,7 @@ export default function FeedCardSearchPreview({
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
   const colorScheme = useColorScheme();
-  const { feeds, setFeeds } = useContext(FeedContext);
+  const { setFeeds } = useContext(FeedContext);
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(true);
     setIsSubscribed(!isSubscribed);
