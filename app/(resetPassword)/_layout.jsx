@@ -57,7 +57,7 @@ export default function AuthLayout() {
           },
           href: null,
           tabBarButton: null,
-          title: "Sign up",
+          title: "Sign Up",
           headerTitle: () => (
             <Image
               style={{ width: 200, height: 36 }}

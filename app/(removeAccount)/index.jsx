@@ -285,7 +285,7 @@ export default function Auth() {
         >
           {!removalDisabled ? (
             <TouchableOpacity
-              title="Sign up"
+              title="Sign Up"
               disabled={removalDisabled}
               style={styles.button}
               onPress={() => deleteAccount()}
@@ -294,7 +294,7 @@ export default function Auth() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              title="Sign up"
+              title="Sign Up"
               disabled={removalDisabled}
               style={styles.buttonDisabled}
               onPress={() => deleteAccount()}

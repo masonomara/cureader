@@ -198,6 +198,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
+      flexWrap: 'nowrap',
     },
     inputButton: {
       width: 44,
@@ -332,7 +333,7 @@ export default function Auth() {
           ]}
         >
           <TouchableOpacity
-            title="Sign up"
+            title="Sign Up"
             disabled={loading}
             style={styles.button}
             onPress={() => signUpWithEmail()}

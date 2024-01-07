@@ -95,6 +95,7 @@ export default function Auth() {
     content: {
       width: "100%",
       alignItems: "center",
+
     },
     title: {
       marginBottom: 4,
@@ -193,6 +194,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
+      flexWrap: 'nowrap',
     },
     inputButton: {
       width: 44,
@@ -271,7 +273,7 @@ export default function Auth() {
             <Text style={styles.optionTextCredit}>to have it reset.</Text>
           </View>
         </View>
-        {renderButton("Log in", signInWithEmail)}
+        {renderButton("Log In", signInWithEmail)}
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
