@@ -306,7 +306,7 @@ export default function FeedCardSearchPreview({
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={
-              isSubscribed ? styles.subscribedButton : styles.subscribeButton
+              isOptimisticSubscribed ? styles.subscribedButton : styles.subscribeButton
             }
             onPress={handleSubmitUrl}
           >
