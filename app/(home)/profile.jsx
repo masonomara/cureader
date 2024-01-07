@@ -10,9 +10,9 @@ import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
-import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
+import FeedCardProfile from "../../components/FeedCardProfile";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
@@ -306,7 +306,7 @@ export default function Profile() {
             estimatedItemSize={200}
             ref={ref}
             renderItem={({ item }) => (
-              <FeedCard key={item.id} item={item} user={user} />
+              <FeedCardProfile key={item.id} item={item} user={user} />
             )}
             ListHeaderComponent={renderHeaderText}
             ListFooterComponent={() => <View style={styles.feedListFooter} />}
