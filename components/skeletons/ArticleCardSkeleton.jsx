@@ -6,6 +6,12 @@ import Colors from "../../constants/Colors";
 export default function ArticleCardSkeleton() {
   const colorScheme = useColorScheme();
 
+  const splashImageSource =
+    colorScheme === "dark"
+      ? require("../../assets/images/splashSkeletonDark.png")
+      : require("../../assets/images/splashSkeletonLight.png");
+
+
   const styles = {
     cardSkeleton: {
       borderBottomWidth: 1,
@@ -264,7 +270,7 @@ export default function ArticleCardSkeleton() {
           backgroundColor: `${Colors[colorScheme || "light"].border}`,
         }}
         contentFit="cover"
-        source={require("../../assets/images/splashSkeleton.png")}
+        source={splashImageSource}
       />
     </View>
   );

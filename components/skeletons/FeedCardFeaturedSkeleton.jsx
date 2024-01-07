@@ -8,6 +8,11 @@ const CARD_WIDTH = Dimensions.get("window").width - 32;
 export default function FeedCardFeaturedSkeleton() {
   const colorScheme = useColorScheme();
 
+  const splashImageSource =
+    colorScheme === "dark"
+      ? require("../../assets/images/splashSkeletonDark.png")
+      : require("../../assets/images/splashSkeletonLight.png");
+
   const styles = {
     cardSkeleton: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -106,7 +111,7 @@ export default function FeedCardFeaturedSkeleton() {
             flex: 1,
           }}
           contentFit="cover"
-          source={require("../../assets/images/splashSkeleton.png")}
+          source={splashImageSource}
         />
       </View>
       <View style={styles.cardContent}>

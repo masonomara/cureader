@@ -9,6 +9,11 @@ const CARD_WIDTH = Dimensions.get("window").width - 32;
 export default function FeedCardSkeleton() {
   const colorScheme = useColorScheme();
 
+  const iconImageSource =
+    colorScheme === "dark"
+      ? require("../../assets/images/iconSkeletonDark.png")
+      : require("../../assets/images/iconSkeletonLight.png");
+
   const styles = {
     cardSkeleton: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -126,7 +131,7 @@ export default function FeedCardSkeleton() {
             borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
           contentFit="cover"
-          source={require("../../assets/images/iconSkeleton.png")}
+          source={iconImageSource}
         />
       </View>
 
