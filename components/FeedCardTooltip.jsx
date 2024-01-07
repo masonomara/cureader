@@ -299,7 +299,7 @@ export default function FeedCardToolTip({ item }) {
       <MenuOptions
         customStyles={{
           optionsContainer: {
-            backgroundColor: Colors[colorScheme || "light"].surfaceOne,
+            backgroundColor: Colors[colorScheme || "light"].background,
             borderWidth: 0.5,
             borderColor: Colors[colorScheme || "light"].border,
             borderTopLeftRadius: 20,
