@@ -134,6 +134,13 @@ export default function FeedCard({ item, user }) {
       letterSpacing: -0.14,
       height: "100%",
     },
+    subscribeButtonWrapper: {
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 44,
+    },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
@@ -262,20 +269,24 @@ export default function FeedCard({ item, user }) {
         </View>
         <View style={styles.cardControls}>
           <TouchableOpacity
-            style={
-              isSubscribed ? styles.subscribedButton : styles.subscribeButton
-            }
+            style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}
           >
-            <Text
+            <View
               style={
-                isSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
+                isSubscribed ? styles.subscribedButton : styles.subscribeButton
               }
             >
-              {isSubscribed ? "Following" : "Follow"}
-            </Text>
+              <Text
+                style={
+                  isSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isSubscribed ? "Following" : "Follow"}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>

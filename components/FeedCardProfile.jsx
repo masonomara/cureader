@@ -121,8 +121,8 @@ export default function FeedCardProfile({ item, user }) {
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      gap: 3,
+      alignItems: "center",
     },
     description: {
       flex: 1,
@@ -135,6 +135,13 @@ export default function FeedCardProfile({ item, user }) {
       letterSpacing: -0.14,
       height: "100%",
     },
+    editButtonWrapper: {
+      height: 44,
+      width: 44,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
     editButton: {
       height: 34,
       width: 34,
@@ -143,6 +150,13 @@ export default function FeedCardProfile({ item, user }) {
       borderRadius: 100,
       justifyContent: "center",
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+    },
+    subscribeButtonWrapper: {
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 44,
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -272,29 +286,54 @@ export default function FeedCardProfile({ item, user }) {
         </View>
         <View style={styles.cardControls}>
           {item.channel_creator === user.id && (
-            <TouchableOpacity style={styles.editButton}>
-              <Edit20
-                style={styles.buttonImage}
-                color={Colors[colorScheme || "light"].buttonActive}
-              />
+            <TouchableOpacity
+              style={styles.editButtonWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/editFeedView",
+                  params: {
+                    title: item.channel_title,
+                    description: item.channel_description,
+                    image: item.channel_image_url,
+                    subscribers: item.channel_subscribers,
+                    url: item.channel_url,
+                    id: item.id,
+                    user: user,
+                    userId: user.id,
+                    subscribed: isSubscribed,
+                    userSubscriptionIds: userSubscriptionIds,
+                  },
+                })
+              }
+            >
+              <View style={styles.editButton}>
+                <Edit20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+              </View>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={
-              isSubscribed ? styles.subscribedButton : styles.subscribeButton
-            }
+            style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}
           >
-            <Text
+            <View
               style={
-                isSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
+                isSubscribed ? styles.subscribedButton : styles.subscribeButton
               }
             >
-              {isSubscribed ? "Following" : "Follow"}
-            </Text>
+              <Text
+                style={
+                  isSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isSubscribed ? "Following" : "Follow"}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
