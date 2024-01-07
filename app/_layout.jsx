@@ -352,6 +352,22 @@ function RootLayoutNav() {
                 })}
               />
               <Stack.Screen
+                name="editFeedView"
+                options={({ route }) => ({
+                  title: `Edit ${route.params.title}` || "Edit Feed",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Back",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                })}
+              />
+              <Stack.Screen
                 name="allPopularFeeds"
                 options={{
                   title: "Popular Feeds",
