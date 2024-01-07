@@ -30,6 +30,8 @@ export function formatDescription(description, maxLength) {
     .replace(/&gt;/g, ">")
     .replace(/&#038;/g, "&")
     .replace(/&#8211;/g, "–")
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, `"`)
     .trim()
     .slice(0, maxLength);
 
