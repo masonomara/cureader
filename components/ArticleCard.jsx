@@ -126,7 +126,7 @@ export default function ArticleCard({
     <View style={styles.cardContent}>
       <View style={styles.cardContentWrapper}>
         <Text style={styles.publicationWrapper}>
-          {publication}&nbsp;&nbsp;
+          <Text style={styles.publicationText}>{publication}&nbsp;&nbsp;</Text>
           <Text style={styles.articleDate}>
             {formatPublicationDate(item.published)}
           </Text>
