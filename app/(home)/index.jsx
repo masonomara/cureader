@@ -43,24 +43,24 @@ export default function Index() {
   const [initialParsingComplete, setInitialParsingComplete] = useState(false);
 
   useEffect(() => {
-    console.log("[0.1] feedsFetched:", feedsFetched);
-    // console.log("[0.2] userFetched:", userFetched);
+    // console.log("[INDEX 0.1] feedsFetched:", feedsFetched);
+    // console.log("[INDEX 0.2] userFetched:", userFetched);
     // console.log(
     //   "[0.3] userSubscriptionUrlsFetched:",
     //   userSubscriptionUrlsFetched
     // );
     if (feedsFetched && userFetched && userSubscriptionUrlsFetched) {
       console.log(
-        "[1.1] about to run initialFetchAndParseFeeds:",
+        // "[1.1] about to run initialFetchAndParseFeeds:",
         userSubscriptionUrls.toString().slice(0, 30)
       );
 
       initialFetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
 
-        console.log("[1.2] isRefreshing set to false:", isRefreshing);
+        // console.log("[INDEX 1.2] isRefreshing set to false:", isRefreshing);
         setInitialParsingComplete(true);
-        console.log("[1.3] initialParsingComplete:", initialParsingComplete);
+        // console.log("[INDEX 1.3] initialParsingComplete:", initialParsingComplete);
       });
     }
   }, [userSubscriptionUrlsFetched, userFetched, feedsFetched]);
@@ -112,11 +112,11 @@ export default function Index() {
     const allChannels = [];
     const allItems = [];
 
-    // console.log("[2.4] check allChannels:", allChannels);
-    // console.log("[2.5] check allItems:", allItems);
+    // console.log("[INDEX 2.4] check allChannels:", allChannels);
+    // console.log("[INDEX 2.5] check allItems:", allItems);
 
     const parseAndSort = async (url) => {
-      // console.log("[6] beginning parseAndSort:", url);
+      // console.log("[INDEX 6] beginning parseAndSort:", url);
       try {
         const response = await fetch(url);
 
@@ -218,7 +218,7 @@ export default function Index() {
 
     setRssItems(allItems);
 
-    // console.log("[2.8] completed rssItems:", rssItems.toString().slice(0, 30));
+    // console.log("[INDEX 2.8] completed rssItems:", rssItems.toString().slice(0, 30));
     setFeedsParsed(true);
     //   console.log(
     //     "[2.9] completed feedsParsed:",
@@ -591,25 +591,26 @@ export default function Index() {
       </Text> */}
       <View style={styles.container}>
         <View style={styles.dailyQuoteContainer}>
-          {dailyQuote && dailyQuote.length > 0 && (
+          {/* {dailyQuote && dailyQuote.length > 0 && (
             <View style={styles.dailyQuoteWrapper}>
               <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
               <Text style={styles.dailyQuoteAuthor}>
                 — {dailyQuote[0].a}
                 <Text style={styles.seeThrough}> —</Text>
               </Text>
-              <View style={styles.feedsLoadingContainer}>
-                <ActivityIndicator
-                  size="small"
-                  color={`${Colors[colorScheme || "light"].textMedium}`}
-                />
-
-                <Text style={styles.feedsLoadingText}>
-                  Loading your RSS Feeds...
-                </Text>
-              </View>
+              
             </View>
-          )}
+          )} */}
+          <View style={styles.feedsLoadingContainer}>
+            <ActivityIndicator
+              size="small"
+              color={`${Colors[colorScheme || "light"].textMedium}`}
+            />
+
+            <Text style={styles.feedsLoadingText}>
+              Loading your RSS Feeds...
+            </Text>
+          </View>
         </View>
         {feedsParsed ? (
           rssItems.length > 0 ? (

@@ -111,7 +111,9 @@ function RootLayoutNav() {
   };
 
   useEffect(() => {
+    console.log("[LAYOUT 0.1] prepping fetchFeeds:");
     async function fetchFeeds() {
+      console.log("[LAYOUT 0.2] running fetchFeeds:");
       try {
         const { data: feedsData, error } = await supabase
           .from("channels")
