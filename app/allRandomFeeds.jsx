@@ -1,62 +1,42 @@
-import React, { useState, useContext } from "react";
-
-import {
-  useColorScheme,
-  ActivityIndicator,
-  Text, // Import ActivityIndicator
-} from "react-native";
+import React, { useContext } from "react";
+import { useColorScheme, View, Text } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-
-import { useLocalSearchParams } from "expo-router";
-import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
-import { AuthContext } from "./_layout";
+import FeedCardListItem from "../components/FeedCardListItem";
+import { AuthContext, FeedContext } from "./_layout";
 
 export default function TabOneScreen() {
-  const { session, user, userSubscriptionIds } = useContext(AuthContext);
-  const params = useLocalSearchParams();
+  const { randomFeeds } = useContext(FeedContext);
+  const { user } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
-  console.log("params.feed:", params.feed);
-
-  // Styles
-  const styles = {
+  const createStyles = (additionalStyles) => ({
+    ...additionalStyles,
     container: {
       flex: 1,
       alignItems: "center",
+      width: "100%",
+      maxWidth: "100%",
       justifyContent: "center",
+      backgroundColor: Colors[colorScheme || "light"].background,
     },
-    articleList: {
-      width: "100%",
+  });
+
+  const styles = createStyles({
+    container: {
       flex: 1,
-    },
-    input: {
+      alignItems: "center",
       width: "100%",
-      borderRadius: 20,
-      height: 56,
-      marginBottom: 16,
-      paddingHorizontal: 16,
-      borderWidth: 1,
-      flexDirection: "row",
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      alignContent: "center",
-      justifyContent: "space-between",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
+      maxWidth: "100%",
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
-    inputText: {
+    feedList: {
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
       flex: 1,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
+      paddingHorizontal: 0,
     },
     button: {
       height: 48,
@@ -86,120 +66,59 @@ export default function TabOneScreen() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
-    subscriptionText: {
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 20,
-      lineHeight: 26,
-      letterSpacing: -0,
-      marginTop: 10,
-    },
-    card: {
-      backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
-      flexDirection: "row",
-      display: "flex",
+    headerWrapper: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 3,
       width: "100%",
-      gap: 12,
-      padding: 16,
+      maxWidth: "100%",
+      height: 86,
     },
-    cardContent: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 0,
-      flex: 1,
+    titleWrapper: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     title: {
-      display: "flex",
-      flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-      marginBottom: 2,
-    },
-    description: {
-      display: "flex",
-      flexDirection: "row",
-      width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-      marginBottom: 10,
-    },
-    subscribeButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 100,
-      width: 88,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: 34,
-    },
-    subscribedButton: {
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      borderRadius: 100,
-      width: 88,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: 34,
-      opacity: 0.87,
-    },
-    subscribeButtonText: {
-      color: `${Colors[colorScheme || "light"].colorOn}`,
       fontFamily: "InterBold",
       fontWeight: "700",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
     },
-    subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
-
-    loadingContainer: {
-      flex: 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  };
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.articleList}>
+      <View style={styles.feedList}>
         <FlashList
-          data={params.feed}
+          data={randomFeeds}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           estimatedItemSize={200}
+          ListHeaderComponent={
+            <View style={styles.headerWrapper}>
+              <View style={styles.titleWrapper}>
+                <Text style={styles.title}>Random Feeds</Text>
+              </View>
+              <Text style={styles.headerSubtitle}>
+                Explore some randomly selected feeds.{" "}
+              </Text>
+            </View>
+          }
           renderItem={({ item }) => {
-            return (
-              <>
-                <Text>{item.channel_title}</Text>
-                {/* <FeedCardListItem key={item.id} item={item} user={user} /> */}
-              </>
-            );
+            return <FeedCardListItem key={item.id} item={item} user={user} />;
           }}
         />
       </View>

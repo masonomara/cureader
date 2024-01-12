@@ -18,8 +18,8 @@ export default function AuthLayout() {
       marginRight: 16,
       textAlign: "right",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: 'InterSemiBold',
-      fontWeight: '600',
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
@@ -28,11 +28,11 @@ export default function AuthLayout() {
       flexDirection: "row",
       flexWrap: "nowrap",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: 'InterSemiBold',
-      fontWeight: '600',
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
   };
 
@@ -57,7 +57,7 @@ export default function AuthLayout() {
           },
           href: null,
           tabBarButton: null,
-          title: "Sign up",
+          title: "Sign Up",
           headerTitle: () => (
             <Image
               style={{ width: 200, height: 36 }}

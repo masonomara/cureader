@@ -1,3 +1,4 @@
+import React, { useContext, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -5,63 +6,63 @@ import {
   Pressable,
   useColorScheme,
   Share,
-  Alert,
+  Image as RNImage,
 } from "react-native";
-import { Image } from "expo-image";
-import React, { useState } from "react";
 import * as WebBrowser from "expo-web-browser";
-import Dots20 from "./icons/20/Dots20";
+import Colors from "../constants/Colors";
+import FeedCardToolTip from "./FeedCardTooltip";
+import { AuthContext } from "../app/_layout";
+import { supabase } from "../config/supabase";
 import Share20 from "./icons/20/Share20";
 import BookmarkOutline20 from "./icons/20/BookmarkOutline20";
-import Colors from "../constants/Colors";
-
-function formatPublicationDate(published) {
-  const publicationDate = new Date(published);
-  const now = new Date();
-
-  const timeDifference = now - publicationDate;
-
-  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
-  const minutesAgo = Math.floor(timeDifference / (60 * 1000));
-  const daysAgo = Math.floor(hoursAgo / 24);
-  const yearsAgo = Math.floor(daysAgo / 265);
-
-  if (minutesAgo < 1) {
-    return "Just now";
-  } else if (minutesAgo < 60) {
-    return `${minutesAgo}m`;
-  } else if (hoursAgo < 24) {
-    return `${hoursAgo}h`;
-  } else if (daysAgo < 365) {
-    return `${daysAgo}d`;
-  } else {
-    return `${yearsAgo}y`;
-  }
-}
+import BookmarkFilled20 from "./icons/20/BookmarkFilled20";
+import {
+  formatPublicationDate,
+  formatDescription,
+} from "../app/utils/Formatting";
+import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 
 export default function ArticleCard({
-  publication,
-  item,
-  user,
   fallbackImage,
+  feed,
+  item,
+  publication,
+  user,
 }) {
   const colorScheme = useColorScheme();
-  const [result, setResult] = useState(null);
 
-  const descriptionWithoutTags = item.description || "";
+  const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
-  // Use a regular expression to capture the URL of the first image
-  const match = descriptionWithoutTags.match(/<img.*?src=['"](.*?)['"].*?>/);
+  const [isBookmarked, setIsBookmarked] = useState(
+    userBookmarks.some((bookmark) => bookmark.id === item.id)
+  );
 
-  // Extract the captured URL or provide a default value if not found
-  const imageUrl = match ? match[1] : "";
+  useLayoutEffect(() => {
+    setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
+  }, [userBookmarks, item]);
 
-  // console.log("item description:", item.description);
+  const [imageWidth, setImageWidth] = useState(0);
+
+  const imageUrl =
+    (item.description?.match(/<img.*?src=['"](.*?)['"].*?>/)?.[1] ?? "") || "";
+
+  const getImageSize = () => {
+    RNImage.getSize(imageUrl, (width, height) => {
+      // Callback function that gets called with the width and height of the image
+      setImageWidth(width);
+      // You can add further logic based on the image size if needed
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (imageUrl) {
+      getImageSize();
+    }
+  }, [imageUrl]);
 
   const _handlePressButtonAsync = async () => {
     try {
-      let result = await WebBrowser.openBrowserAsync(item.links[0].url);
-      setResult(result);
+      await WebBrowser.openBrowserAsync(item.links[0].url);
     } catch (error) {
       console.error("Error opening browser:", error);
     }
@@ -89,11 +90,130 @@ export default function ArticleCard({
     }
   };
 
+  const handleBookmark = async () => {
+    const optimisticBookmark = !isBookmarked;
+    setIsBookmarked(optimisticBookmark);
+
+    try {
+      const updatedUserBookmarks = optimisticBookmark
+        ? [...userBookmarks, item]
+        : userBookmarks.filter((bookmark) => bookmark !== item);
+
+      setUserBookmarks(updatedUserBookmarks);
+
+      await updateUserBookmarks(updatedUserBookmarks);
+    } catch (error) {
+      console.error("Error handling bookmark:", error);
+      setIsBookmarked(!isBookmarked); // Revert the state if there's an error
+    }
+  };
+
+  const updateUserBookmarks = async (updatedBookmarks) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark), // Assuming 'id' is the unique identifier
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user bookmarks:", error);
+      throw error;
+    }
+  };
+
+  const renderCardContent = () => (
+    <View style={styles.cardContent}>
+      <View style={styles.cardContentWrapper}>
+        <Text style={styles.publicationWrapper}>
+          <Text style={styles.publicationText}>{publication}&nbsp;&nbsp;</Text>
+          <Text style={styles.articleDate}>
+            {formatPublicationDate(item.published)}
+          </Text>
+        </Text>
+        <Text style={styles.title}>{item.title || ""}</Text>
+        <Text numberOfLines={4} style={styles.description}>
+          {item.description ? formatDescription(item.description, 300) : ""}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderImage = () => {
+    if (imageUrl && imageWidth > 200) {
+      return (
+        <View
+          style={{
+            aspectRatio: "4/3",
+            width: "100%",
+            borderRadius: 12,
+            overflow: "hidden",
+            marginBottom: 12,
+          }}
+        >
+          <RNImage
+            style={{
+              flex: 1,
+              borderRadius: 12,
+              borderWidth: 0.67,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
+            }}
+            contentFit="cover"
+            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+          />
+        </View>
+      );
+    } else {
+      return null; // Render no image or handle it as needed
+    }
+  };
+
+  const renderNoImageContainer = () => (
+    <View style={styles.noImageContainer}>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication}
+      </Text>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication} {publication}
+      </Text>
+      <Text style={styles.noImageContainerText}>
+        {publication} {publication}
+      </Text>
+    </View>
+  );
+
+  const renderCardControls = () => (
+    <View style={styles.cardControls}>
+      <View style={styles.cardButtons}>
+        <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
+          <Share20
+            style={styles.buttonImage}
+            color={Colors[colorScheme || "light"].buttonActive}
+          />
+          <Text style={styles.buttonText}>Share</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonWrapper} onPress={handleBookmark}>
+          {isBookmarked ? (
+            <BookmarkFilled20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+          ) : (
+            <BookmarkOutline20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+          )}
+          <Text style={styles.buttonText}>Bookmark</Text>
+        </TouchableOpacity>
+      </View>
+      <FeedCardToolTip item={feed} />
+    </View>
+  );
+
   const styles = {
     card: {
-      borderTopWidth: 1,
       borderBottomWidth: 1,
-      marginTop: -1,
       paddingTop: 28,
       paddingLeft: 16,
       paddingRight: 16,
@@ -111,6 +231,7 @@ export default function ArticleCard({
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
+      maxwidth: 550,
     },
     iconWrapper: {
       display: "flex",
@@ -129,14 +250,26 @@ export default function ArticleCard({
       flexDirection: "column",
       alignItems: "flex-start",
       flex: 1,
-      // paddingRight: 16,
     },
-    publicationWrapper: {
+    cardContentNoImage: {
       display: "flex",
       flexDirection: "row",
       width: "100%",
+      borderWidth: 1,
+      borderColor: "green",
+    },
+    cardContentWrapperNoImage: {
+      display: "flex",
+      flexDirection: "column",
+      width: "66%",
+      borderWidth: 1,
+      borderColor: "blue",
+    },
+    publicationWrapperNoImage: {
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
       alignItems: "flex-start",
-      flexWrap: "wrap",
       marginBottom: 6,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
@@ -144,8 +277,30 @@ export default function ArticleCard({
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      // borderWidth: 1,
-      // borderColor: 'green',
+      borderWidth: 1,
+      borderColor: "red",
+    },
+    publicationWrapper: {
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      flexWrap: "wrap",
+      marginBottom: 6,
+
+      overflow: "hidden",
+      height: 19,
+      gap: 7,
+    },
+    publicationText: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+      maxWidth: "85%",
     },
     articleDate: {
       color: `${Colors[colorScheme || "light"].textLow}`,
@@ -180,32 +335,40 @@ export default function ArticleCard({
       fontFamily: "NotoSerifRegular",
       fontWeight: "400",
       fontSize: 15,
-      lineHeight: 25,
+      lineHeight: 22,
       letterSpacing: -0.225,
     },
     cardControls: {
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "center",
       gap: "28px",
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
+      height: 52,
+      paddingTop: 4,
     },
     cardButtons: {
       display: "flex",
-      alignItems: "flex-start",
-      gap: "28px",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      gap: "12px",
       alignSelf: "stretch",
       flexDirection: "row",
       flex: 1,
     },
     buttonWrapper: {
-      height: 44,
+      height: 40,
       minWidth: 44,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
       gap: 5,
+      paddingHorizontal: 12,
+      paddingLeft: 10,
+      borderWidth: 0.5,
+      borderColor: Colors[colorScheme || "light"].border,
+      borderRadius: 100,
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
@@ -215,91 +378,93 @@ export default function ArticleCard({
       lineHeight: 18,
       letterSpacing: -0.065,
     },
+    noImageContainer: {
+      height: 76,
+      width: 76,
+      borderRadius: 12,
+      marginTop: 25.3,
+      backgroundColor: getColorForLetter(publication),
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    noImageContainerText: {
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 29,
+      lineHeight: 33,
+      letterSpacing: -0.173,
+      height: 33,
+      color: getTextColorForLetter(publication),
+      textAlignVertical: "center",
+      textAlign: "center",
+      width: "1000%",
+    },
   };
-
-  // console.log( "[publication]:", publication, "[imageUrl]:", imageUrl, "[fallbackImage]:", fallbackImage, "[item.image.url]:", item.image.url );
 
   return (
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
-      {(item.image?.url || imageUrl || fallbackImage) && (
-        <View
-          style={{
-            aspectRatio: "4/3",
-            width: "100%",
-            borderRadius: 12,
-            overflow: "hidden",
-            marginBottom: 12,
-          }}
-        >
-          <Image
+      {imageUrl && imageWidth > 200 ? (
+        <>
+          {renderImage()}
+          {renderCardContent()}
+          {renderCardControls()}
+        </>
+      ) : (
+        <>
+          <View
             style={{
-              flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
+              width: "100%",
+              gap: 10,
+              flexDirection: "row",
             }}
-            contentFit="cover"
-            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-          />
-        </View>
-      )}
-
-      <View style={styles.cardContent}>
-        {/*
-        <View style={styles.iconWrapper}>
-          <View style={styles.icon}></View>
-        </View>
-          */}
-        {/* <Text numberOfLines={4} >{JSON.stringify(user, null, 2)}</Text> */}
-        <View style={styles.cardContentWrapper}>
-          <Text style={styles.publicationWrapper}>
-            {publication}&nbsp;&nbsp;
-            <Text style={styles.articleDate}>
-              {formatPublicationDate(item.published)}
-            </Text>
-          </Text>
-          <Text style={styles.title}>{item.title ? item.title : ""}</Text>
-          <Text numberOfLines={4} style={styles.description}>
-            {item.description ? (
-              <Text numberOfLines={4} style={styles.description}>
-                {item.description
-                  .replace(/<[^>]*>/g, "")
-                  .replace(/&#8217;/g, "'")
-                  .replace(/&#160;/g, " ")
-                  .replace(/&#8220;/g, "“")
-                  .replace(/&#8221;/g, "”")
-                  .trim()}
+          >
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+              }}
+            >
+              <View style={styles.publicationWrapper}>
+                <Text style={styles.publicationText}>{publication}</Text>
+                <Text style={styles.articleDate}>
+                  {formatPublicationDate(item.published)}
+                </Text>
+              </View>
+              <Text style={styles.title} numberOfLines={4}>
+                {item.title || ""}
               </Text>
+              <Text style={styles.description} numberOfLines={3}>
+                {item.description
+                  ? formatDescription(item.description, 300)
+                  : ""}
+              </Text>
+            </View>
+
+            {fallbackImage || item.image?.url ? (
+              <RNImage
+                style={{
+                  aspectRatio: 1 / 1,
+                  flex: 1,
+                  borderRadius: 12,
+                  marginTop: 25.3,
+                  marginBottom: 3,
+                  maxWidth: 76,
+                  width: 76,
+                  borderWidth: 0.67,
+                  borderColor: `${Colors[colorScheme || "light"].border}`,
+                }}
+                contentFit="cover"
+                source={{ uri: fallbackImage || item.image?.url }}
+              />
             ) : (
-              <Text style={styles.description}></Text>
+              renderNoImageContainer()
             )}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.cardControls}>
-        <View style={styles.cardButtons}>
-          <TouchableOpacity style={styles.buttonWrapper}>
-            <BookmarkOutline20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
-            <Text style={styles.buttonText}>Bookmark</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-            <Share20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
-            <Text style={styles.buttonText}>Share</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.buttonWrapper}>
-          <Dots20
-            style={styles.buttonImage}
-            color={Colors[colorScheme || "light"].buttonActive}
-          />
-        </TouchableOpacity>
-      </View>
+          </View>
+          {renderCardControls()}
+        </>
+      )}
     </Pressable>
   );
 }

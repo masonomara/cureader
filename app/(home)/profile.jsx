@@ -1,52 +1,149 @@
-import React, { useState, useEffect, useContext } from "react";
-import { TouchableOpacity, Alert, useColorScheme } from "react-native";
-import { router } from "expo-router";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
+import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { supabase } from "../../config/initSupabase";
-import { Text, View } from "../../components/Themed";
+import { router } from "expo-router";
 import Colors from "../../constants/Colors";
-import FeedCardListItem from "../../components/FeedCardListItem";
-import { AuthContext } from "../_layout";
+import { FeedContext, AuthContext } from "../_layout";
+import { useScrollToTop } from "@react-navigation/native";
+import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
+import FeedCardProfile from "../../components/FeedCardProfile";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const { user, feeds, updateUserSubscriptions } = useContext(AuthContext);
-
-  const [userFeeds, setUserFeeds] = useState([]);
+  const { feeds, popularFeeds } = useContext(FeedContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
+  const ref = useRef(null);
+
+  useScrollToTop(
+    useRef({
+      scrollToTop: () =>
+        ref.current?.scrollToOffset({ animated: true, offset: 0 }),
+    })
+  );
+
+  const fetchUserFeeds = useCallback(async () => {
+    if (userSubscriptionUrls) {
+      const fetchedFeeds = feeds.filter((feed) =>
+        userSubscriptionUrls.includes(feed.channel_url)
+      );
+      setUserInitialFeeds(fetchedFeeds);
+    }
+  }, [userSubscriptionUrls]);
 
   useEffect(() => {
-    // Filter channels on the client side
-    const filteredChannels = feeds.filter((feed) =>
-      feed.channel_subscribers.includes(user.id)
-    );
+    fetchUserFeeds();
+  }, [fetchUserFeeds]);
 
-    setUserFeeds(filteredChannels);
-  }, [feeds]);
-
-  // Logout user
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      showErrorAlert("Error signing out: " + error.message);
-    }
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserFeeds();
+    setRefreshing(false);
   };
 
+  const renderHeaderText = () => (
+    <>
+      <View style={styles.profileHeader}>
+        <Text style={styles.username}>
+          Hello {user?.user_metadata?.displayName || null}
+        </Text>
+        <Text style={styles.subtitle}>
+          {userSubscriptionUrls === null
+            ? "Your feeds are currently loading..."
+            : userInitialFeeds.length === 1
+            ? "You are currently subscribed to 1 feed."
+            : userInitialFeeds.length > 1
+            ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
+            : "It looks like you aren't subscribed to any feeds yet!"}
+        </Text>
+        {userInitialFeeds.length === 0 && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push({ pathname: "/explore" })}
+          >
+            <Text style={styles.buttonText}>View Explore Page</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={styles.headerWrapper}>
+        <View
+          style={
+            userInitialFeeds.length > 0
+              ? styles.titleWrapperUserFeeds
+              : styles.titleWrapper
+          }
+        >
+          <Text style={styles.title}>
+            {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
+          </Text>
+          {userInitialFeeds.length === 0 && (
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => router.push({ pathname: "/allPopularFeeds" })}
+            >
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        <Text style={styles.headerSubtitle}>
+          {userSubscriptionUrls == null
+            ? "Loading..."
+            : userInitialFeeds.length > 0
+            ? "Manage all your favorite feeds."
+            : "Get started with our most popular feeds."}
+        </Text>
+      </View>
+    </>
+  );
 
   // Styles
   const styles = {
     container: {
       flex: 1,
       alignItems: "center",
-      justifyContent: "center",
-    },
-    articleList: {
       width: "100%",
+      maxWidth: "100%",
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    feedList: {
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    profileHeader: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
+      paddingBottom: userInitialFeeds.length > 0 ? 0 : 48,
+    },
+    profileHeaderNoFeeds: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
+      paddingBottom: 48,
+    },
+    scrollViewContainer: {
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      flexDirection: "column",
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
       flex: 1,
     },
     input: {
@@ -105,31 +202,134 @@ export default function Profile() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
+    headerWrapper: {
+      paddingHorizontal: 0,
+      paddingVertical: 12,
+      gap: 3,
+      width: "100%",
+      maxWidth: "100%",
+      height: 86,
+    },
+    titleWrapper: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    titleWrapperUserFeeds: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
+    },
+    textButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    textButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+    },
+    username: {
+      marginBottom: 4,
+      marginTop: 4,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 29,
+      lineHeight: 35,
+      letterSpacing: -0.217,
+    },
+    subtitle: {
+      marginBottom: 36,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
+      fontWeight: "700",
+      fontSize: 19,
+      textAlign: "center",
+      lineHeight: 24,
+      letterSpacing: -0.19,
+    },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+    feedListFooter: {
+      height: 16,
+    },
   };
 
   return (
     <View style={styles.container}>
-      {/* User info and logout */}
-      <View>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>{JSON.stringify(user)}</Text>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* List of feeds */}
-      <View style={styles.articleList}>
-        <FlashList
-          data={userFeeds}
-          estimatedItemSize={64}
-
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => {
-            return <FeedCardListItem key={item.id} item={item} />;
-          }}
-        />
-      </View>
+      {userSubscriptionUrls != null ? (
+        <View style={styles.feedList}>
+          <FlashList
+            data={userInitialFeeds.length > 0 ? userInitialFeeds : popularFeeds}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            ref={ref}
+            renderItem={({ item }) => (
+              <FeedCardProfile key={item.id} item={item} user={user} />
+            )}
+            ListHeaderComponent={renderHeaderText}
+            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        </View>
+      ) : (
+        <View style={styles.feedList}>
+          <FlashList
+            data={Array(4).fill(null)}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            ref={ref}
+            renderItem={() => <FeedCardSkeleton />}
+            ListHeaderComponent={renderHeaderText}
+            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        </View>
+      )}
     </View>
   );
 }

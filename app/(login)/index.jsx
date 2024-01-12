@@ -7,61 +7,69 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Pressable,
-  TouchableWithoutFeedback,
-  Keyboard,
   useColorScheme,
 } from "react-native";
-import { supabase } from "../../config/initSupabase";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import * as WebBrowser from "expo-web-browser";
+
+import { supabase } from "../../config/supabase";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
-  const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
-  const [isSearchInputSelectedTwo, setIsSearchInputSelectedTwo] =
-    useState(false);
-  const [scrollView, setScrollView] = useState(true);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  // Function for handling search input focus
-  const handleFocus = () => {
-    setIsSearchInputSelected(true);
-    setScrollView(false);
+  const [inputs, setInputs] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [inputStates, setInputStates] = useState({
+    isSearchInputSelected: false,
+    isSearchInputSelectedTwo: false,
+    scrollView: true,
+  });
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
   };
 
-  // Function for handling seach input blur
-  const handleBlur = () => {
-    setIsSearchInputSelected(false);
-    setScrollView(true);
+  const handleInputFocus = (inputName) => {
+    setInputStates((prevState) => ({
+      ...prevState,
+      [inputName]: true,
+      scrollView: false,
+    }));
   };
 
-  // Function for handling search input focus
-  const handleFocusTwo = () => {
-    setIsSearchInputSelectedTwo(true);
-    setScrollView(false);
+  const handleInputBlur = (inputName) => {
+    setInputStates((prevState) => ({
+      ...prevState,
+      [inputName]: false,
+      scrollView: true,
+    }));
   };
 
-  // Function for handling seach input blur
-  const handleBlurTwo = () => {
-    setIsSearchInputSelectedTwo(false);
-    setScrollView(true);
+  const toggleSecurePasswordEntry = () => {
+    setSecurePasswordEntry((prev) => !prev);
   };
 
-  async function signInWithEmail() {
+  const signInWithEmail = async () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
+      email: inputs.email,
+      password: inputs.password,
     });
 
     if (error) Alert.alert("Log In Error", error.message);
     setLoading(false);
-  }
+  };
 
   const styles = {
     safeAreaView: {
@@ -77,20 +85,17 @@ export default function Auth() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
-      // borderWidth: 1,
-      // borderColor: "yellow",
       overflow: "hidden",
       paddingBottom: 88,
     },
     containerScrollView: {
       justifyContent: "flex-start",
       flex: 0,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     content: {
       width: "100%",
       alignItems: "center",
+
     },
     title: {
       marginBottom: 4,
@@ -117,7 +122,7 @@ export default function Auth() {
       alignItems: "flex-start",
       flexWrap: "wrap",
       marginBottom: 5,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+      color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
       fontSize: 13,
@@ -145,26 +150,41 @@ export default function Auth() {
       lineHeight: 22,
       letterSpacing: -0,
     },
-    inputSelected: {
-      width: "100%",
-      borderRadius: 20,
-      height: 56,
-      minHeight: 56,
-      marginBottom: 16,
-      paddingLeft: 16,
-      paddingRight: 6,
-      borderWidth: 1,
-      flexDirection: "row",
-      borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      alignContent: "center",
-      justifyContent: "space-between",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+    optionTextCreditWrapper: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "center",
       fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+      maxWidth: 450,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      flex: 1,
+      flexWrap: "wrap",
+      width: "100%",
+      paddingTop: 16,
+    },
+    optionTextCredit: {
+      color: Colors[colorScheme || "light"].textLow,
+      textAlign: "center",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 18,
+
+      letterSpacing: -0.13,
+    },
+    optionTextCreditPressableWrapper: {
+      height: 32,
+      marginVertical: -7,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    inputSelected: {
+      borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
     },
     inputText: {
       flex: 1,
@@ -174,6 +194,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
+      flexWrap: 'nowrap',
     },
     inputButton: {
       width: 44,
@@ -188,8 +209,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     buttonWrapperScrollView: {
       position: "absolute",
@@ -198,8 +217,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "black",
     },
     button: {
       height: 48,
@@ -219,6 +236,14 @@ export default function Auth() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
+    optionTextCreditPressable: {
+      color: Colors[colorScheme || "light"].textLow,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 13,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+    },
   };
 
   return (
@@ -226,55 +251,68 @@ export default function Auth() {
       <KeyboardAwareScrollView
         contentContainerStyle={[
           styles.container,
-          !scrollView && styles.containerScrollView,
+          !inputStates.scrollView && styles.containerScrollView,
         ]}
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        scrollEnabled={!scrollView}
-        nestedScrollEnabled={!scrollView}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
+        // ... Other props remain unchanged
       >
         <View style={styles.content}>
           <Text style={styles.title}>Welcome!</Text>
           <Text style={styles.subtitle}>Please log in to continue</Text>
-          <Text style={styles.label}>Your email address</Text>
+          {renderInput("Email", "email")}
+          {renderInput("Password", "password", true)}
+          <View style={styles.optionTextCreditWrapper}>
+            <Text style={styles.optionTextCredit}>Forgot your password?</Text>
+            <Pressable
+              style={styles.optionTextCreditPressableWrapper}
+              onPress={() =>
+                _handlePressButtonAsync("https://cureader.app/contact/")
+              }
+            >
+              <Text style={styles.optionTextCreditPressable}> Email us </Text>
+            </Pressable>
+            <Text style={styles.optionTextCredit}>to have it reset.</Text>
+          </View>
+        </View>
+        {renderButton("Log In", signInWithEmail)}
+      </KeyboardAwareScrollView>
+    </SafeAreaView>
+  );
+
+  function renderInput(label, inputName, isPassword = false) {
+    return (
+      <>
+        <Text style={styles.label}>{label}</Text>
+        <View
+          style={[
+            styles.input,
+            inputStates[`isSearchInputSelected${isPassword ? "Two" : ""}`] &&
+              styles.inputSelected,
+          ]}
+        >
           <TextInput
-            style={[
-              styles.input,
-              isSearchInputSelected && styles.inputSelected,
-            ]}
-            label="Email"
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            placeholder="email"
-            autoCapitalize={"none"}
+            style={styles.inputText}
+            label={label}
+            onChangeText={(text) =>
+              setInputs((prevInputs) => ({ ...prevInputs, [inputName]: text }))
+            }
+            value={inputs[inputName]}
+            placeholder={label.toLowerCase()}
+            autoCapitalize="none"
             autoCorrect={false}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
+            onFocus={() =>
+              handleInputFocus(
+                `isSearchInputSelected${isPassword ? "Two" : ""}`
+              )
+            }
+            onBlur={() =>
+              handleInputBlur(`isSearchInputSelected${isPassword ? "Two" : ""}`)
+            }
+            secureTextEntry={isPassword && securePasswordEntry}
           />
-          <Text style={styles.label}>Your password</Text>
-          <View
-            style={[
-              styles.input,
-              isSearchInputSelectedTwo && styles.inputSelected,
-            ]}
-          >
-            <TextInput
-              style={styles.inputText}
-              label="Password"
-              onChangeText={(text) => setPassword(text)}
-              value={password}
-              secureTextEntry={securePasswordEntry}
-              placeholder="password"
-              autoCapitalize={"none"}
-              autoCorrect={false}
-              onFocus={handleFocusTwo}
-              onBlur={handleBlurTwo}
-            />
+          {isPassword && (
             <Pressable
               style={styles.inputButton}
-              onPress={() => setSecurePasswordEntry(!securePasswordEntry)}
+              onPress={toggleSecurePasswordEntry}
             >
               <FontAwesome
                 name={securePasswordEntry ? "eye-slash" : "eye"}
@@ -282,24 +320,29 @@ export default function Auth() {
                 color={Colors[colorScheme || "light"].buttonActive}
               />
             </Pressable>
-          </View>
+          )}
         </View>
-        <View
-          style={[
-            styles.buttonWrapper,
-            !scrollView && styles.buttonWrapperScrollView,
-          ]}
+      </>
+    );
+  }
+
+  function renderButton(title, onPress) {
+    return (
+      <View
+        style={[
+          styles.buttonWrapper,
+          !inputStates.scrollView && styles.buttonWrapperScrollView,
+        ]}
+      >
+        <TouchableOpacity
+          title={title}
+          disabled={loading}
+          style={styles.button}
+          onPress={onPress}
         >
-          <TouchableOpacity
-            title="Log in"
-            disabled={loading}
-            style={styles.button}
-            onPress={() => signInWithEmail()}
-          >
-            <Text style={styles.buttonText}>Log in</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAwareScrollView>
-    </SafeAreaView>
-  );
+          <Text style={styles.buttonText}>{title}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 }

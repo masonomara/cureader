@@ -1,28 +1,30 @@
 {
   "expo": {
-    "name": "curator-js",
-    "slug": "curator-js",
-    "version": "1.0.0",
+    "name": "Cureader",
+    "slug": "cureader",
+    "version": "1.1.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "cureader",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#FF3E39"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.masonomara.cureader"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FF3E39"
-      }
+      },
+      "package": "cureader.android"
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +36,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9e098709-617a-4eac-b57d-d2b1d3407f78"
+      }
+    },
+    "owner": "masonomara"
   }
 }

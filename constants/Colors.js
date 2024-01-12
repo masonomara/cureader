@@ -123,6 +123,13 @@ const FONT = {
     lineHeight: 41,
     letterSpacing: -0.34,
   },
+  sectiontitle: {
+    fontFamily: "InterBold",
+    fontWeight: "700",
+    fontSize: 24,
+    lineHeight: 31,
+    letterSpacing: -0.24,
+  },
   navLinkRegular: {
     fontFamily: "InterSemiBold",
     fontWeight: "600",
@@ -171,6 +178,13 @@ const FONT = {
     fontSize: 19,
     lineHeight: 24,
     letterSpacing: -0.19,
+  },
+  quote: {
+    fontFamily: "NotoSerifMedium",
+    fontWeight: "500",
+    fontSize: 22,
+    lineHeight: 27,
+    letterSpacing: -0.18,
   },
   sectionTitle: {
     fontFamily: "InterBold",

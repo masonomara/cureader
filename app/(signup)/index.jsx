@@ -9,7 +9,7 @@ import {
   Pressable,
   useColorScheme,
 } from "react-native";
-import { supabase } from "../../config/initSupabase";
+import { supabase } from "../../config/supabase";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -141,7 +141,7 @@ export default function Auth() {
       alignItems: "flex-start",
       flexWrap: "wrap",
       marginBottom: 5,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
+      color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
       fontSize: 13,
@@ -198,6 +198,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
+      flexWrap: 'nowrap',
     },
     inputButton: {
       width: 44,
@@ -332,7 +333,7 @@ export default function Auth() {
           ]}
         >
           <TouchableOpacity
-            title="Sign up"
+            title="Sign Up"
             disabled={loading}
             style={styles.button}
             onPress={() => signUpWithEmail()}

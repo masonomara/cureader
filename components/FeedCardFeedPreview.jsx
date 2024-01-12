@@ -1,189 +1,67 @@
 import { useState, useContext, useLayoutEffect } from "react";
-import { AuthContext } from "../app/_layout";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-import {
-  updateSubscriptions,
-  updateChannelSubscribers,
-} from "../utils/FeedCardFunctions";
 import { useColorScheme } from "react-native";
-import { supabase } from "../config/initSupabase";
+import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
+import { AuthContext, FeedContext } from "../app/_layout";
+import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
+import { formatDescription } from "../app/utils/Formatting";
+import {
+  updateChannelSubscribers,
+  updateUserSubscriptions,
+} from "../hooks/FeedCardFunctions";
 
-const textColorArray = [
-  "#E75450", // Red (Main Color)
-  "#66C0A9", // Green
-  "#FADA65", // Yellow
-  "#7929B2", // Purple
-  "#FF8C69", // Salmon
-  "#00B3A9", // Teal
-  "#E6532D", // Orange
-  "#3CB8B2", // Teal
-  "#FF7B00", // Orange
-  "#1A9E95", // Teal
-  "#E64400", // Red
-  "#2DC82D", // Green
-  "#FFD3A3", // Pale
-  "#00EB8F", // Green
-  "#E76E3F", // Orange
-  "#00ADC4", // Blue
-  "#FF9400", // Orange
-  "#6D5DC8", // Purple
-  "#FF8C69", // Salmon
-  "#7AC3D4", // Blue
-  "#C7132D", // Pink
-  "#8FEB8D", // Green
-  "#E64400", // Red
-  "#8560C1", // Purple
-  "#FFC800", // Gold
-  "#6988EF", // Blue
-];
-const colorArray = [
-  "#FF6961", // Red (Main Color)
-  "#78D2B2", // Green
-  "#FAEA96", // Yellow
-  "#8A2BE2", // Purple
-  "#FFA07A", // Salmon
-  "#00CED1", // Teal
-  "#FF6347", // Orange
-  "#48D1CC", // Teal
-  "#FF8C00", // Orange
-  "#20B2AA", // Teal
-  "#FF4500", // Red
-  "#74D674", // Green
-  "#FFDAB9", // Pale
-  "#00FA9A", // Green
-  "#FF7F50", // Orange
-  "#00BFFF", // Blue
-  "#FFA500", // Orange
-  "#7B68EE", // Purple
-  "#FFA07A", // Salmon
-  "#87CEEB", // Blue
-  "#DC143C", // Pink
-  "#98FB98", // Green
-  "#FF4500", // Red
-  "#9370DB", // Purple
-  "#FFD700", // Gold
-  "#849BE9", // Blue
-];
-
-export default function FeedCardFeedPreview({ params }) {
-  console.log("FEED PREVIEW:", params.id);
-  const paramsId = parseInt(params.id, 10);
-
-  const { user, userSubscriptionIds, updateUserSubscriptions } =
-    useContext(AuthContext);
-  const [isSubscribed, setIsSubscribed] = useState(
-    userSubscriptionIds.includes(paramsId)
-  );
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    userSubscriptionIds.includes(paramsId)
-  );
-
+export default function FeedCardFeedPreview({ item }) {
+  const itemId = parseInt(item.id, 10);
+  const {
+    user,
+    userSubscriptionUrls,
+    userSubscriptionIds,
+    setUserSubscriptionIds,
+    setUserSubscriptionUrls,
+  } = useContext(AuthContext);
+  const { feeds } = useContext(FeedContext);
   const colorScheme = useColorScheme();
 
+  const [isSubscribed, setIsSubscribed] = useState(
+    userSubscriptionIds.includes(itemId)
+  );
+
   useLayoutEffect(() => {
-    // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptionIds.includes(paramsId));
-    setIsOptimisticSubscribed(userSubscriptionIds.includes(paramsId));
-  }, [userSubscriptionIds]);
+    setIsSubscribed(userSubscriptionIds.includes(itemId));
+  }, [userSubscriptionIds, itemId]);
 
   const handleSubscribe = async () => {
-    setIsOptimisticSubscribed(!isOptimisticSubscribed);
+    const optimisticSubscribed = !isSubscribed;
+    setIsSubscribed(optimisticSubscribed);
     try {
-      const { data: userProfileData, error: userProfileError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", user.id);
+      const updatedUserSubscriptionIds = optimisticSubscribed
+        ? [...userSubscriptionIds, itemId]
+        : userSubscriptionIds.filter((id) => id !== itemId);
 
-      if (userProfileError) {
-        console.error("Error fetching user profile data:", userProfileError);
-        Alert.alert(
-          "Failed to fetch user profile data. Please try again later."
-        );
-        return;
-      }
+      const updatedUserSubscriptionUrls = optimisticSubscribed
+        ? [...userSubscriptionUrls, item.url]
+        : userSubscriptionUrls.filter((url) => url !== item.url);
 
-      const channelSubscriptions =
-        userProfileData[0].channel_subscriptions || [];
-      const itemChannelId = paramsId;
-      const isAlreadySubscribed = channelSubscriptions.some(
-        (subscription) => subscription.channelId === itemChannelId
+      setUserSubscriptionIds(updatedUserSubscriptionIds);
+      setUserSubscriptionUrls(updatedUserSubscriptionUrls);
+
+      await updateUserSubscriptions(
+        updatedUserSubscriptionIds,
+        updatedUserSubscriptionUrls,
+        user.id
       );
-
-      if (isSubscribed && isAlreadySubscribed) {
-        // Unsubscribe
-        const updatedSubscriptions = channelSubscriptions.filter(
-          (subscription) => subscription.channelId !== itemChannelId
-        );
-        await updateSubscriptions(user.id, updatedSubscriptions);
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", paramsId);
-
-        if (channelError) {
-          console.error("Error fetching channel data:", channelError);
-          Alert.alert("Failed to fetch channel data. Please try again later.");
-          return;
-        }
-
-        const channel = channelData[0];
-        const updatedSubscribers = channel.channel_subscribers.filter(
-          (subscriber) => subscriber !== user.id
-        );
-        await updateChannelSubscribers(paramsId, updatedSubscribers);
-        // Update userSubscriptionIds globally
-        updateUserSubscriptions(updatedSubscriptions);
-      } else {
-        // Subscribe
-        const newSubscription = {
-          channelId: paramsId,
-          channelUrl: params.url,
-        };
-        const updatedSubscriptions = [...channelSubscriptions, newSubscription];
-        await updateSubscriptions(user.id, updatedSubscriptions);
-
-        const { data: channelData, error: channelError } = await supabase
-          .from("channels")
-          .select()
-          .eq("id", paramsId);
-
-        if (channelError) {
-          console.error("Error fetching channel data:", channelError);
-          Alert.alert("Failed to fetch channel data. Please try again later.");
-          return;
-        }
-
-        const channel = channelData[0];
-        const updatedSubscribers = [
-          ...(channel.channel_subscribers ?? []),
-          user.id,
-        ];
-        await updateChannelSubscribers(paramsId, updatedSubscribers);
-        // Update userSubscriptionIds globally
-        updateUserSubscriptions(updatedSubscriptions);
-      }
-
-      // Toggle the isSubscribed state
-      return !isSubscribed;
+      await updateChannelSubscribers(
+        itemId,
+        user.id,
+        optimisticSubscribed,
+        feeds
+      );
     } catch (error) {
-      setIsOptimisticSubscribed(!isOptimisticSubscribed);
       console.error("Error handling subscription:", error);
-      Alert.alert("Failed to handle subscription. Please try again later.");
-      return isSubscribed;
+      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
     }
-  };
-
-  // Function to get background color based on the first letter
-  const getColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % colorArray.length;
-    return colorArray[index];
-  };
-  const getTextColorForLetter = (letter) => {
-    const index = letter.toUpperCase().charCodeAt(0) % textColorArray.length;
-    return textColorArray[index];
   };
 
   const styles = {
@@ -251,6 +129,13 @@ export default function FeedCardFeedPreview({ params }) {
       letterSpacing: -0.14,
       height: "100%",
     },
+    subscribeButtonWrapper: {
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 44,
+    },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
@@ -290,7 +175,7 @@ export default function FeedCardFeedPreview({ params }) {
       height: 64,
       width: 64,
       borderRadius: 10,
-      backgroundColor: getColorForLetter(params.title[0]),
+      backgroundColor: getColorForLetter(item.title[0]),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -303,7 +188,7 @@ export default function FeedCardFeedPreview({ params }) {
       lineHeight: 26,
       letterSpacing: -0.173,
       height: 26,
-      color: getTextColorForLetter(params.title[0]),
+      color: getTextColorForLetter(item.title[0]),
       textAlignVertical: "center",
       textAlign: "center",
       width: "1000%",
@@ -312,16 +197,16 @@ export default function FeedCardFeedPreview({ params }) {
 
   return (
     <View style={styles.card}>
-      {!params.image ? (
+      {!item.image ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title}
+            {item.title} {item.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title} {params.title}
+            {item.title} {item.title} {item.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {params.title} {params.title}
+            {item.title} {item.title}
           </Text>
         </View>
       ) : (
@@ -341,24 +226,18 @@ export default function FeedCardFeedPreview({ params }) {
               borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
-            source={{ uri: params.image }}
+            source={{ uri: item.image }}
           />
         </View>
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
           <Text style={styles.title} numberOfLines={2}>
-            {params.title}
+            {item.title}
           </Text>
-          {params.description ? (
+          {item.description ? (
             <Text style={styles.description} numberOfLines={2}>
-              {params.description
-                .replace(/<[^>]*>/g, "")
-                .replace(/&#8217;/g, "'")
-                .replace(/&#160;/g, " ")
-                .replace(/&#8220;/g, "“")
-                .replace(/&#8221;/g, "”")
-                .trim()}
+              {formatDescription(item.description, 300)}
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
@@ -366,22 +245,24 @@ export default function FeedCardFeedPreview({ params }) {
         </View>
         <View style={styles.cardControls}>
           <TouchableOpacity
-            style={
-              isOptimisticSubscribed
-                ? styles.subscribedButton
-                : styles.subscribeButton
-            }
+            style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}
           >
-            <Text
+            <View
               style={
-                isOptimisticSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
+                isSubscribed ? styles.subscribedButton : styles.subscribeButton
               }
             >
-              {isOptimisticSubscribed ? "Following" : "Follow"}
-            </Text>
+              <Text
+                style={
+                  isSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isSubscribed ? "Following" : "Follow"}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>

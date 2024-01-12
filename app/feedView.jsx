@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from "./_layout";
-import {
-  Alert,
-  useColorScheme,
-  ActivityIndicator, // Import ActivityIndicator
-} from "react-native";
+import { AuthContext, FeedContext } from "./_layout";
+import { Alert, useColorScheme } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
@@ -15,24 +11,15 @@ import { FlashList } from "@shopify/flash-list";
 import FeedCardFeedPreview from "../components/FeedCardFeedPreview";
 
 export default function TabOneScreen() {
-  const { session, user, userSubscriptionIds } = useContext(AuthContext);
+  const { feeds } = useContext(FeedContext);
+  const { user, userSubscriptionUrls } = useContext(AuthContext);
+
   const params = useLocalSearchParams();
 
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
-  const [isSubscribed, setIsSubscribed] = useState(params.subscribed);
-  const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(
-    params.subscribed
-  );
   const [isLoading, setIsLoading] = useState(true); // Add a loading state
-  const [subscribeButtonLoading, setSubscribeButtonLoading] = useState(true);
-
-  useEffect(() => {
-    // Update state when the subscribed prop changes
-    setIsSubscribed(userSubscriptionIds.includes(user.id));
-    setIsOptimisticSubscribed(userSubscriptionIds.includes(user.id));
-    setSubscribeButtonLoading(false);
-  }, [userSubscriptionIds]);
+  const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -41,8 +28,13 @@ export default function TabOneScreen() {
   // Parse feed channel for articles in the feed
   useEffect(() => {
     const parseFeed = async () => {
-      if (params.url) {
+      if (params.url && feeds && userSubscriptionUrls) {
         try {
+          const fallbackImages = feeds.map((feed) => ({
+            channel_url: feed.channel_url,
+            channel_image_url: feed.channel_image_url,
+          }));
+
           const response = await fetch(params.url);
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -50,11 +42,17 @@ export default function TabOneScreen() {
           const responseData = await response.text();
           const parsedRss = await rssParser.parse(responseData);
 
+          const channelImage = fallbackImages.find(
+            (image) => image.channel_url === params.url
+          );
+          const feed = feeds.find((feed) => feed.channel_url === params.url);
+
           const allItems = parsedRss.items.map((item) => ({
             ...item,
             publicationDate: new Date(item.published),
-            channel: parsedRss.title,
+            feed: feed,
             image: parsedRss.image,
+            fallbackImage: channelImage ? channelImage.channel_image_url : null,
             channelUrl: parsedRss.links[0].url,
           }));
 
@@ -240,16 +238,9 @@ export default function TabOneScreen() {
     },
   };
 
-  return isLoading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator
-        size="large"
-        color={Colors[colorScheme || "light"].colorPrimary}
-      />
-    </View>
-  ) : (
+  return (
     <>
-      <FeedCardFeedPreview params={params} />
+      <FeedCardFeedPreview item={params} />
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
@@ -258,11 +249,11 @@ export default function TabOneScreen() {
           estimatedItemSize={200}
           renderItem={({ item }) => (
             <ArticleCard
+              fallbackImage={item.fallbackImage}
               item={item}
-              publication={item.channel}
-              fallbackImage={params.image}
-              channelUrl={item.channelUrl}
-              user={params.user}
+              feed={item.feed}
+              publication={item.feed.channel_title}
+              user={user}
             />
           )}
         />

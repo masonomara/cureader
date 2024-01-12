@@ -5,42 +5,50 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
-import { router } from "expo-router";
+import { SplashScreen, Stack, router } from "expo-router";
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "../config/initSupabase.js";
+import { supabase } from "../config/supabase.js";
 import { useColorScheme } from "react-native";
+import { MenuProvider } from "react-native-popup-menu";
+import Colors from "../constants/Colors";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export const AuthContext = createContext({
-  authInitialized: false,
+export const FeedContext = createContext({
   feeds: null,
-  session: null,
-  user: null,
-  userBookmarks: null,
-  userSubscriptionIds: null,
-  userSubscriptionUrls: null,
-  updateUserSubscriptions: () => {},
+  popularFeeds: null,
+  randomFeeds: null,
+  dailyQuote: null,
+  feedsFetched: false,
+  userFetched: false,
+  setFeeds: () => {},
 });
 
-import Colors from "../constants/Colors";
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
+export const AuthContext = createContext({
+  session: null,
+  user: null,
+  userSubscriptionIds: null,
+  userSubscriptionUrls: null,
+  userSubscriptionUrlsFetched: false,
+  userBookmarks: [],
+  setUserSubscriptionIds: () => {},
+  setUserSubscriptionUrls: () => {},
+  setUserBookmarks: () => {},
+});
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
+  // NOTE: initial route fake splash screen?
   initialRouteName: "(home)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     InterRegular: require("../assets/fonts/Inter/Inter-Regular.ttf"),
     InterMedium: require("../assets/fonts/Inter/Inter-Medium.ttf"),
+    InterMediumItalic: require("../assets/fonts/Inter/Inter-MediumItalic.ttf"),
     InterSemiBold: require("../assets/fonts/Inter/Inter-SemiBold.ttf"),
     InterBold: require("../assets/fonts/Inter/Inter-Bold.ttf"),
     NotoSerifRegular: require("../assets/fonts/NotoSerif/NotoSerif-Regular.ttf"),
@@ -48,128 +56,219 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
-  // Remove splash screen on font load
-  useEffect(() => {
-    if (loaded) {
-    }
-  }, [loaded]);
-
-  // Error catcher
   if (!loaded) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayoutNav />
+    </QueryClientProvider>
+  );
 }
 
 function RootLayoutNav() {
-  // Global Values
-
-  const [authInitialized, setAuthInitialized] = useState(false);
   const [feeds, setFeeds] = useState(null);
-  const [session, setSession] = useState(null);
+  const [popularFeeds, setPopularFeeds] = useState(null);
+  const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
-  const [userBookmarks, setUserBookmarks] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
+  const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
+    useState(false);
+  const [userBookmarks, setUserBookmarks] = useState(null);
+  const [userFetched, setUserFetched] = useState(false);
+  const [feedsFetched, setFeedsFetched] = useState(false);
+  const [dailyQuote, setDailyQuote] = useState(null);
+  const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    const fetchData = async () => {
+    fetchDailyQuote();
+    SplashScreen.hideAsync();
+  }, []);
+
+  const fetchDailyQuote = async () => {
+    try {
+      const response = await fetch("https://zenquotes.io/api/today");
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch daily quote. Status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      setDailyQuote(data);
+    } catch (error) {
+      console.error("Error fetching daily quote:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    async function fetchFeeds() {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session) {
-          setAuthInitialized(true);
-          const currentUser = session.user;
-          setUser(currentUser);
-          setSession(session);
-
-          // Fetch user subscriptions in the background
-          const { channelIds, channelUrls } = await fetchUserSubscriptions(
-            currentUser
-          );
-          setUserSubscriptionIds(channelIds);
-          setUserSubscriptionUrls(channelUrls);
-
-          SplashScreen.hideAsync();
-        } else {
-          // Listen for changes in the authentication state
-          supabase.auth.onAuthStateChange((_event, session) => {
-            if (session) {
-              setAuthInitialized(true);
-              const currentUser = session.user;
-              setUser(currentUser);
-              setSession(session);
-
-              // Fetch user subscriptions in the background
-              fetchUserSubscriptions(currentUser).then(
-                (channelIds, channelUrls) => {
-                  setUserSubscriptionIds(channelIds);
-                  setUserSubscriptionUrls(channelUrls);
-                  SplashScreen.hideAsync();
-                }
-              );
-
-              router.replace("(home)");
-            } else {
-              setTimeout(() => {
-                SplashScreen.hideAsync();
-              }, 500);
-            }
-          });
+        const { data: feedsData, error } = await supabase
+          .from("channels")
+          .select("*");
+        if (error) {
+          console.error("Error fetching feeds:", error);
+          return;
         }
+        setFeeds(feedsData);
+        setFeedsFetched(true);
       } catch (error) {
-        console.error("Error fetching session:", error);
+        console.error("Error fetching feeds:", error);
+      }
+    }
+
+    fetchFeeds();
+  }, []);
+
+  const sortFeedsBySubscribers = (feeds) => {
+    return feeds.slice().sort((a, b) => {
+      const subscribersA = a.channel_subscribers
+        ? a.channel_subscribers.length
+        : 0;
+      const subscribersB = b.channel_subscribers
+        ? b.channel_subscribers.length
+        : 0;
+
+      return subscribersB - subscribersA;
+    });
+  };
+
+  useEffect(() => {
+    if (feeds) {
+      const sortedFeeds = sortFeedsBySubscribers(feeds);
+      const popularFeeds = sortedFeeds.slice(0, 24);
+      setPopularFeeds(popularFeeds);
+
+      const remainingFeeds = sortedFeeds.slice(24);
+      const remainingFeedsExcludingPopular = remainingFeeds.filter(
+        (feed) =>
+          !popularFeeds.some((popularFeed) => popularFeed.id === feed.id)
+      );
+
+      const shuffleArray = (array) => {
+        let currentIndex = array.length,
+          randomIndex,
+          temporaryValue;
+
+        while (currentIndex !== 0) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+      };
+
+      const randomFeeds = shuffleArray(remainingFeedsExcludingPopular).slice(
+        0,
+        25
+      );
+
+      setRandomFeeds(randomFeeds);
+    }
+  }, [feeds]);
+
+  const handleAuthStateChange = async (event, session) => {
+    if (session) {
+      setSession(session);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        setUserFetched(true);
+        const { channelIds, channelUrls, bookmarks } =
+          await fetchUserSubscriptions(user);
+        setUserSubscriptionIds(channelIds);
+        setUserSubscriptionUrls(channelUrls);
+        setUserSubscriptionUrlsFetched(true);
+        setUserBookmarks(bookmarks);
+        router.replace("(home)");
+      } else {
+        router.replace("(login)");
+        SplashScreen.hideAsync();
+        return null;
+      }
+    } else {
+      router.replace("(login)");
+
+      setSession(null);
+      setUser(null);
+      setUserSubscriptionIds(null);
+      setUserSubscriptionUrls(null);
+      setUserBookmarks(null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserAndSubscriptions = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+
+      if (session) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+        setUserFetched(true);
+        const { channelIds, channelUrls, bookmarks } =
+          await fetchUserSubscriptions(user);
+        setUserSubscriptionIds(channelIds);
+        setUserSubscriptionUrls(channelUrls);
+        setUserSubscriptionUrlsFetched(true);
+        setUserBookmarks(bookmarks);
+
+        if (feedsFetched) {
+          //router.replace("(home)");
+        }
+      } else {
+        router.replace("(login)");
       }
     };
 
-    fetchData();
-  }, []);
+    supabase.auth.onAuthStateChange(handleAuthStateChange);
+    fetchUserAndSubscriptions();
 
-  useEffect(() => {
-    // Listen for changes in the authentication state
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setSession(session);
-        // console.log("Session 5:" || "N/A 5");
-        // If a session is present, navigate to the main screen
-        router.replace("(home)");
-      } else {
-        // If a session is not present, navigate to the login screen
-        // console.log("Session 6:" || "N/A 6");
-        router.replace("(login)");
+    return () => {
+      // Check if removeAuthStateListener is available before calling it
+      if (supabase.auth.removeAuthStateListener) {
+        supabase.auth.removeAuthStateListener(handleAuthStateChange);
       }
-    });
-  }, []);
+    };
+  }, [feedsFetched]);
 
-  const fetchUserSubscriptions = async (currentUser) => {
+  const fetchUserSubscriptions = async (user) => {
     try {
       const { data: userProfileData, error: userProfileError } = await supabase
         .from("profiles")
         .select()
-        .eq("id", currentUser.id);
-  
+        .eq("id", user.id);
+
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
-        return { channelIds: [], channelUrls: [] };
+        return { channelIds: [], channelUrls: [], bookmarks: [] };
       }
-  
+
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
-  
-      if (!channelSubscriptions || channelSubscriptions.length === 0) {
-        return { channelIds: [], channelUrls: [] };
-      }
-  
+
+      const articleBookmarks = userProfileData[0]?.bookmarks || [];
+
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
           acc.channelIds.push(subscription.channelId);
@@ -178,102 +277,132 @@ function RootLayoutNav() {
         },
         { channelIds: [], channelUrls: [] }
       );
-  
-      return { channelIds, channelUrls };
+
+      const bookmarks = articleBookmarks;
+
+      return { channelIds, channelUrls, bookmarks };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return { channelIds: [], channelUrls: [] };
+      return { channelIds: [], channelUrls: [], bookmarks: [] };
     }
   };
-  
-
-  const updateUserSubscriptions = async (updatedSubscriptions) => {
-    try {
-      const { channelIds, channelUrls } = await fetchUserSubscriptions(
-        session.user
-      );
-      // Update local state
-      setUserSubscriptionIds(channelIds);
-      setUserSubscriptionUrls(channelUrls);
-
-      // Update the user profile on Supabase
-      await supabase
-        .from("profiles")
-        .update({
-          channel_subscriptions: updatedSubscriptions,
-        })
-        .eq("id", session.user.id);
-    } catch (error) {
-      console.error("Error updating user subscriptions:", error);
-    }
-  };
-
-  // Fetches user information and all feed channels — sets [feeds]
-  useEffect(() => {
-    async function fetchFeeds() {
-      try {
-        const { data: channelsData, error } = await supabase
-          .from("channels")
-          .select("*");
-
-        if (error) {
-          console.error("Error fetching channels:", error);
-          // You might want to show a user-friendly error message here.
-          return;
-        }
-
-        setFeeds(channelsData);
-        console.log("FEEDS", channelsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Handle unexpected errors here, e.g., show a generic error message.
-      }
-    }
-
-    fetchFeeds();
-  }, []); // The empty dependency array ensures it runs only on mount
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <AuthContext.Provider
-        value={{
-          authInitialized,
-          feeds,
-          session,
-          user,
-          userBookmarks,
-          userSubscriptionIds,
-          userSubscriptionUrls,
-          updateUserSubscriptions,
+      <MenuProvider
+        customStyles={{
+          backdrop: {
+            backgroundColor: "#181818",
+            opacity: 0.8,
+          },
         }}
       >
-        <Stack>
-          <Stack.Screen name="(home)" options={{ headerShown: false }} />
-          <Stack.Screen name="(login)" options={{ headerShown: false }} />
-          <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="addChannel"
-            options={{ presentation: "modal", title: "Add Channel" }}
-          />
-          <Stack.Screen
-            name="feedView"
-            options={({ route }) => ({
-              title: route.params.title || "Default Title",
-              headerStyle: {
-                headerTransparent: true,
-                shadowColor: "transparent", // Remove shadow on iOS
-                backgroundColor: Colors[colorScheme || "light"].background,
-              },
-              headerTintColor: Colors[colorScheme || "light"].colorPrimary, // Set header tint color
-              headerBackTitle: "Explore",
-              headerTitleStyle: {
-                color: Colors[colorScheme || "light"].textHigh, // Set header title color
-              },
-            })}
-          />
-        </Stack>
-      </AuthContext.Provider>
+        <FeedContext.Provider
+          value={{
+            feeds,
+            popularFeeds,
+            randomFeeds,
+            dailyQuote,
+            feedsFetched,
+            userFetched,
+            setFeeds,
+          }}
+        >
+          <AuthContext.Provider
+            value={{
+              session,
+              user,
+              userSubscriptionIds,
+              userSubscriptionUrls,
+              userBookmarks,
+              setUserSubscriptionIds,
+              setUserSubscriptionUrls,
+              userSubscriptionUrlsFetched,
+              setUserBookmarks,
+            }}
+          >
+            <Stack>
+              <Stack.Screen name="(home)" options={{ headerShown: false }} />
+              <Stack.Screen name="(login)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(removeAccount)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="(signup)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+              <Stack.Screen name="quoteSplash" />
+              <Stack.Screen
+                name="addChannel"
+                options={{ presentation: "modal", title: "Add Channel" }}
+              />
+              <Stack.Screen
+                name="feedView"
+                options={({ route }) => ({
+                  title: route.params.title || "RSS Feed",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                })}
+              />
+              <Stack.Screen
+                name="editFeedView"
+                options={({ route }) => ({
+                  title: `Edit ${route.params.title}` || "Edit Feed",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Back",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                })}
+              />
+              <Stack.Screen
+                name="allPopularFeeds"
+                options={{
+                  title: "Popular Feeds",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                }}
+              />
+              <Stack.Screen
+                name="allRandomFeeds"
+                options={{
+                  title: "Random Feeds",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                }}
+              />
+            </Stack>
+          </AuthContext.Provider>
+        </FeedContext.Provider>
+      </MenuProvider>
     </ThemeProvider>
   );
 }

@@ -1,92 +1,91 @@
-import React, { useState, useEffect, useContext } from "react";
-import {
-  TouchableOpacity,
-  Alert,
-  useColorScheme,
-  TextInput,
-} from "react-native";
-import { router } from "expo-router";
-import { supabase } from "../../config/initSupabase";
-import { Text, View } from "../../components/Themed";
-import * as rssParser from "react-native-rss-parser";
-import ArticleCard from "../../components/ArticleCard";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+} from "react";
+import { Text, TouchableOpacity, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-
-import Colors from "../../constants/Colors";
 import { AuthContext } from "../_layout";
+import { View } from "../../components/Themed";
+import ArticleCard from "../../components/ArticleCard";
+import { router } from "expo-router";
+import Colors from "../../constants/Colors";
+import { useScrollToTop } from "@react-navigation/native";
+import ArticleCardSkeleton from "../../components/skeletons/ArticleCardSkeleton";
 
 export default function Bookmarks() {
   const colorScheme = useColorScheme();
-  const { session, user, userSubscriptionIds } = useContext(AuthContext);
-  const [rssChannels, setRssChannels] = useState([]);
-  const [rssItems, setRssItems] = useState([]);
+  const { user, userBookmarks } = useContext(AuthContext);
+  const [userInitialBookmarks, setUserInitialBookmarks] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const doLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    router.replace("(login)");
-    if (error) {
-      Alert.alert("Error Signing Out User", error.message);
+  const ref = useRef(null);
+
+  useScrollToTop(
+    useRef({
+      scrollToTop: () =>
+        ref.current?.scrollToOffset({ animated: true, offset: 0 }),
+    })
+  );
+
+  useEffect(() => {
+    if (userBookmarks != null) {
+      // Set userInitialBookmarks to userBookmarks on initial build
+      setUserInitialBookmarks(userBookmarks);
     }
+  }, [userBookmarks]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Fetch or update userBookmarks here
+    setRefreshing(false);
   };
 
-  // parse feeds
-  useEffect(() => {
-    const feedUrls = [
-      "https://feeds.megaphone.fm/newheights",
-      "http://www.nasa.gov/rss/dyn/breaking_news.rss",
-      "https://podcastfeeds.nbcnews.com/RPWEjhKq",
-      // Add more RSS feed URLs here
-    ];
-
-    const fetchAndParseFeeds = async () => {
-      const allChannels = [];
-      const allItems = [];
-
-      const parseAndSort = async (url) => {
-        try {
-          const response = await fetch(url);
-          const responseData = await response.text();
-          const parsedRss = await rssParser.parse(responseData);
-
-          allChannels.push({
-            title: parsedRss.title,
-            description: parsedRss.description,
-          });
-
-          allItems.push(
-            ...parsedRss.items.map((item) => ({
-              ...item,
-              publicationDate: new Date(item.published),
-              channel: parsedRss.title, // Include the channel title in the item
-              image: parsedRss.image,
-              channelUrl: parsedRss.links[0].url,
-            }))
-          );
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      await Promise.all(feedUrls.map(parseAndSort));
-
-      // Sort items by publication date in descending order (most recent first)
-      allItems.sort((a, b) => b.publicationDate - a.publicationDate);
-
-      setRssChannels(allChannels);
-      setRssItems(allItems);
-    };
-
-    fetchAndParseFeeds();
-  }, []);
-
   const styles = {
+    noFeedsHeader: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 24,
+      paddingBottom: 48,
+    },
     container: {
       flex: 1,
       alignItems: "center",
+      width: "100%",
+      maxWidth: "100%",
       justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
       width: "100%",
+      flex: 1,
+    },
+    profileHeader: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
+      paddingBottom: userInitialBookmarks?.length > 0 ? 0 : 48,
+    },
+    profileHeaderNoFeeds: {
+      width: "100%",
+      alignItems: "center",
+      padding: 24,
+      paddingHorizontal: 8,
+      paddingBottom: 48,
+    },
+    scrollViewContainer: {
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
+      flexDirection: "column",
+      width: "100%",
+      maxWidth: "100%",
+      minWidth: "100%",
       flex: 1,
     },
     input: {
@@ -117,43 +116,183 @@ export default function Bookmarks() {
       lineHeight: 22,
       letterSpacing: -0,
     },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonDisabled: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].buttonMuted}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+    headerWrapper: {
+      paddingHorizontal: 0,
+      paddingVertical: 12,
+      gap: 3,
+      width: "100%",
+      maxWidth: "100%",
+      height: 86,
+    },
+    titleWrapper: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    titleWrapperUserFeeds: {
+      width: "100%",
+      marginTop: 8,
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    headerSubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    title: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 24,
+      lineHeight: 31,
+      letterSpacing: -0.24,
+    },
+    textButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    textButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+    },
+    username: {
+      marginBottom: 4,
+      marginTop: 4,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "NotoSerifMedium",
+      fontWeight: "500",
+      fontSize: 29,
+      lineHeight: 35,
+      letterSpacing: -0.217,
+    },
+    subtitle: {
+      marginBottom: 36,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
+      fontWeight: "700",
+      fontSize: 19,
+      textAlign: "center",
+      lineHeight: 24,
+      letterSpacing: -0.19,
+    },
+    button: {
+      height: 48,
+      width: "100%",
+      flexDirection: "row",
+      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      borderRadius: 18,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 8,
+    },
+    buttonText: {
+      color: `${Colors[colorScheme || "light"].colorOn}`,
+      fontFamily: "InterBold",
+      fontWeight: "700",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+    feedListFooter: {
+      height: 16,
+    },
   };
 
   return (
     <View style={styles.container}>
-      <View>
-        <TouchableOpacity onPress={doLogout}>
-          <Text>Log out</Text>
-        </TouchableOpacity>
-      </View>
-      <TextInput
-        style={styles.input}
-        label="Email"
-        // onChangeText={(text) => setEmail(text)}
-        // value={email}
-        placeholder="email"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-      />
-      <View style={styles.articleList}>
-        <FlashList
-          data={rssItems}
-          estimatedItemSize={200}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => {
-            return (
+      {userBookmarks != null ? (
+        <View style={styles.articleList}>
+          <FlashList
+            ref={ref}
+            ListEmptyComponent={() => (
+              <View style={styles.noFeedsHeader}>
+                <Text style={styles.username}>Like anything?</Text>
+                <Text style={styles.subtitle}>
+                  Feel free to save any articles you find interesting or can't
+                  get to yet.
+                </Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/explore",
+                    });
+                  }}
+                >
+                  <Text style={styles.buttonText}>View Explore Page</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            data={userInitialBookmarks}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            renderItem={({ item }) => (
               <ArticleCard
+                fallbackImage={item.fallbackImage}
                 item={item}
-                publication={item.channel}
-                image={item.image}
-                channelUrl={item.channelUrl}
+                feed={item.feed}
+                publication={item.feed.channel_title}
                 user={user}
               />
-            );
-          }}
-        />
-      </View>
+            )}
+          />
+        </View>
+      ) : (
+        <View style={styles.articleList}>
+          <FlashList
+            ref={ref}
+            data={Array(4).fill(null)}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            estimatedItemSize={200}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+            renderItem={() => <ArticleCardSkeleton />}
+          />
+        </View>
+      )}
     </View>
   );
 }

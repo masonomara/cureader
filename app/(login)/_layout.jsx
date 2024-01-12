@@ -28,11 +28,11 @@ export default function AuthLayout() {
       flexDirection: "row",
       flexWrap: "nowrap",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
   };
 
