@@ -591,16 +591,15 @@ export default function Index() {
       </Text> */}
       <View style={styles.container}>
         <View style={styles.dailyQuoteContainer}>
-          {/* {dailyQuote && dailyQuote.length > 0 && (
+          {dailyQuote && dailyQuote.length > 0 && (
             <View style={styles.dailyQuoteWrapper}>
               <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
               <Text style={styles.dailyQuoteAuthor}>
                 — {dailyQuote[0].a}
                 <Text style={styles.seeThrough}> —</Text>
               </Text>
-              
             </View>
-          )} */}
+          )}
           <View style={styles.feedsLoadingContainer}>
             <ActivityIndicator
               size="small"
