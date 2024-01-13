@@ -268,6 +268,16 @@ export default function FeedCardToolTip({ item }) {
       textAlign: "center",
       width: "1000%",
     },
+    button: {
+      height: 32,
+      minWidth: 32,
+      alignItems: "center",
+      justifyContent: "center",
+      flexDirection: "row",
+      gap: 5,
+      backgroundColor: Colors[colorScheme || "light"].surfaceOne,
+      borderRadius: 100,
+    },
   };
 
   return (
@@ -278,23 +288,21 @@ export default function FeedCardToolTip({ item }) {
             underlayColor: "transparent",
             activeOpacity: 0.2,
             style: {
-              height: 40,
-              minWidth: 40,
-              alignItems: "center",
+              width: 44,
+              height: 44,
+              display: "flex",
+              alignItems: "flex-end",
               justifyContent: "center",
-              flexDirection: "row",
-              gap: 5,
-              borderWidth: 0.5,
-              borderColor: Colors[colorScheme || "light"].border,
-              borderRadius: 100,
             },
           },
         }}
       >
-        <Dots20
-          style={styles.buttonImage}
-          color={Colors[colorScheme || "light"].buttonActive}
-        />
+        <View style={styles.button}>
+          <Dots20
+            style={styles.buttonImage}
+            color={Colors[colorScheme || "light"].buttonActive}
+          />
+        </View>
       </MenuTrigger>
       <MenuOptions
         customStyles={{

@@ -126,25 +126,29 @@ export default function ArticleCard({
     <View style={styles.cardControls}>
       <View style={styles.cardButtons}>
         <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
-          <Share20
-            style={styles.buttonImage}
-            color={Colors[colorScheme || "light"].buttonActive}
-          />
-          <Text style={styles.buttonText}>Share</Text>
+          <View style={styles.button}>
+            <Share20
+              style={styles.buttonImage}
+              color={Colors[colorScheme || "light"].buttonActive}
+            />
+            <Text style={styles.buttonText}>Share</Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttonWrapper} onPress={handleBookmark}>
-          {isBookmarked ? (
-            <BookmarkFilled20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
-          ) : (
-            <BookmarkOutline20
-              style={styles.buttonImage}
-              color={Colors[colorScheme || "light"].buttonActive}
-            />
-          )}
-          <Text style={styles.buttonText}>Bookmark</Text>
+          <View style={styles.button}>
+            {isBookmarked ? (
+              <BookmarkFilled20
+                style={styles.buttonImage}
+                color={Colors[colorScheme || "light"].buttonActive}
+              />
+            ) : (
+              <BookmarkOutline20
+                style={styles.buttonImage}
+                color={Colors[colorScheme || "light"].buttonActive}
+              />
+            )}
+            <Text style={styles.buttonText}>Bookmark</Text>
+          </View>
         </TouchableOpacity>
       </View>
       <FeedCardToolTip item={feed} />
@@ -153,11 +157,11 @@ export default function ArticleCard({
 
   const styles = {
     card: {
-      borderBottomWidth: 1,
-      paddingTop: 28,
+      borderBottomWidth: 2,
+      paddingTop: 24,
       paddingLeft: 16,
       paddingRight: 16,
-      paddingBottom: 8,
+      paddingBottom: 7,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -178,6 +182,7 @@ export default function ArticleCard({
       alignItems: "flex-start",
       gap: "10px",
     },
+
     icon: {
       height: 24,
       width: 24,
@@ -244,8 +249,8 @@ export default function ArticleCard({
     },
     articleDate: {
       color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -256,7 +261,7 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 3,
+      marginBottom: 2,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
@@ -270,53 +275,58 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 24,
+      marginBottom: 27,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "NotoSerifRegular",
+      fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 15,
-      lineHeight: 22,
-      letterSpacing: -0.225,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     cardControls: {
       display: "flex",
       alignItems: "center",
-      gap: "28px",
+      justifyContent: "center",
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
-      height: 52,
-      paddingTop: 4,
+      height: 44,
     },
     cardButtons: {
       display: "flex",
       alignItems: "center",
       justifyContent: "flex-start",
-      gap: "12px",
+      gap: 8,
       alignSelf: "stretch",
       flexDirection: "row",
       flex: 1,
+      height: 44,
     },
     buttonWrapper: {
-      height: 40,
-      minWidth: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    button: {
+      height: 34,
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
       gap: 5,
-      paddingHorizontal: 12,
+      paddingRight: 12,
       paddingLeft: 10,
-      borderWidth: 0.5,
+      // borderWidth: 0.5,
       borderColor: Colors[colorScheme || "light"].border,
       borderRadius: 100,
+      backgroundColor: Colors[colorScheme || "light"].surfaceOne,
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 13,
-      lineHeight: 18,
-      letterSpacing: -0.065,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     noImageContainer: {
       height: 76,
