@@ -178,7 +178,9 @@ export default function TabLayout() {
           title: "Feed",
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <HomeOutline28 name="bookmark" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <HomeOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -191,7 +193,9 @@ export default function TabLayout() {
           },
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <SearchOutline28 name="bookmark" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <SearchOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -379,7 +383,9 @@ export default function TabLayout() {
               </MenuOptions>
             </Menu>
           ),
-          tabBarIcon: ({ color }) => <UserOutline28 name="bookmark" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <UserOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
     </Tabs>
