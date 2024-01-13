@@ -363,22 +363,6 @@ export default function TabLayout() {
                     </Pressable>
                     <Text style={styles.optionTextCredit}>.</Text>
                   </View>
-                  <View style={styles.optionTextCreditWrapper}>
-                    <Text style={styles.optionTextCredit}>
-                      Inspirational quotes provided by{" "}
-                    </Text>
-                    <Pressable
-                      style={styles.optionTextCreditPressableWrapper}
-                      onPress={() =>
-                        _handlePressButtonAsync("https://zenquotes.io/")
-                      }
-                    >
-                      <Text style={styles.optionTextCreditPressable}>
-                        ZenQuotes API
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.optionTextCredit}>.</Text>
-                  </View>
                 </View>
               </MenuOptions>
             </Menu>

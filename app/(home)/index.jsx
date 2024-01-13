@@ -4,6 +4,7 @@ import {
   Alert,
   useColorScheme,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -16,10 +17,13 @@ import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
 
 export default function Index() {
-  const { feeds, popularFeeds, dailyQuote, feedsFetched, userFetched } =
+  const { feeds, popularFeeds, feedsFetched, userFetched } =
     useContext(FeedContext);
   const { user, userSubscriptionUrls, userSubscriptionUrlsFetched } =
     useContext(AuthContext);
+
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const SCREEN_HEIGHT = Dimensions.get("window").height;
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
@@ -50,10 +54,10 @@ export default function Index() {
     //   userSubscriptionUrlsFetched
     // );
     if (feedsFetched && userFetched && userSubscriptionUrlsFetched) {
-      console.log(
-        // "[1.1] about to run initialFetchAndParseFeeds:",
-        userSubscriptionUrls.toString().slice(0, 30)
-      );
+      // console.log(
+      //   // "[1.1] about to run initialFetchAndParseFeeds:",
+      //   userSubscriptionUrls.toString().slice(0, 30)
+      // );
 
       initialFetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
@@ -627,6 +631,15 @@ export default function Index() {
       lineHeight: 19,
       letterSpacing: -0.14,
     },
+    fauxSplashScreen: {
+      // backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+      // position: "fixed",
+      // left: 0,
+      // right: 0,
+      // bottom: 0,
+      // width: SCREEN_WIDTH,
+      // height: SCREEN_HEIGHT,
+    },
   };
 
   return (
@@ -641,27 +654,6 @@ export default function Index() {
         userSubscriptionUrlsFetched: {userSubscriptionUrlsFetched && "true"}
       </Text>
       <View style={styles.container}>
-        <View style={styles.dailyQuoteContainer}>
-          {dailyQuote && dailyQuote.length > 0 && (
-            <View style={styles.dailyQuoteWrapper}>
-              <Text style={styles.dailyQuoteQuote}>“{dailyQuote[0].q}”</Text>
-              <Text style={styles.dailyQuoteAuthor}>
-                — {dailyQuote[0].a}
-                <Text style={styles.seeThrough}> —</Text>
-              </Text>
-            </View>
-          )}
-          <View style={styles.feedsLoadingContainer}>
-            <ActivityIndicator
-              size="small"
-              color={`${Colors[colorScheme || "light"].textMedium}`}
-            />
-
-            <Text style={styles.feedsLoadingText}>
-              Loading your RSS Feeds...
-            </Text>
-          </View>
-        </View>
         {feedsParsed ? (
           rssItems.length > 0 ? (
             <View style={styles.articleList}>
@@ -743,7 +735,18 @@ export default function Index() {
             </View>
           )
         ) : (
-          <></>
+          <View style={styles.fauxSplashScreen}>
+            <View style={styles.feedsLoadingContainer}>
+              <ActivityIndicator
+                size="small"
+                color={`${Colors[colorScheme || "light"].textMedium}`}
+              />
+
+              <Text style={styles.feedsLoadingText}>
+                Loading your RSS Feeds...
+              </Text>
+            </View>
+          </View>
         )}
       </View>
     </>

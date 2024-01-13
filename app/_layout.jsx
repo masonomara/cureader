@@ -17,7 +17,6 @@ export const FeedContext = createContext({
   feeds: null,
   popularFeeds: null,
   randomFeeds: null,
-  dailyQuote: null,
   feedsFetched: false,
   userFetched: false,
   setFeeds: () => {},
@@ -83,37 +82,15 @@ function RootLayoutNav() {
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [userFetched, setUserFetched] = useState(false);
   const [feedsFetched, setFeedsFetched] = useState(false);
-  const [dailyQuote, setDailyQuote] = useState(null);
+
   const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    fetchDailyQuote();
-    SplashScreen.hideAsync();
-  }, []);
-
-  const fetchDailyQuote = async () => {
-    try {
-      const response = await fetch("https://zenquotes.io/api/today");
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch daily quote. Status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-      setDailyQuote(data);
-    } catch (error) {
-      console.error("Error fetching daily quote:", error.message);
-    }
-  };
-
-  useEffect(() => {
-    console.log("[LAYOUT 0.1] prepping fetchFeeds:");
+    console.log("[LAYOUT 0.1] prepping fetchFeeds");
     async function fetchFeeds() {
-      console.log("[LAYOUT 0.2] running fetchFeeds:");
+      console.log("[LAYOUT 0.2] running fetchFeeds");
       try {
         const { data: feedsData, error } = await supabase
           .from("channels")
@@ -122,8 +99,13 @@ function RootLayoutNav() {
           console.error("Error fetching feeds:", error);
           return;
         }
+        console.log(
+          "[LAYOUT 0.3] collected feedsData:",
+          feedsData.toString().slice(0, 30)
+        );
         setFeeds(feedsData);
         setFeedsFetched(true);
+        SplashScreen.hideAsync();
       } catch (error) {
         console.error("Error fetching feeds:", error);
       }
@@ -191,12 +173,18 @@ function RootLayoutNav() {
       } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
+
         setUserFetched(true);
+        console.log("setUserFetched:", userFetched);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
+        console.log(
+          "setUserSubscriptionUrlsFetched:",
+          userSubscriptionUrlsFetched
+        );
         setUserBookmarks(bookmarks);
         router.replace("(home)");
       } else {
@@ -227,12 +215,18 @@ function RootLayoutNav() {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
+
         setUserFetched(true);
+        console.log("setUserFetched:", userFetched);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
+        console.log(
+          "setUserSubscriptionUrlsFetched:",
+          userSubscriptionUrlsFetched
+        );
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
@@ -304,7 +298,6 @@ function RootLayoutNav() {
             feeds,
             popularFeeds,
             randomFeeds,
-            dailyQuote,
             feedsFetched,
             userFetched,
             setFeeds,
@@ -332,7 +325,7 @@ function RootLayoutNav() {
               />
               <Stack.Screen name="(signup)" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-              <Stack.Screen name="quoteSplash" />
+
               <Stack.Screen
                 name="addChannel"
                 options={{ presentation: "modal", title: "Add Channel" }}
