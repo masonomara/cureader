@@ -580,7 +580,7 @@ export default function Index() {
 
   return (
     <>
-      {/* <Text style={styles.feedsLoadingText}>
+      <Text style={styles.feedsLoadingText}>
         feedsFetched: {feedsFetched && "true"}
       </Text>
       <Text style={styles.feedsLoadingText}>
@@ -588,7 +588,7 @@ export default function Index() {
       </Text>
       <Text style={styles.feedsLoadingText}>
         userSubscriptionUrlsFetched: {userSubscriptionUrlsFetched && "true"}
-      </Text> */}
+      </Text>
       <View style={styles.container}>
         <View style={styles.dailyQuoteContainer}>
           {dailyQuote && dailyQuote.length > 0 && (
