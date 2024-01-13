@@ -27,6 +27,7 @@ export const FeedContext = createContext({
 export const AuthContext = createContext({
   session: null,
   user: null,
+  userAdmin: false,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
   userSubscriptionUrlsFetched: false,
@@ -77,6 +78,7 @@ function RootLayoutNav() {
   const [popularFeeds, setPopularFeeds] = useState(null);
   const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
+  const [userAdmin, setUserAdmin] = useState(false);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
@@ -89,6 +91,8 @@ function RootLayoutNav() {
   const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
+
+  console.log("userAdmin:", userAdmin)
 
   useEffect(() => {
     // console.log("[LAYOUT 1.1] prepping fetchFeeds");
@@ -180,12 +184,14 @@ function RootLayoutNav() {
         setUser(user);
 
         setUserFetched(true);
+
         // console.log("setUserFetched:", userFetched);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
+
         // console.log(
         //   "setUserSubscriptionUrlsFetched:",
         //   userSubscriptionUrlsFetched
@@ -268,7 +274,7 @@ function RootLayoutNav() {
         console.error("Error fetching user profile data:", userProfileError);
         return { channelIds: [], channelUrls: [], bookmarks: [] };
       }
-
+      setUserAdmin(userProfileData[0].admin);
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
 
@@ -318,6 +324,7 @@ function RootLayoutNav() {
             value={{
               session,
               user,
+              userAdmin,
               userSubscriptionIds,
               userSubscriptionUrls,
               userBookmarks,
