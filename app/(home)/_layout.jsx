@@ -19,6 +19,10 @@ import {
 } from "react-native-popup-menu";
 import * as WebBrowser from "expo-web-browser";
 import { supabase } from "../../config/supabase";
+import BookmarkOutline28 from "../../components/icons/28/BookmarkOutline28";
+import UserOutline28 from "../../components/icons/28/UserOutline28";
+import SearchOutline28 from "../../components/icons/28/SearchOutline28";
+import HomeOutline28 from "../../components/icons/28/HomeOutline28";
 
 function TabBarIcon(props) {
   return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
@@ -174,7 +178,7 @@ export default function TabLayout() {
           title: "Feed",
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color }) => <HomeOutline28 name="bookmark" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -187,7 +191,7 @@ export default function TabLayout() {
           },
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => <SearchOutline28 name="bookmark" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -201,7 +205,7 @@ export default function TabLayout() {
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="bookmark" color={color} />
+            <BookmarkOutline28 name="bookmark" color={color} />
           ),
         }}
       />
@@ -375,7 +379,7 @@ export default function TabLayout() {
               </MenuOptions>
             </Menu>
           ),
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => <UserOutline28 name="bookmark" color={color} />,
         }}
       />
     </Tabs>
