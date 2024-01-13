@@ -122,66 +122,6 @@ export default function ArticleCard({
     }
   };
 
-  const renderCardContent = () => (
-    <View style={styles.cardContent}>
-      <View style={styles.cardContentWrapper}>
-        <Text style={styles.publicationWrapper}>
-          <Text style={styles.publicationText}>{publication}&nbsp;&nbsp;</Text>
-          <Text style={styles.articleDate}>
-            {formatPublicationDate(item.published)}
-          </Text>
-        </Text>
-        <Text style={styles.title}>{item.title || ""}</Text>
-        <Text numberOfLines={4} style={styles.description}>
-          {item.description ? formatDescription(item.description, 300) : ""}
-        </Text>
-      </View>
-    </View>
-  );
-
-  const renderImage = () => {
-    if (imageUrl && imageWidth > 200) {
-      return (
-        <View
-          style={{
-            aspectRatio: "4/3",
-            width: "100%",
-            borderRadius: 12,
-            overflow: "hidden",
-            marginBottom: 12,
-          }}
-        >
-          <RNImage
-            style={{
-              flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
-            }}
-            contentFit="cover"
-            source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-          />
-        </View>
-      );
-    } else {
-      return null; // Render no image or handle it as needed
-    }
-  };
-
-  const renderNoImageContainer = () => (
-    <View style={styles.noImageContainer}>
-      <Text style={styles.noImageContainerText}>
-        {publication} {publication}
-      </Text>
-      <Text style={styles.noImageContainerText}>
-        {publication} {publication} {publication}
-      </Text>
-      <Text style={styles.noImageContainerText}>
-        {publication} {publication}
-      </Text>
-    </View>
-  );
-
   const renderCardControls = () => (
     <View style={styles.cardControls}>
       <View style={styles.cardButtons}>
@@ -407,8 +347,44 @@ export default function ArticleCard({
     <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
       {imageUrl && imageWidth > 200 ? (
         <>
-          {renderImage()}
-          {renderCardContent()}
+          <View
+            style={{
+              aspectRatio: "4/3",
+              width: "100%",
+              borderRadius: 12,
+              overflow: "hidden",
+              marginBottom: 12,
+            }}
+          >
+            <RNImage
+              style={{
+                flex: 1,
+                borderRadius: 12,
+                borderWidth: 0.67,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
+              }}
+              contentFit="cover"
+              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+            />
+          </View>
+          <View style={styles.cardContent}>
+            <View style={styles.cardContentWrapper}>
+              <Text style={styles.publicationWrapper}>
+                <Text style={styles.publicationText}>
+                  {publication}&nbsp;&nbsp;
+                </Text>
+                <Text style={styles.articleDate}>
+                  {formatPublicationDate(item.published)}
+                </Text>
+              </Text>
+              <Text style={styles.title}>{item.title || ""}</Text>
+              <Text numberOfLines={4} style={styles.description}>
+                {item.description
+                  ? formatDescription(item.description, 300)
+                  : ""}
+              </Text>
+            </View>
+          </View>
           {renderCardControls()}
         </>
       ) : (
@@ -459,7 +435,17 @@ export default function ArticleCard({
                 source={{ uri: fallbackImage || item.image?.url }}
               />
             ) : (
-              renderNoImageContainer()
+              <View style={styles.noImageContainer}>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication}
+                </Text>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication} {publication}
+                </Text>
+                <Text style={styles.noImageContainerText}>
+                  {publication} {publication}
+                </Text>
+              </View>
             )}
           </View>
           {renderCardControls()}
