@@ -32,6 +32,7 @@ export function formatDescription(description, maxLength) {
     .replace(/&#8211;/g, "–")
     .replace(/&#x27;/g, "'")
     .replace(/&quot;/g, `"`)
+    .replace(/&#38;/g, `&`)
     .trim()
     .slice(0, maxLength);
 
