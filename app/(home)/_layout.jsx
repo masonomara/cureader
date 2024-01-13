@@ -23,13 +23,13 @@ import BookmarkOutline28 from "../../components/icons/28/BookmarkOutline28";
 import UserOutline28 from "../../components/icons/28/UserOutline28";
 import SearchOutline28 from "../../components/icons/28/SearchOutline28";
 import HomeOutline28 from "../../components/icons/28/HomeOutline28";
-
-function TabBarIcon(props) {
-  return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import { useContext } from "react";
+import { FeedContext } from "../_layout";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const { feedsParsed, setFeedsParsed } = useContext(FeedContext);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -168,9 +168,17 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors[colorScheme || "light"].tabIconDefault,
       }}
     >
+      {/* {feedsParsed == true ? ( */}
+      {/* <> */}
       <Tabs.Screen
         name="index"
         options={{
+          ...(!feedsParsed
+            ? {
+                headerShown: false,
+                tabBarStyle: { display: "none" },
+              }
+            : {}),
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,

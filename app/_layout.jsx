@@ -19,7 +19,9 @@ export const FeedContext = createContext({
   randomFeeds: null,
   feedsFetched: false,
   userFetched: false,
+  feedsParsed: false,
   setFeeds: () => {},
+  setFeedsParsed: () => {},
 });
 
 export const AuthContext = createContext({
@@ -82,16 +84,19 @@ function RootLayoutNav() {
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [userFetched, setUserFetched] = useState(false);
   const [feedsFetched, setFeedsFetched] = useState(false);
+  const [feedsParsed, setFeedsParsed] = useState(false);
 
   const [session, setSession] = useState(null);
 
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    console.log("[LAYOUT 0.1] prepping fetchFeeds");
+    // console.log("[LAYOUT 1.1] prepping fetchFeeds");
+
     async function fetchFeeds() {
-      console.log("[LAYOUT 0.2] running fetchFeeds");
+      // console.log("[LAYOUT 1.2] about to run fetchFeeds");
       try {
+        // console.log("[LAYOUT 1.3] running fetchFeeds");
         const { data: feedsData, error } = await supabase
           .from("channels")
           .select("*");
@@ -99,10 +104,10 @@ function RootLayoutNav() {
           console.error("Error fetching feeds:", error);
           return;
         }
-        console.log(
-          "[LAYOUT 0.3] collected feedsData:",
-          feedsData.toString().slice(0, 30)
-        );
+        // console.log(
+        //   "[LAYOUT 1.4] collected feedsData:",
+        //   feedsData.toString().slice(0, 30)
+        // );
         setFeeds(feedsData);
         setFeedsFetched(true);
         SplashScreen.hideAsync();
@@ -175,16 +180,16 @@ function RootLayoutNav() {
         setUser(user);
 
         setUserFetched(true);
-        console.log("setUserFetched:", userFetched);
+        // console.log("setUserFetched:", userFetched);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
-        console.log(
-          "setUserSubscriptionUrlsFetched:",
-          userSubscriptionUrlsFetched
-        );
+        // console.log(
+        //   "setUserSubscriptionUrlsFetched:",
+        //   userSubscriptionUrlsFetched
+        // );
         setUserBookmarks(bookmarks);
         router.replace("(home)");
       } else {
@@ -204,10 +209,14 @@ function RootLayoutNav() {
   };
 
   useEffect(() => {
+    // console.log("[LAYOUT 2.1] prepping fetchUserAndSubscriptions");
     const fetchUserAndSubscriptions = async () => {
+      // console.log("[LAYOUT 2.2] about to run fetchUserAndSubscriptions");
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      // console.log("[LAYOUT 2.3] about to run setSession");
       setSession(session);
 
       if (session) {
@@ -217,16 +226,16 @@ function RootLayoutNav() {
         setUser(user);
 
         setUserFetched(true);
-        console.log("setUserFetched:", userFetched);
+        // console.log("setUserFetched:", userFetched);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
-        console.log(
-          "setUserSubscriptionUrlsFetched:",
-          userSubscriptionUrlsFetched
-        );
+        // console.log(
+        //   "setUserSubscriptionUrlsFetched:",
+        //   userSubscriptionUrlsFetched
+        // );
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
@@ -300,7 +309,9 @@ function RootLayoutNav() {
             randomFeeds,
             feedsFetched,
             userFetched,
+            feedsParsed,
             setFeeds,
+            setFeedsParsed,
           }}
         >
           <AuthContext.Provider
