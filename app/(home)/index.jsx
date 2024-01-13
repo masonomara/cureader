@@ -171,15 +171,40 @@ export default function Index() {
         //   allChannels.toString().slice(0, 30)
         // );
 
+        // allItems.push(
+        //   ...parsedRss.items.map((item) => ({
+        //     ...item,
+        //     publicationDate: new Date(item.published),
+        //     feed: feed,
+        //     image: parsedRss.image,
+        //     fallbackImage: channelImage ? channelImage.channel_image_url : null,
+        //     channelUrl: parsedRss.links[0].url,
+        //   }))
+        // );
+
         allItems.push(
-          ...parsedRss.items.map((item) => ({
-            ...item,
-            publicationDate: new Date(item.published),
-            feed: feed,
-            image: parsedRss.image,
-            fallbackImage: channelImage ? channelImage.channel_image_url : null,
-            channelUrl: parsedRss.links[0].url,
-          }))
+          ...parsedRss.items
+            .map((item) => {
+              const publicationDate = new Date(item.published);
+
+              // Check if the date is valid
+              if (isNaN(publicationDate)) {
+                // Ignore the item if the date is not readable
+                return null;
+              }
+
+              return {
+                ...item,
+                publicationDate,
+                feed: feed,
+                image: parsedRss.image,
+                fallbackImage: channelImage
+                  ? channelImage.channel_image_url
+                  : null,
+                channelUrl: parsedRss.links[0].url,
+              };
+            })
+            .filter(Boolean) // Remove null values from the array
         );
 
         // console.log(
@@ -263,14 +288,28 @@ export default function Index() {
         });
 
         allItems.push(
-          ...parsedRss.items.map((item) => ({
-            ...item,
-            publicationDate: new Date(item.published),
-            feed: feed,
-            image: parsedRss.image,
-            fallbackImage: channelImage ? channelImage.channel_image_url : null,
-            channelUrl: parsedRss.links[0].url,
-          }))
+          ...parsedRss.items
+            .map((item) => {
+              const publicationDate = new Date(item.published);
+
+              // Check if the date is valid
+              if (isNaN(publicationDate)) {
+                // Ignore the item if the date is not readable
+                return null;
+              }
+
+              return {
+                ...item,
+                publicationDate,
+                feed: feed,
+                image: parsedRss.image,
+                fallbackImage: channelImage
+                  ? channelImage.channel_image_url
+                  : null,
+                channelUrl: parsedRss.links[0].url,
+              };
+            })
+            .filter(Boolean) // Remove null values from the array
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
@@ -319,16 +358,28 @@ export default function Index() {
           });
 
           allItems.push(
-            ...parsedRss.items.map((item) => ({
-              ...item,
-              publicationDate: new Date(item.published),
-              feed: feed,
-              image: parsedRss.image,
-              fallbackImage: channelImage
-                ? channelImage.channel_image_url
-                : null,
-              channelUrl: parsedRss.links[0].url,
-            }))
+            ...parsedRss.items
+              .map((item) => {
+                const publicationDate = new Date(item.published);
+
+                // Check if the date is valid
+                if (isNaN(publicationDate)) {
+                  // Ignore the item if the date is not readable
+                  return null;
+                }
+
+                return {
+                  ...item,
+                  publicationDate,
+                  feed: feed,
+                  image: parsedRss.image,
+                  fallbackImage: channelImage
+                    ? channelImage.channel_image_url
+                    : null,
+                  channelUrl: parsedRss.links[0].url,
+                };
+              })
+              .filter(Boolean) // Remove null values from the array
           );
         } catch (error) {
           console.error(error);
