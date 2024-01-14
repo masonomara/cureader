@@ -92,15 +92,13 @@ function RootLayoutNav() {
 
   const colorScheme = useColorScheme();
 
-  console.log("userAdmin:", userAdmin)
-
   useEffect(() => {
-    // console.log("[LAYOUT 1.1] prepping fetchFeeds");
+    console.log("[LAYOUT 1.1] prepping fetchFeeds");
 
     async function fetchFeeds() {
-      // console.log("[LAYOUT 1.2] about to run fetchFeeds");
+      console.log("[LAYOUT 1.2] about to run fetchFeeds");
       try {
-        // console.log("[LAYOUT 1.3] running fetchFeeds");
+        console.log("[LAYOUT 1.3] running fetchFeeds");
         const { data: feedsData, error } = await supabase
           .from("channels")
           .select("*");
@@ -108,10 +106,12 @@ function RootLayoutNav() {
           console.error("Error fetching feeds:", error);
           return;
         }
-        // console.log(
-        //   "[LAYOUT 1.4] collected feedsData:",
-        //   feedsData.toString().slice(0, 30)
-        // );
+
+
+        console.log(
+          "[LAYOUT 1.4] collected feedsData:",
+          feedsData.toString().slice(0, 30)
+        );
         setFeeds(feedsData);
         setFeedsFetched(true);
         SplashScreen.hideAsync();
