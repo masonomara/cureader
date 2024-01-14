@@ -30,6 +30,9 @@ export default function FeedCardProfile({ item, user }) {
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
+
   const colorScheme = useColorScheme();
   const { feeds } = useContext(FeedContext);
   const [isSubscribed, setIsSubscribed] = useState(
@@ -286,36 +289,42 @@ export default function FeedCardProfile({ item, user }) {
           )}
         </View>
         <View style={styles.cardControls}>
-          {item.channel_creator === user.id ||
-            (userAdmin == true && (
-              <TouchableOpacity
-                style={styles.editButtonWrapper}
-                onPress={() =>
-                  router.push({
-                    pathname: "/editFeedView",
-                    params: {
-                      title: item.channel_title,
-                      description: item.channel_description,
-                      image: item.channel_image_url,
-                      subscribers: item.channel_subscribers,
-                      url: item.channel_url,
-                      id: item.id,
-                      user: user,
-                      userId: user.id,
-                      subscribed: isSubscribed,
-                      userSubscriptionIds: userSubscriptionIds,
-                    },
-                  })
-                }
-              >
-                <View style={styles.editButton}>
-                  <Edit20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                </View>
-              </TouchableOpacity>
-            ))}
+          {console.log(
+            "Debug Values:",
+            item.channel_creator,
+            user.id,
+            userAdmin
+          )}
+
+          {shouldRenderEditButton && (
+            <TouchableOpacity
+              style={styles.editButtonWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/editFeedView",
+                  params: {
+                    title: item.channel_title,
+                    description: item.channel_description,
+                    image: item.channel_image_url,
+                    subscribers: item.channel_subscribers,
+                    url: item.channel_url,
+                    id: item.id,
+                    user: user,
+                    userId: user.id,
+                    subscribed: isSubscribed,
+                    userSubscriptionIds: userSubscriptionIds,
+                  },
+                })
+              }
+            >
+              <View style={styles.editButton}>
+                <Edit20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}
