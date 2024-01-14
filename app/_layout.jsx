@@ -102,37 +102,37 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   // Fetching feeds from Supabase on component mount
-  useEffect(() => {
-    // if (session) {
-    //   console.log("[LAYOUT 1.1] prepping fetchFeeds");
-    //   async function fetchFeeds() {
-    //     console.log("[LAYOUT 1.2] about to run fetchFeeds");
-    //     try {
-    //       console.log("[LAYOUT 1.3] running fetchFeeds");
-    //       const { data: feedsData, error } = await supabase
-    //         .from("channels")
-    //         .select("*");
-    //       if (error) {
-    //         console.error("Error fetching feeds:", error);
-    //         return;
-    //       }
-    //       console.log(
-    //         "[LAYOUT 1.4] collected feedsData:",
-    //         feedsData.toString().slice(0, 30)
-    //       );
-    //       setFeeds(feedsData);
-    //       setFeedsFetched(true);
-    //       SplashScreen.hideAsync();
-    //     } catch (error) {
-    //       console.error("Error fetching feeds:", error);
-    //     }
-    //   }
-    //   fetchFeeds();
-    // } else {
-    //   // Redirect to login screen or handle unauthenticated state
-    //   router.replace("(login)");
-    // }
-  }, []);
+  // useEffect(() => {
+  //   // if (session) {
+  //   //   console.log("[LAYOUT 1.1] prepping fetchFeeds");
+  //   //   async function fetchFeeds() {
+  //   //     console.log("[LAYOUT 1.2] about to run fetchFeeds");
+  //   //     try {
+  //   //       console.log("[LAYOUT 1.3] running fetchFeeds");
+  //   //       const { data: feedsData, error } = await supabase
+  //   //         .from("channels")
+  //   //         .select("*");
+  //   //       if (error) {
+  //   //         console.error("Error fetching feeds:", error);
+  //   //         return;
+  //   //       }
+  //   //       console.log(
+  //   //         "[LAYOUT 1.4] collected feedsData:",
+  //   //         feedsData.toString().slice(0, 30)
+  //   //       );
+  //   //       setFeeds(feedsData);
+  //   //       setFeedsFetched(true);
+  //   //       SplashScreen.hideAsync();
+  //   //     } catch (error) {
+  //   //       console.error("Error fetching feeds:", error);
+  //   //     }
+  //   //   }
+  //   //   fetchFeeds();
+  //   // } else {
+  //   //   // Redirect to login screen or handle unauthenticated state
+  //   //   router.replace("(login)");
+  //   // }
+  // }, []);
 
   // Sorting feeds by subscribers when feeds state changes
   const sortFeedsBySubscribers = (feeds) => {
@@ -244,6 +244,7 @@ function RootLayoutNav() {
       }
     } else {
       router.replace("(login)");
+      SplashScreen.hideAsync();
       setSession(null);
       setUser(null);
       setUserSubscriptionIds(null);
