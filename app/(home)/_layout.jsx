@@ -19,13 +19,17 @@ import {
 } from "react-native-popup-menu";
 import * as WebBrowser from "expo-web-browser";
 import { supabase } from "../../config/supabase";
-
-function TabBarIcon(props) {
-  return <Feather size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import BookmarkOutline28 from "../../components/icons/28/BookmarkOutline28";
+import UserOutline28 from "../../components/icons/28/UserOutline28";
+import SearchOutline28 from "../../components/icons/28/SearchOutline28";
+import HomeOutline28 from "../../components/icons/28/HomeOutline28";
+import { useContext } from "react";
+import { FeedContext } from "../_layout";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const { feedsParsed, setFeedsParsed } = useContext(FeedContext);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -164,9 +168,17 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors[colorScheme || "light"].tabIconDefault,
       }}
     >
+      {/* {feedsParsed == true ? ( */}
+      {/* <> */}
       <Tabs.Screen
         name="index"
         options={{
+          ...(!feedsParsed
+            ? {
+                headerShown: false,
+                tabBarStyle: { display: "none" },
+              }
+            : {}),
           headerStyle: {
             shadowColor: "transparent", // Remove shadow on iOS
             backgroundColor: Colors[colorScheme || "light"].background,
@@ -174,7 +186,9 @@ export default function TabLayout() {
           title: "Feed",
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <HomeOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -187,7 +201,9 @@ export default function TabLayout() {
           },
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <SearchOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -201,7 +217,7 @@ export default function TabLayout() {
           headerTitleStyle: styles.headerTitleText, // Set the style for the header title
 
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="bookmark" color={color} />
+            <BookmarkOutline28 name="bookmark" color={color} />
           ),
         }}
       />
@@ -355,27 +371,13 @@ export default function TabLayout() {
                     </Pressable>
                     <Text style={styles.optionTextCredit}>.</Text>
                   </View>
-                  <View style={styles.optionTextCreditWrapper}>
-                    <Text style={styles.optionTextCredit}>
-                      Inspirational quotes provided by{" "}
-                    </Text>
-                    <Pressable
-                      style={styles.optionTextCreditPressableWrapper}
-                      onPress={() =>
-                        _handlePressButtonAsync("https://zenquotes.io/")
-                      }
-                    >
-                      <Text style={styles.optionTextCreditPressable}>
-                        ZenQuotes API
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.optionTextCredit}>.</Text>
-                  </View>
                 </View>
               </MenuOptions>
             </Menu>
           ),
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <UserOutline28 name="bookmark" color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -11,11 +11,14 @@ import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
+import Edit20 from "./icons/20/Edit20";
+import { router } from "expo-router";
 
 export default function FeedCardFeedPreview({ item }) {
   const itemId = parseInt(item.id, 10);
   const {
     user,
+    userAdmin,
     userSubscriptionUrls,
     userSubscriptionIds,
     setUserSubscriptionIds,
@@ -27,6 +30,8 @@ export default function FeedCardFeedPreview({ item }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(itemId)
   );
+
+  console.log("item", item);
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(itemId));
@@ -193,6 +198,22 @@ export default function FeedCardFeedPreview({ item }) {
       textAlign: "center",
       width: "1000%",
     },
+    editButtonWrapper: {
+      height: 44,
+      width: 44,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editButton: {
+      height: 34,
+      width: 34,
+      display: "flex",
+      alignItems: "center",
+      borderRadius: 100,
+      justifyContent: "center",
+      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+    },
   };
 
   return (
@@ -244,6 +265,36 @@ export default function FeedCardFeedPreview({ item }) {
           )}
         </View>
         <View style={styles.cardControls}>
+          {item.channel_creator === user.id ||
+            (userAdmin == true && (
+              <TouchableOpacity
+                style={styles.editButtonWrapper}
+                onPress={() =>
+                  router.push({
+                    pathname: "/editFeedView",
+                    params: {
+                      title: item.title,
+                      description: item.description,
+                      image: item.image,
+                      subscribers: item.subscribers,
+                      url: item.url,
+                      id: item.id,
+                      user: user,
+                      userId: user.id,
+                      subscribed: isSubscribed,
+                      userSubscriptionIds: userSubscriptionIds,
+                    },
+                  })
+                }
+              >
+                <View style={styles.editButton}>
+                  <Edit20
+                    style={styles.buttonImage}
+                    color={Colors[colorScheme || "light"].buttonActive}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}

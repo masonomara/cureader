@@ -23,17 +23,22 @@ const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCardProfile({ item, user }) {
   const {
+    userAdmin,
     userSubscriptionUrls,
     userSubscriptionIds,
     setUserSubscriptionIds,
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
 
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
+
   const colorScheme = useColorScheme();
   const { feeds } = useContext(FeedContext);
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
+
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);
@@ -284,7 +289,14 @@ export default function FeedCardProfile({ item, user }) {
           )}
         </View>
         <View style={styles.cardControls}>
-          {item.channel_creator === user.id && (
+          {console.log(
+            "Debug Values:",
+            item.channel_creator,
+            user.id,
+            userAdmin
+          )}
+
+          {shouldRenderEditButton && (
             <TouchableOpacity
               style={styles.editButtonWrapper}
               onPress={() =>
