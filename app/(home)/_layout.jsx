@@ -371,6 +371,22 @@ export default function TabLayout() {
                     </Pressable>
                     <Text style={styles.optionTextCredit}>.</Text>
                   </View>
+                  <View style={styles.optionTextCreditWrapper}>
+                    <Text style={styles.optionTextCredit}>
+                      Visit out website at{" "}
+                    </Text>
+                    <Pressable
+                      style={styles.optionTextCreditPressableWrapper}
+                      onPress={() =>
+                        _handlePressButtonAsync("https://cureader.app/")
+                      }
+                    >
+                      <Text style={styles.optionTextCreditPressable}>
+                        www.cureader.app
+                      </Text>
+                    </Pressable>
+                    <Text style={styles.optionTextCredit}>.</Text>
+                  </View>
                 </View>
               </MenuOptions>
             </Menu>

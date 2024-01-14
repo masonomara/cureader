@@ -14,9 +14,11 @@ import {
   Dimensions,
   TouchableOpacity,
   Keyboard,
+  Pressable,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
+import * as WebBrowser from "expo-web-browser";
 import FeedCard from "../../components/FeedCard";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
@@ -72,6 +74,7 @@ export default function Explore() {
     setParserInput("");
     setIsSearchInputSelected(false);
     setIsSearching(false);
+    setTextInputFocused(false);
     Keyboard.dismiss();
   }, []);
 
@@ -79,9 +82,9 @@ export default function Explore() {
     setTextInputFocused(true);
   }, []);
 
-  const handleBlur = useCallback(() => {
-    setTextInputFocused(false);
-  }, []);
+  // const handleBlur = useCallback(() => {
+  //   setTextInputFocused(false);
+  // }, []);
 
   const handleSearchInput = (searchInput) => {
     setIsSearching(true);
@@ -107,6 +110,14 @@ export default function Explore() {
 
     setParserInput(moddedSearchInput);
     setSearchInput(searchInput);
+  };
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
   };
 
   useEffect(() => {
@@ -320,11 +331,13 @@ export default function Explore() {
     noResultsWrapper: {
       width: "100%",
       alignItems: "center",
-      marginBottom: 16,
+      marginBottom: 15,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
       paddingBottom: 24,
-      paddingHorizontal: 16,
+      paddingHorizontal: 0,
+      gap: 15,
+      marginTop: 15,
     },
     noResultsHeader: {
       paddingBottom: 3,
@@ -435,6 +448,67 @@ export default function Explore() {
       lineHeight: 19,
       letterSpacing: -0.14,
     },
+
+    searchPreviewTextContainer: {
+      width: "100%",
+    },
+
+    searchPreviewTextWrapperContainer: {
+      alignItems: "center",
+      justifyContent: "flex-start",
+      paddingHorizontal: 0,
+      display: "flex",
+    },
+    searchPreviewHeader: {
+      color: Colors[colorScheme || "light"].textHigh,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      width: "100%",
+      textAlign: "left",
+      marginBottom: 3,
+    },
+    searchPreviewTextWrapper: {
+      color: Colors[colorScheme || "light"].textHigh,
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      maxWidth: 450,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "flex-start",
+      flex: 1,
+      flexWrap: "wrap",
+      width: "100%",
+    },
+    searchPreviewText: {
+      color: Colors[colorScheme || "light"].textMedium,
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
+    searchPreviewTextPressableWrapper: {
+      height: 32,
+      marginVertical: -4.5,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    searchPreviewTextPressable: {
+      color: Colors[colorScheme || "light"].textMedium,
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
   };
 
   return (
@@ -453,7 +527,7 @@ export default function Explore() {
           autoCapitalize="none"
           autoCorrect={false}
           onFocus={handleFocus}
-          onBlur={handleBlur}
+          // onBlur={handleBlur}
           onChangeText={handleSearchInput}
         />
         <TouchableOpacity
@@ -516,20 +590,68 @@ export default function Explore() {
                   channelImageUrl={channelData.imageUrl}
                 />
               )}
-            <View style={[styles.searchResultsList]}>
-              <View style={styles.noResultsHeader}>
-                <Text style={styles.noResultsHeaderText}>
-                  {isSearchInputSelected && searchInput == null
-                    ? "Can't find your feed?"
-                    : "Looking for a feed?"}
+            <View style={styles.searchPreviewTextContainer}>
+              <Text style={styles.searchPreviewHeader}>
+                Subscribing to RSS Feeds
+              </Text>
+              <View style={styles.searchPreviewTextWrapperContainer}>
+                <View style={styles.searchPreviewTextWrapper}>
+                  <Text style={styles.searchPreviewText}>
+                    Search for a feed using a title or keywords. Can't find it?
+                    Add a new one by entering the RSS Feed URL.
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.searchPreviewTextContainer}>
+              <Text style={styles.searchPreviewHeader}>Finding RSS Feeds</Text>
+              <View style={styles.searchPreviewTextWrapperContainer}>
+                <Text style={styles.searchPreviewTextWrapper}>
+                  <Text style={styles.searchPreviewText}>
+                    Looking for feeds? Add a new one! Use directories like{" "}
+                  </Text>
+                  <Pressable
+                    style={styles.searchPreviewTextPressableWrapper}
+                    onPress={() =>
+                      _handlePressButtonAsync(
+                        "https://rss.feedspot.com/best_rss_feeds/"
+                      )
+                    }
+                  >
+                    <Text style={styles.searchPreviewTextPressable}>
+                      Feedspot
+                    </Text>
+                  </Pressable>
+                  <Text style={styles.searchPreviewText}>
+                    {" "}
+                    or check for the RSS icon on favorite websites.
+                  </Text>
                 </Text>
               </View>
-              <View style={styles.noResultsTextWrapper}>
-                <Text style={styles.noResultsText}>
-                  Simply enter your RSS Feed's URL to add it. For example:{" "}
-                  <Text style={styles.noResultsTextBold}>
-                    nasa.gov/rss/breaking_news.rss
+            </View>
+
+            <View style={styles.searchPreviewTextContainer}>
+              <Text style={styles.searchPreviewHeader}>What is RSS?</Text>
+              <View style={styles.searchPreviewTextWrapperContainer}>
+                <Text style={styles.searchPreviewTextWrapper}>
+                  <Text style={styles.searchPreviewText}>
+                    Stay updated on your favorite sites in one spot. New to RSS?
+                    Learn more on our website:{" "}
                   </Text>
+                  <Pressable
+                    style={styles.searchPreviewTextPressableWrapper}
+                    onPress={() =>
+                      _handlePressButtonAsync(
+                        "https://www.cureader.app/what-is-rss"
+                      )
+                    }
+                  >
+                    <Text style={styles.searchPreviewTextPressable}>
+                      “What Is RSS?”
+                    </Text>
+                  </Pressable>
+                  <Text style={styles.searchPreviewText}>.</Text>
                 </Text>
               </View>
             </View>
