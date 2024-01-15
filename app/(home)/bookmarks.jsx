@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Text, TouchableOpacity, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext } from "../_layout";

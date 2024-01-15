@@ -1,4 +1,3 @@
-import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
 import {
   Alert,

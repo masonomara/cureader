@@ -1,5 +1,5 @@
-import { useContext, useState, useLayoutEffect } from "react";
-import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
+import { useContext, useState } from "react";
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/supabase";
