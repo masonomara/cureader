@@ -95,7 +95,6 @@ export default function Auth() {
     content: {
       width: "100%",
       alignItems: "center",
-
     },
     title: {
       marginBottom: 4,
@@ -194,7 +193,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
-      flexWrap: 'nowrap',
+      flexWrap: "nowrap",
     },
     inputButton: {
       width: 44,
@@ -253,7 +252,6 @@ export default function Auth() {
           styles.container,
           !inputStates.scrollView && styles.containerScrollView,
         ]}
-        // ... Other props remain unchanged
       >
         <View style={styles.content}>
           <Text style={styles.title}>Welcome!</Text>

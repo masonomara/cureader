@@ -1,6 +1,4 @@
-// subscriptionFunctions.js
 import { supabase } from "../config/initSupabase";
-import { Alert } from "react-native";
 
 export const updateSubscriptions = async (userId, updatedSubscriptions) => {
   await supabase
@@ -20,5 +18,3 @@ export const updateChannelSubscribers = async (
     },
   ]);
 };
-
-

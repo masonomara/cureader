@@ -34,7 +34,6 @@ export default function FeedCardSearchPreview({
     setIsSubscribed(!isSubscribed);
 
     try {
-      // Create a new channel entry
       const { data: channelData, error: channelError } = await supabase
         .from("channels")
         .upsert([
@@ -74,7 +73,7 @@ export default function FeedCardSearchPreview({
             await supabase
               .from("channels")
               .select("*")
-              .eq("id", channelData.id) // Filter by the ID of the newly created channel
+              .eq("id", channelData.id)
               .single();
 
           if (newChannelError) {

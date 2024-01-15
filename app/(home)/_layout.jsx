@@ -180,11 +180,11 @@ export default function TabLayout() {
               }
             : {}),
           headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
+            shadowColor: "transparent",
             backgroundColor: Colors[colorScheme || "light"].background,
           },
           title: "Feed",
-          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+          headerTitleStyle: styles.headerTitleText,
 
           tabBarIcon: ({ color }) => (
             <HomeOutline28 name="bookmark" color={color} />
@@ -196,10 +196,10 @@ export default function TabLayout() {
         options={{
           title: "Explore",
           headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
+            shadowColor: "transparent",
             backgroundColor: Colors[colorScheme || "light"].background,
           },
-          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+          headerTitleStyle: styles.headerTitleText,
 
           tabBarIcon: ({ color }) => (
             <SearchOutline28 name="bookmark" color={color} />
@@ -211,10 +211,10 @@ export default function TabLayout() {
         options={{
           title: "Bookmarks",
           headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
+            shadowColor: "transparent",
             backgroundColor: Colors[colorScheme || "light"].background,
           },
-          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+          headerTitleStyle: styles.headerTitleText,
 
           tabBarIcon: ({ color }) => (
             <BookmarkOutline28 name="bookmark" color={color} />
@@ -226,15 +226,11 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
+            shadowColor: "transparent",
             backgroundColor: Colors[colorScheme || "light"].background,
           },
-          headerTitleStyle: styles.headerTitleText, // Set the style for the header title
+          headerTitleStyle: styles.headerTitleText,
           headerRight: () => (
-            // <TouchableOpacity style={styles.headerButton}>
-            //   <Text style={styles.headerButtonText}>Settings</Text>
-            // </TouchableOpacity>
-
             <Menu renderer={renderers.SlideInMenu}>
               <MenuTrigger
                 text="Settings"

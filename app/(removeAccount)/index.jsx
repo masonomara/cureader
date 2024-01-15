@@ -27,13 +27,11 @@ export default function Auth() {
     setRemovalDisabled(email != user.email);
   }, [email, user.email]);
 
-  // Function for handling search input focus
   const handleFocusTwo = () => {
     setIsSearchInputSelectedTwo(true);
     setScrollView(false);
   };
 
-  // Function for handling seach input blur
   const handleBlurTwo = () => {
     setIsSearchInputSelectedTwo(false);
     setScrollView(true);
@@ -41,19 +39,16 @@ export default function Auth() {
 
   async function deleteAccount() {
     try {
-      // Sign out the user
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) {
         showErrorAlert("Error signing out: " + signOutError.message);
       }
 
-      // Delete the user account
       const { data, error: deleteUserError } =
         await supabaseAuth.auth.admin.deleteUser(user.id);
       if (deleteUserError) {
         Alert.alert("Account Deletion Failed", deleteUserError.message);
       } else {
-        // Fetch user profile data
         const { data: userProfileData, error: userProfileError } =
           await supabaseAuth.from("profiles").select().eq("id", user.id);
 
@@ -64,7 +59,6 @@ export default function Auth() {
       }
     } catch (error) {
       console.error("An error occurred during account deletion:", error);
-      // Handle the error as needed
     }
   }
 
@@ -72,13 +66,9 @@ export default function Auth() {
     safeAreaView: {
       flex: 1,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      // borderWidth: 1,
-      // borderColor: "red",
     },
     keyboardAvoidingView: {
       flex: 1,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     container: {
       flex: 1,
@@ -86,16 +76,13 @@ export default function Auth() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
-      // borderWidth: 1,
-      // borderColor: "yellow",
+
       overflow: "hidden",
       paddingBottom: 88,
     },
     containerScrollView: {
       justifyContent: "flex-start",
       flex: 0,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     content: {
       width: "100%",
@@ -198,8 +185,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     buttonWrapperScrollView: {
       position: "absolute",
@@ -208,8 +193,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "black",
     },
     button: {
       height: 48,

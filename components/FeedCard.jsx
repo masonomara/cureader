@@ -66,7 +66,7 @@ export default function FeedCard({ item, user }) {
       );
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
+      setIsSubscribed(!isSubscribed);
     }
   };
 

@@ -48,9 +48,7 @@ export default function ArticleCard({
 
   const getImageSize = () => {
     RNImage.getSize(imageUrl, (width, height) => {
-      // Callback function that gets called with the width and height of the image
       setImageWidth(width);
-      // You can add further logic based on the image size if needed
     });
   };
 
@@ -104,7 +102,7 @@ export default function ArticleCard({
       await updateUserBookmarks(updatedUserBookmarks);
     } catch (error) {
       console.error("Error handling bookmark:", error);
-      setIsBookmarked(!isBookmarked); // Revert the state if there's an error
+      setIsBookmarked(!isBookmarked);
     }
   };
 
@@ -113,7 +111,7 @@ export default function ArticleCard({
       await supabase
         .from("profiles")
         .update({
-          bookmarks: updatedBookmarks.map((bookmark) => bookmark), // Assuming 'id' is the unique identifier
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
         })
         .eq("id", user.id);
     } catch (error) {
@@ -315,7 +313,6 @@ export default function ArticleCard({
       gap: 5,
       paddingRight: 12,
       paddingLeft: 10,
-      // borderWidth: 0.5,
       borderColor: Colors[colorScheme || "light"].border,
       borderRadius: 100,
       backgroundColor: Colors[colorScheme || "light"].surfaceOne,

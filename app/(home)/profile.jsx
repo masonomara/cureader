@@ -104,7 +104,6 @@ export default function Profile() {
     </>
   );
 
-  // Styles
   const styles = {
     container: {
       flex: 1,

@@ -54,27 +54,11 @@ export default function Index() {
   const [initialParsingComplete, setInitialParsingComplete] = useState(false);
 
   useEffect(() => {
-    // console.log("[INDEX 0.1] feedsFetched:", feedsFetched);
-    // console.log("[INDEX 0.2] userFetched:", userFetched);
-    // console.log(
-    //   "[0.3] userSubscriptionUrlsFetched:",
-    //   userSubscriptionUrlsFetched
-    // );
     if (feedsFetched && userFetched && userSubscriptionUrlsFetched) {
-      // console.log(
-      //   "[1.1] about to run initialFetchAndParseFeeds:",
-      //   userSubscriptionUrls.toString().slice(0, 30)
-      // );
-
       initialFetchAndParseFeeds(userSubscriptionUrls).finally(() => {
         setIsRefreshing(false);
 
-        // console.log("[INDEX 1.2] isRefreshing set to false:", isRefreshing);
         setInitialParsingComplete(true);
-        // console.log(
-        //   "[INDEX 1.3] initialParsingComplete:",
-        //   initialParsingComplete
-        // );
       });
     }
   }, [userSubscriptionUrlsFetched, userFetched, feedsFetched]);
@@ -130,14 +114,8 @@ export default function Index() {
     console.log("[2.5] check allItems:", allItems);
 
     const parseAndSort = async (url) => {
-      // console.log("[INDEX 6] beginning parseAndSort:", url);
       try {
         const response = await fetch(url);
-
-        // console.log(
-        //   "[6.1] parseAndSort response:",
-        //   response.toString().slice(0, 30)
-        // );
 
         if (!response.ok) {
           throw new Error(
@@ -147,52 +125,25 @@ export default function Index() {
 
         const responseData = await response.text();
 
-        // console.log(
-        //   "[6.2] parseAndSort responseData:",
-        //   responseData.toString().slice(0, 30)
-        // );
-
         const parsedRss = await rssParser.parse(responseData);
-
-        // console.log(
-        //   "[6.3] parseAndSort parsedRss:",
-        //   parsedRss.toString().slice(0, 30)
-        // );
 
         const channelImage = fallbackImages.find(
           (image) => image.channel_url === url
         );
 
-        // console.log(
-        //   "[6.4] parseAndSort channelImage:",
-        //   channelImage.toString().slice(0, 30)
-        // );
-
         const feed = feeds.find((feed) => feed.channel_url === url);
-
-        // console.log(
-        //   "[6.5] parseAndSort channelImage:",
-        //   channelImage.toString().slice(0, 30)
-        // );
 
         allChannels.push({
           title: parsedRss.title,
           description: parsedRss.description,
         });
 
-        // console.log(
-        //   "[6.6] parseAndSort allChannels:",
-        //   allChannels.toString().slice(0, 30)
-        // );
-
         allItems.push(
           ...parsedRss.items
             .map((item) => {
               const publicationDate = new Date(item.published);
 
-              // Check if the date is valid
               if (isNaN(publicationDate)) {
-                // Ignore the item if the date is not readable
                 return null;
               }
 
@@ -207,18 +158,8 @@ export default function Index() {
                 channelUrl: parsedRss.links[0].url,
               };
             })
-            .filter(Boolean) // Remove null values from the array
+            .filter(Boolean)
         );
-
-        // console.log(
-        //   "[6.7] parseAndSort allItems:",
-        //   allItems.toString().slice(0, 30)
-        // );
-
-        // console.log(
-        //   "[7] completed parseAndSort:",
-        //   allItems.toString().slice(0, 30)
-        // );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
         showErrorAlert(
@@ -296,9 +237,7 @@ export default function Index() {
             .map((item) => {
               const publicationDate = new Date(item.published);
 
-              // Check if the date is valid
               if (isNaN(publicationDate)) {
-                // Ignore the item if the date is not readable
                 return null;
               }
 
@@ -313,7 +252,7 @@ export default function Index() {
                 channelUrl: parsedRss.links[0].url,
               };
             })
-            .filter(Boolean) // Remove null values from the array
+            .filter(Boolean)
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
@@ -366,9 +305,7 @@ export default function Index() {
               .map((item) => {
                 const publicationDate = new Date(item.published);
 
-                // Check if the date is valid
                 if (isNaN(publicationDate)) {
-                  // Ignore the item if the date is not readable
                   return null;
                 }
 
@@ -383,7 +320,7 @@ export default function Index() {
                   channelUrl: parsedRss.links[0].url,
                 };
               })
-              .filter(Boolean) // Remove null values from the array
+              .filter(Boolean)
           );
         } catch (error) {
           console.error(error);
@@ -458,10 +395,8 @@ export default function Index() {
       flex: 1,
       alignItems: "center",
       justifyContent: "flex-start",
-      // backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     articleList: {
-      //backgroundColor: `${Colors[colorScheme || "light"].background}`,
       width: "100%",
       flex: 1,
     },
@@ -624,8 +559,7 @@ export default function Index() {
       top: 0,
       width: SCREEN_WIDTH,
       height: SCREEN_HEIGHT,
-
-      zIndex: 999, // optional, use zIndex to control the stacking order of elements
+      zIndex: 999,
     },
     feedsLoadingContainer: {
       gap: 10,

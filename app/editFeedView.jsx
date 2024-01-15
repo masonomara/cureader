@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   useColorScheme,
-  Pressable,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Colors from "../constants/Colors";
@@ -27,15 +26,10 @@ export default function TabOneScreen() {
   const [dummyImageUrl, setDummyImageUrl] = useState("");
   const [newCategory, setNewCategory] = useState("");
 
-  console.log("[]:", feedCategories[0]?.channels);
-
-  console.log("[feeds]:", feeds[0].channel_categories);
-
   useEffect(() => {
-    // Set initial values when params.title changes
     setDummyTitle(params.title || "");
-    setDummyDescription(params.description || ""); // Set your initial description here
-    setDummyImageUrl(params.image || ""); // Set your initial image URL here
+    setDummyDescription(params.description || "");
+    setDummyImageUrl(params.image || "");
   }, [params.title]);
 
   const colorScheme = useColorScheme();
@@ -69,7 +63,7 @@ export default function TabOneScreen() {
   const updateFeedInfo = async () => {
     setLoading(true);
     try {
-      const timestamp = new Date().toISOString(); // Get current timestamp
+      const timestamp = new Date().toISOString();
 
       await supabase
         .from("channels")
@@ -77,7 +71,7 @@ export default function TabOneScreen() {
           channel_title: dummyTitle,
           channel_description: dummyDescription,
           channel_image_url: dummyImageUrl,
-          channel_updated: timestamp, // Add the timestamp field
+          channel_updated: timestamp,
         })
         .eq("id", params.id);
       Alert.alert(
@@ -121,8 +115,7 @@ export default function TabOneScreen() {
 
     try {
       if (existingCategory) {
-        // Update the existing category with params.id
-        const { data: updatedCategoryData, error: updateError } = await supabase
+        const { error: updateError } = await supabase
           .from("categories")
           .update({
             channels: [
@@ -135,14 +128,13 @@ export default function TabOneScreen() {
 
         if (updateError) {
           console.error("Error updating category:", updateError);
-          // Handle error if category update fails
+
           return;
         }
       } else {
         console.log("Category doesn't exist. Creating a new one.");
 
-        // Create a new category entry
-        const { data: newCategoryData, error: categoryError } = await supabase
+        const { error: categoryError } = await supabase
           .from("categories")
           .upsert([
             {
@@ -155,19 +147,17 @@ export default function TabOneScreen() {
 
         if (categoryError) {
           console.error("Error creating category:", categoryError);
-          // Handle error if category creation fails
+
           return;
         }
       }
 
-      // Refresh feed categories context
-      const { data: updatedCategories, error: fetchError } = await supabase
+      const { data: updatedCategories } = await supabase
         .from("categories")
         .select("*");
 
       setFeedCategories(updatedCategories);
 
-      // Clear input
       setNewCategory(null);
 
       await supabase
@@ -180,7 +170,6 @@ export default function TabOneScreen() {
         .eq("id", params.id);
     } catch (error) {
       console.error("Error handling category:", error);
-      // Handle any unexpected errors
     }
   };
 
@@ -188,26 +177,22 @@ export default function TabOneScreen() {
     console.log("Category to delete:", category);
     console.log("Category structure:", JSON.stringify(category));
     try {
-      // Remove params.id from the "channels" column in the "categories" table
-      const { data: updatedCategoryData, error: updateCategoryError } =
-        await supabase
-          .from("categories")
-          .update({
-            channels: feeds.filter(
-              (feed) =>
-                feed.channel_categories?.includes(category.title) &
-                (feed.id != params.id)
-            ),
-          })
-          .eq("id", category.id);
+      const { error: updateCategoryError } = await supabase
+        .from("categories")
+        .update({
+          channels: feeds.filter(
+            (feed) =>
+              feed.channel_categories?.includes(category.title) &
+              (feed.id != params.id)
+          ),
+        })
+        .eq("id", category.id);
 
       if (updateCategoryError) {
         console.error("Error updating category:", updateCategoryError);
-        // Handle error if category update fails
         return;
       }
 
-      // Remove the category title from the "channel_categories" column in the "channels" table
       await supabase
         .from("channels")
         .update({
@@ -221,15 +206,13 @@ export default function TabOneScreen() {
         })
         .eq("id", params.id);
 
-      // Refresh feed categories context
-      const { data: updatedCategories, error: fetchError } = await supabase
+      const { data: updatedCategories } = await supabase
         .from("categories")
         .select("*");
 
       setFeedCategories(updatedCategories);
     } catch (error) {
       console.error("Error handling category deletion:", error);
-      // Handle any unexpected errors
     }
   };
 
@@ -421,7 +404,6 @@ export default function TabOneScreen() {
           styles.container,
           !inputStates.scrollView && styles.containerScrollView,
         ]}
-        // ... Other props remain unchanged
       >
         <View style={styles.content}>
           <Text style={styles.title}>Edit Public Feed</Text>
@@ -543,7 +525,6 @@ export default function TabOneScreen() {
             style={styles.inputText}
             label={label}
             onChangeText={(text) => {
-              // Update the corresponding state based on inputName
               switch (inputName) {
                 case "dummyTitle":
                   setDummyTitle(text);
@@ -559,7 +540,6 @@ export default function TabOneScreen() {
               }
             }}
             value={
-              // Get the corresponding value based on inputName
               inputName === "dummyTitle"
                 ? dummyTitle
                 : inputName === "dummyDescription"

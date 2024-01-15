@@ -49,7 +49,7 @@ export default function AuthLayout() {
         name="index"
         options={{
           headerStyle: {
-            shadowColor: "transparent", // Remove shadow on iOS
+            shadowColor: "transparent",
             backgroundColor: Colors[colorScheme || "light"].background,
           },
           tabBarStyle: {

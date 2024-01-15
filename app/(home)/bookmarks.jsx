@@ -32,14 +32,12 @@ export default function Bookmarks() {
 
   useEffect(() => {
     if (userBookmarks != null) {
-      // Set userInitialBookmarks to userBookmarks on initial build
       setUserInitialBookmarks(userBookmarks);
     }
   }, [userBookmarks]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Fetch or update userBookmarks here
     setRefreshing(false);
   };
 

@@ -68,7 +68,6 @@ export default function Explore() {
     })
   );
 
-  // Function for handling search input focus
   const handleClearInput = useCallback(() => {
     setSearchInput("");
     setParserInput("");
@@ -81,10 +80,6 @@ export default function Explore() {
   const handleFocus = useCallback(() => {
     setTextInputFocused(true);
   }, []);
-
-  // const handleBlur = useCallback(() => {
-  //   setTextInputFocused(false);
-  // }, []);
 
   const handleSearchInput = (searchInput) => {
     setIsSearching(true);
@@ -175,7 +170,6 @@ export default function Explore() {
               ? feed.channel_description.toLowerCase().includes(lowercasedInput)
               : "";
 
-            // Check if the input matches any category in channel_categories
             const categoryMatch = feed.channel_categories
               ? feed.channel_categories?.some((category) =>
                   category.toLowerCase().includes(lowercasedInput)
@@ -229,8 +223,7 @@ export default function Explore() {
       width: "100%",
       paddingBottom: 12,
       paddingTop: 8,
-      // borderWidth: 1,
-      // borderColor: "green",
+
       height: 76,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
@@ -304,8 +297,7 @@ export default function Explore() {
       paddingHorizontal: 16,
       width: "100%",
       zIndex: 1,
-      // borderWidth: 1,
-      // borderColor: "red",
+
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       flex: 1,
     },
@@ -543,7 +535,6 @@ export default function Explore() {
           autoCapitalize="none"
           autoCorrect={false}
           onFocus={handleFocus}
-          // onBlur={handleBlur}
           onChangeText={handleSearchInput}
         />
         <TouchableOpacity
