@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   useColorScheme,
+  Pressable,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Colors from "../constants/Colors";
@@ -19,7 +20,7 @@ import X20 from "../components/icons/20/X20";
 
 export default function TabOneScreen() {
   const params = useLocalSearchParams();
-  const { setFeeds, feedCategories, setFeedCategories } =
+  const { setFeeds, feedCategories, setFeedCategories, feeds } =
     useContext(FeedContext);
   const [dummyTitle, setDummyTitle] = useState("");
   const [dummyDescription, setDummyDescription] = useState("");
@@ -27,6 +28,8 @@ export default function TabOneScreen() {
   const [newCategory, setNewCategory] = useState("");
 
   console.log("[]:", feedCategories[0]?.channels);
+
+  console.log("[feeds]:", feeds[0].channel_categories);
 
   useEffect(() => {
     // Set initial values when params.title changes
@@ -112,12 +115,12 @@ export default function TabOneScreen() {
     console.log("feedCategories:", feedCategories);
     console.log("newCategory:", newCategory);
 
-    const isCategoryExists = feedCategories.some(
+    const existingCategory = feedCategories.some(
       (category) => category.title === newCategory.trim()
     );
 
     try {
-      if (isCategoryExists) {
+      if (existingCategory) {
         // Update the existing category with params.id
         const { data: updatedCategoryData, error: updateError } = await supabase
           .from("categories")
@@ -177,6 +180,55 @@ export default function TabOneScreen() {
         .eq("id", params.id);
     } catch (error) {
       console.error("Error handling category:", error);
+      // Handle any unexpected errors
+    }
+  };
+
+  const handleDeleteCategory = async (category) => {
+    console.log("Category to delete:", category);
+    console.log("Category structure:", JSON.stringify(category));
+    try {
+      // Remove params.id from the "channels" column in the "categories" table
+      const { data: updatedCategoryData, error: updateCategoryError } =
+        await supabase
+          .from("categories")
+          .update({
+            channels: feeds.filter(
+              (feed) =>
+                feed.channel_categories?.includes(category.title) &
+                (feed.id != params.id)
+            ),
+          })
+          .eq("id", category.id);
+
+      if (updateCategoryError) {
+        console.error("Error updating category:", updateCategoryError);
+        // Handle error if category update fails
+        return;
+      }
+
+      // Remove the category title from the "channel_categories" column in the "channels" table
+      await supabase
+        .from("channels")
+        .update({
+          channel_categories: feedCategories
+            .filter(
+              (feedCategory) =>
+                feedCategory.title !== category.title &&
+                feedCategory.channels.includes(params.id)
+            )
+            .map((feedCategory) => feedCategory.title),
+        })
+        .eq("id", params.id);
+
+      // Refresh feed categories context
+      const { data: updatedCategories, error: fetchError } = await supabase
+        .from("categories")
+        .select("*");
+
+      setFeedCategories(updatedCategories);
+    } catch (error) {
+      console.error("Error handling category deletion:", error);
       // Handle any unexpected errors
     }
   };
@@ -423,46 +475,51 @@ export default function TabOneScreen() {
           <View
             style={{
               display: "flex",
-
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 8,
               width: "100%",
-
+              marginTop: -4,
               marginBottom: 24,
             }}
           >
             {feedCategories
               .filter((category) => category.channels.includes(params.id))
               .map((category, index) => (
-                <View
+                <TouchableOpacity
                   key={index}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
                     height: 44,
-                    alignSelf: "flex-start",
-                    padding: 10,
-                    paddingHorizontal: 16,
+                    alignSelf: "center",
+                    padding: 8,
+                    gap: 3,
+                    paddingLeft: 14,
+                    paddingRight: 12,
                     borderRadius: 100,
                     backgroundColor: `${
                       Colors[colorScheme || "light"].surfaceOne
                     }`,
                   }}
+                  onPress={() => handleDeleteCategory(category)}
                 >
                   <Text
                     style={{
-                      color: `${Colors[colorScheme || "light"].buttonActive}`,
+                      color: `${Colors[colorScheme || "light"].textMedium}`,
                       fontFamily: "InterMedium",
                       fontWeight: "500",
-                      fontSize: 14,
-                      lineHeight: 19,
-                      letterSpacing: -0.14,
+                      fontSize: 15,
+                      lineHeight: 20,
+                      letterSpacing: -0.15,
                     }}
                   >
                     {category.title}
                   </Text>
                   <View>
-                    <X20 color={Colors[colorScheme || "light"].buttonActive} />
+                    <X20 color={Colors[colorScheme || "light"].textMedium} />
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
           </View>
         </View>
