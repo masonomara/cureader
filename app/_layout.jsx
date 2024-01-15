@@ -22,6 +22,8 @@ export const FeedContext = createContext({
   feedsFetched: false,
   userFetched: false,
   feedsParsed: false,
+  feedCategories: [],
+  setFeedCategories: () => {},
   setFeeds: () => {},
   setFeedsParsed: () => {},
 });
@@ -94,45 +96,13 @@ function RootLayoutNav() {
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
     useState(false);
+  const [feedCategories, setFeedCategories] = useState(null);
   const [userBookmarks, setUserBookmarks] = useState(null);
   const [userFetched, setUserFetched] = useState(false);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [feedsParsed, setFeedsParsed] = useState(false);
   const [session, setSession] = useState(null);
   const colorScheme = useColorScheme();
-
-  // Fetching feeds from Supabase on component mount
-  // useEffect(() => {
-  //   // if (session) {
-  //   //   console.log("[LAYOUT 1.1] prepping fetchFeeds");
-  //   //   async function fetchFeeds() {
-  //   //     console.log("[LAYOUT 1.2] about to run fetchFeeds");
-  //   //     try {
-  //   //       console.log("[LAYOUT 1.3] running fetchFeeds");
-  //   //       const { data: feedsData, error } = await supabase
-  //   //         .from("channels")
-  //   //         .select("*");
-  //   //       if (error) {
-  //   //         console.error("Error fetching feeds:", error);
-  //   //         return;
-  //   //       }
-  //   //       console.log(
-  //   //         "[LAYOUT 1.4] collected feedsData:",
-  //   //         feedsData.toString().slice(0, 30)
-  //   //       );
-  //   //       setFeeds(feedsData);
-  //   //       setFeedsFetched(true);
-  //   //       SplashScreen.hideAsync();
-  //   //     } catch (error) {
-  //   //       console.error("Error fetching feeds:", error);
-  //   //     }
-  //   //   }
-  //   //   fetchFeeds();
-  //   // } else {
-  //   //   // Redirect to login screen or handle unauthenticated state
-  //   //   router.replace("(login)");
-  //   // }
-  // }, []);
 
   // Sorting feeds by subscribers when feeds state changes
   const sortFeedsBySubscribers = (feeds) => {
@@ -212,28 +182,46 @@ function RootLayoutNav() {
         // );
         setUserBookmarks(bookmarks);
 
-        console.log("[LAYOUT 1.1] prepping fetchFeeds");
+        // console.log("[LAYOUT 1.1] prepping fetchFeeds");
         async function fetchFeeds() {
-          console.log("[LAYOUT 1.2] about to run fetchFeeds");
           try {
-            console.log("[LAYOUT 1.3] running fetchFeeds");
-            const { data: feedsData, error } = await supabase
-              .from("channels")
+            // console.log("[LAYOUT 1.3] running fetchFeeds");
+            const { data: categoriesData, error } = await supabase
+              .from("categories")
               .select("*");
             if (error) {
               console.error("Error fetching feeds:", error);
               return;
             }
-            console.log(
-              "[LAYOUT 1.4] collected feedsData:",
-              feedsData.toString().slice(0, 30)
-            );
-            setFeeds(feedsData);
-            setFeedsFetched(true);
-            SplashScreen.hideAsync();
+            // console.log(
+            //   "[LAYOUT 1.4] collected feedsData:",
+            //   feedsData.toString().slice(0, 30)
+            // );
+            setFeedCategories(categoriesData);
+            console.log("feedCategories:", categoriesData);
+            try {
+              // console.log("[LAYOUT 1.3] running fetchFeeds");
+              const { data: feedsData, error } = await supabase
+                .from("channels")
+                .select("*");
+              if (error) {
+                console.error("Error fetching feeds:", error);
+                return;
+              }
+              // console.log(
+              //   "[LAYOUT 1.4] collected feedsData:",
+              //   feedsData.toString().slice(0, 30)
+              // );
+              setFeeds(feedsData);
+              setFeedsFetched(true);
+              SplashScreen.hideAsync();
+            } catch (error) {
+              console.error("Error fetching feeds:", error);
+            }
           } catch (error) {
-            console.error("Error fetching feeds:", error);
+            console.error("Error fetching categories:", error);
           }
+          // console.log("[LAYOUT 1.2] about to run fetchFeeds");
         }
         fetchFeeds();
         router.replace("(home)");
@@ -359,6 +347,8 @@ function RootLayoutNav() {
             feedsFetched,
             userFetched,
             feedsParsed,
+            feedCategories,
+            setFeedCategories,
             setFeeds,
             setFeedsParsed,
           }}
