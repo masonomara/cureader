@@ -420,7 +420,9 @@ export default function TabOneScreen() {
             `${params.imageUrl}`,
             `dummyImageUrl`
           )}
-          <Text style={styles.label}>New Categories (seperate with comma)</Text>
+          <Text style={styles.label}>
+            New Categories (Press enter to submit category)
+          </Text>
           <View
             style={[
               styles.input,
