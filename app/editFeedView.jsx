@@ -103,9 +103,7 @@ export default function TabOneScreen() {
       console.error("Update failed:", error);
       Alert.alert("Update Failed", "Failed to update feed information.");
     } finally {
-      router.push({
-        pathname: "/profile",
-      });
+      router.back();
       setLoading(false);
     }
   };
@@ -429,7 +427,7 @@ export default function TabOneScreen() {
             }}
           >
             {feedCategories
-              .filter(() => feedCategories[0].channels.includes(params.id))
+              .filter((category) => category.channels.includes(params.id))
               .map((category, index) => (
                 <View
                   key={index}
