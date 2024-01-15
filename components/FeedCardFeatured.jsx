@@ -91,7 +91,7 @@ export default function FeedCard({ item, user }) {
       flexDirection: "column",
       width: "100%",
       padding: 12,
-      paddingVertical: 16,
+      paddingVertical: 12,
       flex: 1,
       borderTopWidth: 0.5,
       borderColor: `${Colors[colorScheme || "light"].border}`,

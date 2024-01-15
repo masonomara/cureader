@@ -370,9 +370,41 @@ function RootLayoutNav() {
                 })}
               />
               <Stack.Screen
+                name="categoryView"
+                options={({ route }) => ({
+                  title: `${route.params.title}` || "Category",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Back",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                })}
+              />
+              <Stack.Screen
                 name="allPopularFeeds"
                 options={{
                   title: "Popular Feeds",
+                  headerStyle: {
+                    headerTransparent: true,
+                    shadowColor: "transparent",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Explore",
+                  headerTitleStyle: {
+                    color: Colors[colorScheme || "light"].textHigh,
+                  },
+                }}
+              />
+              <Stack.Screen
+                name="allCategories"
+                options={{
+                  title: "Categories",
                   headerStyle: {
                     headerTransparent: true,
                     shadowColor: "transparent",
