@@ -116,8 +116,8 @@ export default function TabOneScreen() {
       (category) => category.title === newCategory.trim()
     );
 
-    if (isCategoryExists) {
-      try {
+    try {
+      if (isCategoryExists) {
         // Update the existing category with params.id
         const { data: updatedCategoryData, error: updateError } = await supabase
           .from("categories")
@@ -135,18 +135,9 @@ export default function TabOneScreen() {
           // Handle error if category update fails
           return;
         }
+      } else {
+        console.log("Category doesn't exist. Creating a new one.");
 
-        // You can perform any additional actions after successfully updating the category
-      } catch (error) {
-        console.error("Error updating existing category:", error);
-        // Handle error if any exception occurs during the process
-      }
-    } else {
-      console.log(
-        "Category doesn't exist. Add logic to handle the new category."
-      );
-
-      try {
         // Create a new category entry
         const { data: newCategoryData, error: categoryError } = await supabase
           .from("categories")
@@ -159,22 +150,25 @@ export default function TabOneScreen() {
           .select()
           .single();
 
-        const { data: updatedCategoryData, error: updatedCategoryError } =
-          await supabase.from("categories").select("*");
-
-        setFeedCategories(updatedCategoryData);
-
         if (categoryError) {
           console.error("Error creating category:", categoryError);
           // Handle error if category creation fails
           return;
         }
-
-        // You can perform any additional actions after successfully adding the category
-      } catch (error) {
-        console.error("Error adding new category:", error);
-        // Handle error if any exception occurs during the process
       }
+
+      // Refresh feed categories context
+      const { data: updatedCategories, error: fetchError } = await supabase
+        .from("categories")
+        .select("*");
+
+      setFeedCategories(updatedCategories);
+
+      // Clear input
+      setNewCategory(null);
+    } catch (error) {
+      console.error("Error handling category:", error);
+      // Handle any unexpected errors
     }
   };
 
