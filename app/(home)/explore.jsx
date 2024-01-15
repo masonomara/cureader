@@ -175,9 +175,17 @@ export default function Explore() {
               ? feed.channel_description.toLowerCase().includes(lowercasedInput)
               : "";
 
-            return titleMatch || urlMatch || descriptionMatch;
+            // Check if the input matches any category in channel_categories
+            const categoryMatch = feed.channel_categories
+              ? feed.channel_categories?.some((category) =>
+                  category.toLowerCase().includes(lowercasedInput)
+                )
+              : false;
+
+            return titleMatch || urlMatch || descriptionMatch || categoryMatch;
           });
 
+          console.log(filteredFeeds);
           setSearchResults(filteredFeeds);
         } else {
           setSearchResults([]);
