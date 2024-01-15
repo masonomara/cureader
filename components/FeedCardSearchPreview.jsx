@@ -28,6 +28,7 @@ export default function FeedCardSearchPreview({
 
   const colorScheme = useColorScheme();
   const { setFeeds } = useContext(FeedContext);
+
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(true);
     setIsSubscribed(!isSubscribed);
@@ -306,7 +307,9 @@ export default function FeedCardSearchPreview({
         <View style={styles.cardControls}>
           <TouchableOpacity
             style={
-              isOptimisticSubscribed ? styles.subscribedButton : styles.subscribeButton
+              isOptimisticSubscribed
+                ? styles.subscribedButton
+                : styles.subscribeButton
             }
             onPress={handleSubmitUrl}
           >
