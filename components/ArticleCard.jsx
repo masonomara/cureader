@@ -149,7 +149,7 @@ export default function ArticleCard({
       paddingTop: 24,
       paddingLeft: 16,
       paddingRight: 16,
-      paddingBottom: 7,
+      paddingBottom: 11,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
