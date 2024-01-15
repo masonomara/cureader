@@ -26,7 +26,7 @@ export default function TabOneScreen() {
   const [dummyImageUrl, setDummyImageUrl] = useState("");
   const [newCategory, setNewCategory] = useState("");
 
-  console.log("[]:", feedCategories[0].channels);
+  console.log("[]:", feedCategories[0]?.channels);
 
   useEffect(() => {
     // Set initial values when params.title changes
@@ -166,6 +166,15 @@ export default function TabOneScreen() {
 
       // Clear input
       setNewCategory(null);
+
+      await supabase
+        .from("channels")
+        .update({
+          channel_categories: updatedCategories
+            .filter((category) => category.channels.includes(params.id))
+            .map((category) => category.title),
+        })
+        .eq("id", params.id);
     } catch (error) {
       console.error("Error handling category:", error);
       // Handle any unexpected errors
