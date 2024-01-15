@@ -173,7 +173,6 @@ function RootLayoutNav() {
             }
 
             setFeedCategories(categoriesData);
-            console.log("feedCategories:", categoriesData);
             try {
               const { data: feedsData, error } = await supabase
                 .from("channels")

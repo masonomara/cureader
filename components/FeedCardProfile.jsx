@@ -289,13 +289,6 @@ export default function FeedCardProfile({ item, user }) {
           )}
         </View>
         <View style={styles.cardControls}>
-          {/* {console.log(
-            "Debug Values:",
-            item.channel_creator,
-            user.id,
-            userAdmin
-          )} */}
-
           {shouldRenderEditButton && (
             <TouchableOpacity
               style={styles.editButtonWrapper}

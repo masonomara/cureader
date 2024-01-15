@@ -106,9 +106,6 @@ export default function TabOneScreen() {
   };
 
   const handleSubmitCategory = async (newCategory) => {
-    console.log("feedCategories:", feedCategories);
-    console.log("newCategory:", newCategory);
-
     const existingCategory = feedCategories.some(
       (category) => category.title === newCategory.trim()
     );
@@ -132,8 +129,6 @@ export default function TabOneScreen() {
           return;
         }
       } else {
-        console.log("Category doesn't exist. Creating a new one.");
-
         const { error: categoryError } = await supabase
           .from("categories")
           .upsert([
@@ -174,8 +169,6 @@ export default function TabOneScreen() {
   };
 
   const handleDeleteCategory = async (category) => {
-    console.log("Category to delete:", category);
-    console.log("Category structure:", JSON.stringify(category));
     try {
       const { error: updateCategoryError } = await supabase
         .from("categories")

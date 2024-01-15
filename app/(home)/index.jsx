@@ -77,21 +77,8 @@ export default function Index() {
   }, [userSubscriptionUrls]);
 
   const initialFetchAndParseFeeds = async (urls) => {
-    console.log(
-      "[2.1] beginning initialFetchAndParseFeeds:",
-      userSubscriptionUrls.toString().slice(0, 30)
-    );
-
     const userFeeds = feeds.filter((feed) =>
       userSubscriptionUrls.includes(feed.channel_url)
-    );
-
-    console.log(
-      "[2.2] fetched userFeeds:",
-      userFeeds
-        .map((feed) => feed.channel_title)
-        .toString()
-        .slice(0, 30)
     );
 
     const fallbackImages = userFeeds.map((feed) => ({
@@ -99,19 +86,8 @@ export default function Index() {
       channel_image_url: feed.channel_image_url,
     }));
 
-    console.log(
-      "[2.3] fetched fallbackImages:",
-      fallbackImages
-        .map((image) => image)
-        .toString()
-        .slice(0, 30)
-    );
-
     const allChannels = [];
     const allItems = [];
-
-    console.log("[2.4] check allChannels:", allChannels);
-    console.log("[2.5] check allItems:", allItems);
 
     const parseAndSort = async (url) => {
       try {
@@ -168,32 +144,15 @@ export default function Index() {
       }
     };
 
-    console.log(
-      "[2.6] completed all parseAndSort:",
-      allItems.toString().slice(0, 30)
-    );
-
     await Promise.all(urls.map(parseAndSort));
 
     allItems.sort((a, b) => b.publicationDate - a.publicationDate);
 
     setPromisedAll(true);
-    console.log(
-      "[2.7] completed Promise.all:",
-      allItems
-        .sort((a, b) => b.publicationDate - a.publicationDate)
-        .toString()
-        .slice(0, 30)
-    );
 
     setRssItems(allItems);
 
-    console.log("[2.8] completed rssItems:", rssItems.toString().slice(0, 30));
     setFeedsParsed(true);
-    console.log(
-      "[2.9] completed feedsParsed:",
-      feedsParsed.toString().slice(0, 30)
-    );
   };
 
   const fetchAndParseFeeds = async (urls) => {

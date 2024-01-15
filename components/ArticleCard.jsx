@@ -73,16 +73,6 @@ export default function ArticleCard({
         url: item.links[0]?.url || "",
         tintColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log("Shared with activity type of:", result.activityType);
-        } else {
-          console.log("Shared");
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log("Dismissed");
-      }
     } catch (error) {
       console.error("Error sharing:", error.message);
     }

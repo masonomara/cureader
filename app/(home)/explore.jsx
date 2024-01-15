@@ -138,7 +138,6 @@ export default function Explore() {
           error: null,
         });
       } catch (error) {
-        console.log(error);
         setChannelData({
           title: null,
           url: parserInput,
@@ -179,7 +178,6 @@ export default function Explore() {
             return titleMatch || urlMatch || descriptionMatch || categoryMatch;
           });
 
-          console.log(filteredFeeds);
           setSearchResults(filteredFeeds);
         } else {
           setSearchResults([]);

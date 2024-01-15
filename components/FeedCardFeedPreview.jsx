@@ -31,8 +31,6 @@ export default function FeedCardFeedPreview({ item }) {
     userSubscriptionIds.includes(itemId)
   );
 
-  console.log("item", item);
-
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(itemId));
   }, [userSubscriptionIds, itemId]);
