@@ -168,8 +168,6 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors[colorScheme || "light"].tabIconDefault,
       }}
     >
-      {/* {feedsParsed == true ? ( */}
-      {/* <> */}
       <Tabs.Screen
         name="index"
         options={{

@@ -550,11 +550,6 @@ export default function Index() {
 
   return (
     <>
-      {/* <Text>feedsFetched: {feedsFetched && "true"}</Text>
-      <Text>userFetched: {userFetched && "true"}</Text>
-      <Text>
-        userSubscriptionUrlsFetched: {userSubscriptionUrlsFetched && "true"}
-      </Text> */}
       <View style={styles.container}>
         {feedsParsed ? (
           <>
