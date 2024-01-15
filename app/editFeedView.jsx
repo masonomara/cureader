@@ -15,13 +15,18 @@ import { supabase } from "../config/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import FeedCardDummyPreview from "../components/FeedCarDummyPreview";
 import { FeedContext } from "./_layout";
+import X20 from "../components/icons/20/X20";
 
 export default function TabOneScreen() {
   const params = useLocalSearchParams();
-  const { setFeeds } = useContext(FeedContext);
+  const { setFeeds, feedCategories, setFeedCategories } =
+    useContext(FeedContext);
   const [dummyTitle, setDummyTitle] = useState("");
   const [dummyDescription, setDummyDescription] = useState("");
   const [dummyImageUrl, setDummyImageUrl] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+
+  console.log("[]:", feedCategories[0].channels);
 
   useEffect(() => {
     // Set initial values when params.title changes
@@ -34,16 +39,11 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  const [inputs, setInputs] = useState({
-    title: "",
-    description: "",
-    imageUrl: "",
-  });
-
   const [inputStates, setInputStates] = useState({
     isSearchInputSelectedtitle: false,
     isSearchInputSelecteddescription: false,
     isSearchInputSelectedimageUrl: false,
+    isSearchInputSelectedCategories: false,
     scrollView: true,
   });
 
@@ -110,6 +110,76 @@ export default function TabOneScreen() {
     }
   };
 
+  const handleSubmitCategory = async (newCategory) => {
+    console.log("feedCategories:", feedCategories);
+    console.log("newCategory:", newCategory);
+
+    const isCategoryExists = feedCategories.some(
+      (category) => category.title === newCategory.trim()
+    );
+
+    if (isCategoryExists) {
+      try {
+        // Update the existing category with params.id
+        const { data: updatedCategoryData, error: updateError } = await supabase
+          .from("categories")
+          .update({
+            channels: [
+              ...feedCategories.find((c) => c.title === newCategory.trim())
+                .channels,
+              params.id,
+            ],
+          })
+          .eq("title", newCategory.trim());
+
+        if (updateError) {
+          console.error("Error updating category:", updateError);
+          // Handle error if category update fails
+          return;
+        }
+
+        // You can perform any additional actions after successfully updating the category
+      } catch (error) {
+        console.error("Error updating existing category:", error);
+        // Handle error if any exception occurs during the process
+      }
+    } else {
+      console.log(
+        "Category doesn't exist. Add logic to handle the new category."
+      );
+
+      try {
+        // Create a new category entry
+        const { data: newCategoryData, error: categoryError } = await supabase
+          .from("categories")
+          .upsert([
+            {
+              title: newCategory.trim(),
+              channels: [params.id],
+            },
+          ])
+          .select()
+          .single();
+
+        const { data: updatedCategoryData, error: updatedCategoryError } =
+          await supabase.from("categories").select("*");
+
+        setFeedCategories(updatedCategoryData);
+
+        if (categoryError) {
+          console.error("Error creating category:", categoryError);
+          // Handle error if category creation fails
+          return;
+        }
+
+        // You can perform any additional actions after successfully adding the category
+      } catch (error) {
+        console.error("Error adding new category:", error);
+        // Handle error if any exception occurs during the process
+      }
+    }
+  };
+
   const styles = {
     safeAreaView: {
       flex: 1,
@@ -135,6 +205,8 @@ export default function TabOneScreen() {
     content: {
       width: "100%",
       alignItems: "center",
+
+      flex: 1,
     },
     title: {
       marginBottom: 4,
@@ -290,6 +362,8 @@ export default function TabOneScreen() {
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={[
           styles.container,
           !inputStates.scrollView && styles.containerScrollView,
@@ -318,6 +392,78 @@ export default function TabOneScreen() {
             `${params.imageUrl}`,
             `dummyImageUrl`
           )}
+          <Text style={styles.label}>New Categories (seperate with comma)</Text>
+          <View
+            style={[
+              styles.input,
+              inputStates[`isSearchInputSelectedCategories`] &&
+                styles.inputSelected,
+            ]}
+          >
+            <TextInput
+              style={styles.inputText}
+              label="Categories"
+              onChangeText={(text) => {
+                setNewCategory(text);
+              }}
+              value={newCategory}
+              placeholder="Enter a new category"
+              autoCapitalize="words"
+              autoCorrect={true}
+              onFocus={() =>
+                handleInputFocus(`isSearchInputSelectedCategories`)
+              }
+              onBlur={() => handleInputBlur(`isSearchInputSelectedCategories`)}
+              multiline={false}
+              onSubmitEditing={() => handleSubmitCategory(newCategory)}
+            />
+          </View>
+
+          <View
+            style={{
+              display: "flex",
+
+              width: "100%",
+
+              marginBottom: 24,
+            }}
+          >
+            {feedCategories
+              .filter(() => feedCategories[0].channels.includes(params.id))
+              .map((category, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    height: 44,
+                    alignSelf: "flex-start",
+                    padding: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: 100,
+                    backgroundColor: `${
+                      Colors[colorScheme || "light"].surfaceOne
+                    }`,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: `${Colors[colorScheme || "light"].buttonActive}`,
+                      fontFamily: "InterMedium",
+                      fontWeight: "500",
+                      fontSize: 14,
+                      lineHeight: 19,
+                      letterSpacing: -0.14,
+                    }}
+                  >
+                    {category.title}
+                  </Text>
+                  <View>
+                    <X20 color={Colors[colorScheme || "light"].buttonActive} />
+                  </View>
+                </View>
+              ))}
+          </View>
         </View>
         {renderButton("Update Feed Info", updateFeedInfo)}
       </KeyboardAwareScrollView>
