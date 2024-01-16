@@ -557,7 +557,7 @@ export default function Index() {
                               });
                             }}
                           >
-                            <Text style={styles.textButtonText}>View more</Text>
+                            <Text style={styles.textButtonText}>View More</Text>
                           </TouchableOpacity>
                         </View>
                       </>
