@@ -525,6 +525,7 @@ export default function Explore() {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 8,
+      rowGap: 8,
       overflow: "hidden",
     },
     categoryWrapper: {
@@ -766,8 +767,8 @@ export default function Explore() {
 
         <View style={styles.categoriesContainer}>
           {feedCategories
-            .slice(0, 6)
             .sort((a, b) => b.channels.length - a.channels.length)
+            .slice(0, 4)
             .map((category) => {
               const filteredFeeds = feeds
                 .filter(

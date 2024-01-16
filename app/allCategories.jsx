@@ -78,6 +78,7 @@ export default function TabOneScreen() {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 8,
+      rowGap: 8,
       overflow: "hidden",
       marginTop: 4,
     },

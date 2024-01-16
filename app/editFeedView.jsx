@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Alert,
   TextInput,
@@ -25,6 +25,8 @@ export default function TabOneScreen() {
   const [dummyDescription, setDummyDescription] = useState("");
   const [dummyImageUrl, setDummyImageUrl] = useState("");
   const [newCategory, setNewCategory] = useState("");
+
+  const categoryInputRef = useRef(null);
 
   useEffect(() => {
     setDummyTitle(params.title || "");
@@ -163,6 +165,8 @@ export default function TabOneScreen() {
             .map((category) => category.title),
         })
         .eq("id", params.id);
+
+      categoryInputRef.current?.focus();
     } catch (error) {
       console.error("Error handling category:", error);
     }
@@ -446,6 +450,7 @@ export default function TabOneScreen() {
               onBlur={() => handleInputBlur(`isSearchInputSelectedCategories`)}
               multiline={false}
               onSubmitEditing={() => handleSubmitCategory(newCategory)}
+              ref={categoryInputRef}
             />
           </View>
 
