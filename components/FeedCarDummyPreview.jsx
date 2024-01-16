@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import Colors from "../constants/Colors";

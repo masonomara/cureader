@@ -66,14 +66,14 @@ export default function FeedCard({ item, user }) {
       );
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
+      setIsSubscribed(!isSubscribed);
     }
   };
 
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
+      borderTopWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",

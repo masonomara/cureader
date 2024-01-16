@@ -29,36 +29,30 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
-  // Function for handling search input focus
   const handleFocus = () => {
     setIsSearchInputSelected(true);
     setScrollView(false);
   };
 
-  // Function for handling seach input blur
   const handleBlur = () => {
     setIsSearchInputSelected(false);
     setScrollView(true);
   };
 
-  // Function for handling search input focus
   const handleFocusTwo = () => {
     setIsSearchInputSelectedTwo(true);
     setScrollView(false);
   };
 
-  // Function for handling seach input blur
   const handleBlurTwo = () => {
     setIsSearchInputSelectedTwo(false);
     setScrollView(true);
   };
-  // Function for handling search input focus
   const handleFocusThree = () => {
     setIsSearchInputSelectedThree(true);
     setScrollView(false);
   };
 
-  // Function for handling seach input blur
   const handleBlurThree = () => {
     setIsSearchInputSelectedThree(false);
     setScrollView(true);
@@ -86,13 +80,9 @@ export default function Auth() {
     safeAreaView: {
       flex: 1,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      // borderWidth: 1,
-      // borderColor: "red",
     },
     keyboardAvoidingView: {
       flex: 1,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     container: {
       flex: 1,
@@ -100,16 +90,12 @@ export default function Auth() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
-      // borderWidth: 1,
-      // borderColor: "yellow",
       overflow: "hidden",
       paddingBottom: 88,
     },
     containerScrollView: {
       justifyContent: "flex-start",
       flex: 0,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     content: {
       width: "100%",
@@ -198,7 +184,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
-      flexWrap: 'nowrap',
+      flexWrap: "nowrap",
     },
     inputButton: {
       width: 44,
@@ -213,8 +199,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "green",
     },
     buttonWrapperScrollView: {
       position: "absolute",
@@ -223,8 +207,6 @@ export default function Auth() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      // borderWidth: 1,
-      // borderColor: "black",
     },
     button: {
       height: 48,
@@ -275,7 +257,6 @@ export default function Auth() {
             onChangeText={(displayName) => setDisplayName(displayName)}
             value={displayName}
             placeholder="display name"
-            // autoCapitalize={"none"}
             autoCorrect={false}
             onFocus={handleFocus}
             onBlur={handleBlur}

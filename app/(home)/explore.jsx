@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Keyboard,
   Pressable,
+  Image,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
@@ -39,7 +40,8 @@ function CloseIcon({ size, ...props }) {
 }
 
 export default function Explore() {
-  const { feeds, popularFeeds, randomFeeds } = useContext(FeedContext);
+  const { feeds, popularFeeds, randomFeeds, feedCategories } =
+    useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
@@ -68,7 +70,6 @@ export default function Explore() {
     })
   );
 
-  // Function for handling search input focus
   const handleClearInput = useCallback(() => {
     setSearchInput("");
     setParserInput("");
@@ -81,10 +82,6 @@ export default function Explore() {
   const handleFocus = useCallback(() => {
     setTextInputFocused(true);
   }, []);
-
-  // const handleBlur = useCallback(() => {
-  //   setTextInputFocused(false);
-  // }, []);
 
   const handleSearchInput = (searchInput) => {
     setIsSearching(true);
@@ -143,7 +140,6 @@ export default function Explore() {
           error: null,
         });
       } catch (error) {
-        console.log(error);
         setChannelData({
           title: null,
           url: parserInput,
@@ -175,7 +171,13 @@ export default function Explore() {
               ? feed.channel_description.toLowerCase().includes(lowercasedInput)
               : "";
 
-            return titleMatch || urlMatch || descriptionMatch;
+            const categoryMatch = feed.channel_categories
+              ? feed.channel_categories?.some((category) =>
+                  category.toLowerCase().includes(lowercasedInput)
+                )
+              : false;
+
+            return titleMatch || urlMatch || descriptionMatch || categoryMatch;
           });
 
           setSearchResults(filteredFeeds);
@@ -221,8 +223,7 @@ export default function Explore() {
       width: "100%",
       paddingBottom: 12,
       paddingTop: 8,
-      // borderWidth: 1,
-      // borderColor: "green",
+
       height: 76,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
@@ -296,8 +297,7 @@ export default function Explore() {
       paddingHorizontal: 16,
       width: "100%",
       zIndex: 1,
-      // borderWidth: 1,
-      // borderColor: "red",
+
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       flex: 1,
     },
@@ -517,6 +517,74 @@ export default function Explore() {
       lineHeight: 19,
       letterSpacing: -0.14,
     },
+    categoriesContainer: {
+      flex: 1,
+      paddingHorizontal: 16,
+      marginBottom: 20,
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      rowGap: 8,
+      overflow: "hidden",
+    },
+    categoryWrapper: {
+      width: CARD_WIDTH / 2 - 4,
+      borderWidth: 1,
+
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+      // backgroundColor: Colors[colorScheme || "light"].surfaceOne,
+      borderRadius: 16,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      flexDirection: "column",
+
+      overflow: "hidden",
+    },
+    categoryImagesWrapper: {
+      aspectRatio: 5 / 3,
+      width: "100%",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      backgroundColor: "white",
+    },
+    categoryImageWrapperSingle: {
+      aspectRatio: 5 / 3,
+      width: "100%",
+      overflow: "hidden",
+    },
+
+    categoryTitleWrapper: {
+      overflow: "hidden",
+      flex: 1,
+      width: "100%",
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "center",
+      padding: 12,
+      paddingVertical: 12,
+    },
+    categoryTitle: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+      textAlign: "left",
+      width: "100%",
+    },
+    categorySubtitle: {
+      color: `${Colors[colorScheme || "light"].textLow}`,
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 13,
+      lineHeight: 15,
+      letterSpacing: -0.15,
+    },
   };
 
   return (
@@ -535,7 +603,6 @@ export default function Explore() {
           autoCapitalize="none"
           autoCorrect={false}
           onFocus={handleFocus}
-          // onBlur={handleBlur}
           onChangeText={handleSearchInput}
         />
         <TouchableOpacity
@@ -679,6 +746,94 @@ export default function Explore() {
       >
         <View style={styles.headerWrapper}>
           <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Categories</Text>
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={() => {
+                router.push({
+                  pathname: "/allCategories",
+                });
+              }}
+            >
+              <Text style={styles.textButtonText}>View more</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.headerSubtitle}>
+            {randomFeeds != null
+              ? "Browse popular feeds and categories."
+              : "Loading..."}
+          </Text>
+        </View>
+
+        <View style={styles.categoriesContainer}>
+          {feedCategories
+            .sort((a, b) => b.channels.length - a.channels.length)
+            .slice(0, 4)
+            .map((category) => {
+              const filteredFeeds = feeds
+                .filter(
+                  (feed) =>
+                    feed.channel_categories &&
+                    feed.channel_categories.includes(category.title) &&
+                    feed.channel_image_url
+                )
+                .sort(
+                  (a, b) =>
+                    b.channel_subscribers.length - a.channel_subscribers.length
+                );
+
+              if (category.channels && category.channels.length > 0) {
+                return (
+                  <Pressable
+                    key={category.id}
+                    style={styles.categoryWrapper}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/categoryView",
+                        params: {
+                          title: category.title,
+                          channels: category.channels,
+                          id: category.id,
+                          feeds: filteredFeeds,
+                        },
+                      })
+                    }
+                  >
+                    <View style={styles.categoryImagesWrapper}>
+                      {filteredFeeds.slice(0, 1).map((feed, index) => (
+                        <View
+                          key={feed.id}
+                          style={styles.categoryImageWrapperSingle}
+                        >
+                          <Image
+                            style={{
+                              flex: 1,
+                            }}
+                            contentFit="cover"
+                            source={{ uri: feed.channel_image_url }}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                    <View style={styles.categoryTitleWrapper}>
+                      <Text
+                        style={styles.categoryTitle}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {category.title}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              } else {
+                return null;
+              }
+            })}
+        </View>
+
+        <View style={styles.headerWrapper}>
+          <View style={styles.titleWrapper}>
             <Text style={styles.title}>Random Feeds</Text>
             <TouchableOpacity
               style={styles.textButton}
@@ -743,7 +898,7 @@ export default function Explore() {
           </View>
           <Text style={styles.headerSubtitle}>
             {popularFeeds != null
-              ? "Follow some of our most popular feeds."
+              ? "Follow our community's most popular feeds."
               : "Loading..."}
           </Text>
         </View>

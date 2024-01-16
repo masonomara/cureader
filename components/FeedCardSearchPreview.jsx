@@ -1,5 +1,5 @@
-import { useContext, useState, useLayoutEffect } from "react";
-import { View, Text, TouchableOpacity, Alert, Dimensions } from "react-native";
+import { useContext, useState } from "react";
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/supabase";
@@ -34,7 +34,6 @@ export default function FeedCardSearchPreview({
     setIsSubscribed(!isSubscribed);
 
     try {
-      // Create a new channel entry
       const { data: channelData, error: channelError } = await supabase
         .from("channels")
         .upsert([
@@ -74,7 +73,7 @@ export default function FeedCardSearchPreview({
             await supabase
               .from("channels")
               .select("*")
-              .eq("id", channelData.id) // Filter by the ID of the newly created channel
+              .eq("id", channelData.id)
               .single();
 
           if (newChannelError) {

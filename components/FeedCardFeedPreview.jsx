@@ -2,7 +2,6 @@ import { useState, useContext, useLayoutEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
-import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
@@ -30,8 +29,6 @@ export default function FeedCardFeedPreview({ item }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(itemId)
   );
-
-  console.log("item", item);
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(itemId));
@@ -65,7 +62,7 @@ export default function FeedCardFeedPreview({ item }) {
       );
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
+      setIsSubscribed(!isSubscribed);
     }
   };
 

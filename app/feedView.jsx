@@ -18,14 +18,13 @@ export default function TabOneScreen() {
 
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Add a loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
   };
 
-  // Parse feed channel for articles in the feed
   useEffect(() => {
     const parseFeed = async () => {
       if (params.url && feeds && userSubscriptionUrls) {
@@ -65,7 +64,7 @@ export default function TabOneScreen() {
             "Error fetching or parsing the RSS feed. Please try again."
           );
         } finally {
-          setIsLoading(false); // Set loading to false after the effect is done firing
+          setIsLoading(false);
         }
       }
     };
@@ -73,7 +72,6 @@ export default function TabOneScreen() {
     parseFeed();
   }, [params.url]);
 
-  // Styles
   const styles = {
     container: {
       flex: 1,

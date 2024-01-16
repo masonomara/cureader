@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Alert,
   TextInput,
@@ -19,20 +19,19 @@ import X20 from "../components/icons/20/X20";
 
 export default function TabOneScreen() {
   const params = useLocalSearchParams();
-  const { setFeeds, feedCategories, setFeedCategories } =
+  const { setFeeds, feedCategories, setFeedCategories, feeds } =
     useContext(FeedContext);
   const [dummyTitle, setDummyTitle] = useState("");
   const [dummyDescription, setDummyDescription] = useState("");
   const [dummyImageUrl, setDummyImageUrl] = useState("");
   const [newCategory, setNewCategory] = useState("");
 
-  console.log("[]:", feedCategories[0].channels);
+  const categoryInputRef = useRef(null);
 
   useEffect(() => {
-    // Set initial values when params.title changes
     setDummyTitle(params.title || "");
-    setDummyDescription(params.description || ""); // Set your initial description here
-    setDummyImageUrl(params.image || ""); // Set your initial image URL here
+    setDummyDescription(params.description || "");
+    setDummyImageUrl(params.image || "");
   }, [params.title]);
 
   const colorScheme = useColorScheme();
@@ -66,7 +65,7 @@ export default function TabOneScreen() {
   const updateFeedInfo = async () => {
     setLoading(true);
     try {
-      const timestamp = new Date().toISOString(); // Get current timestamp
+      const timestamp = new Date().toISOString();
 
       await supabase
         .from("channels")
@@ -74,7 +73,7 @@ export default function TabOneScreen() {
           channel_title: dummyTitle,
           channel_description: dummyDescription,
           channel_image_url: dummyImageUrl,
-          channel_updated: timestamp, // Add the timestamp field
+          channel_updated: timestamp,
         })
         .eq("id", params.id);
       Alert.alert(
@@ -109,17 +108,13 @@ export default function TabOneScreen() {
   };
 
   const handleSubmitCategory = async (newCategory) => {
-    console.log("feedCategories:", feedCategories);
-    console.log("newCategory:", newCategory);
-
-    const isCategoryExists = feedCategories.some(
+    const existingCategory = feedCategories.some(
       (category) => category.title === newCategory.trim()
     );
 
     try {
-      if (isCategoryExists) {
-        // Update the existing category with params.id
-        const { data: updatedCategoryData, error: updateError } = await supabase
+      if (existingCategory) {
+        const { error: updateError } = await supabase
           .from("categories")
           .update({
             channels: [
@@ -132,14 +127,11 @@ export default function TabOneScreen() {
 
         if (updateError) {
           console.error("Error updating category:", updateError);
-          // Handle error if category update fails
+
           return;
         }
       } else {
-        console.log("Category doesn't exist. Creating a new one.");
-
-        // Create a new category entry
-        const { data: newCategoryData, error: categoryError } = await supabase
+        const { error: categoryError } = await supabase
           .from("categories")
           .upsert([
             {
@@ -152,23 +144,72 @@ export default function TabOneScreen() {
 
         if (categoryError) {
           console.error("Error creating category:", categoryError);
-          // Handle error if category creation fails
+
           return;
         }
       }
 
-      // Refresh feed categories context
-      const { data: updatedCategories, error: fetchError } = await supabase
+      const { data: updatedCategories } = await supabase
         .from("categories")
         .select("*");
 
       setFeedCategories(updatedCategories);
 
-      // Clear input
       setNewCategory(null);
+
+      await supabase
+        .from("channels")
+        .update({
+          channel_categories: updatedCategories
+            .filter((category) => category.channels.includes(params.id))
+            .map((category) => category.title),
+        })
+        .eq("id", params.id);
+
+      categoryInputRef.current?.focus();
     } catch (error) {
       console.error("Error handling category:", error);
-      // Handle any unexpected errors
+    }
+  };
+
+  const handleDeleteCategory = async (category) => {
+    try {
+      const { error: updateCategoryError } = await supabase
+        .from("categories")
+        .update({
+          channels: feeds.filter(
+            (feed) =>
+              feed.channel_categories?.includes(category.title) &
+              (feed.id != params.id)
+          ),
+        })
+        .eq("id", category.id);
+
+      if (updateCategoryError) {
+        console.error("Error updating category:", updateCategoryError);
+        return;
+      }
+
+      await supabase
+        .from("channels")
+        .update({
+          channel_categories: feedCategories
+            .filter(
+              (feedCategory) =>
+                feedCategory.title !== category.title &&
+                feedCategory.channels.includes(params.id)
+            )
+            .map((feedCategory) => feedCategory.title),
+        })
+        .eq("id", params.id);
+
+      const { data: updatedCategories } = await supabase
+        .from("categories")
+        .select("*");
+
+      setFeedCategories(updatedCategories);
+    } catch (error) {
+      console.error("Error handling category deletion:", error);
     }
   };
 
@@ -360,7 +401,6 @@ export default function TabOneScreen() {
           styles.container,
           !inputStates.scrollView && styles.containerScrollView,
         ]}
-        // ... Other props remain unchanged
       >
         <View style={styles.content}>
           <Text style={styles.title}>Edit Public Feed</Text>
@@ -384,7 +424,9 @@ export default function TabOneScreen() {
             `${params.imageUrl}`,
             `dummyImageUrl`
           )}
-          <Text style={styles.label}>New Categories (seperate with comma)</Text>
+          <Text style={styles.label}>
+            New Categories (Press enter to submit category)
+          </Text>
           <View
             style={[
               styles.input,
@@ -408,52 +450,58 @@ export default function TabOneScreen() {
               onBlur={() => handleInputBlur(`isSearchInputSelectedCategories`)}
               multiline={false}
               onSubmitEditing={() => handleSubmitCategory(newCategory)}
+              ref={categoryInputRef}
             />
           </View>
 
           <View
             style={{
               display: "flex",
-
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 8,
               width: "100%",
-
+              marginTop: -4,
               marginBottom: 24,
             }}
           >
             {feedCategories
               .filter((category) => category.channels.includes(params.id))
               .map((category, index) => (
-                <View
+                <TouchableOpacity
                   key={index}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
                     height: 44,
-                    alignSelf: "flex-start",
-                    padding: 10,
-                    paddingHorizontal: 16,
+                    alignSelf: "center",
+                    padding: 8,
+                    gap: 3,
+                    paddingLeft: 14,
+                    paddingRight: 12,
                     borderRadius: 100,
                     backgroundColor: `${
                       Colors[colorScheme || "light"].surfaceOne
                     }`,
                   }}
+                  onPress={() => handleDeleteCategory(category)}
                 >
                   <Text
                     style={{
-                      color: `${Colors[colorScheme || "light"].buttonActive}`,
+                      color: `${Colors[colorScheme || "light"].textMedium}`,
                       fontFamily: "InterMedium",
                       fontWeight: "500",
-                      fontSize: 14,
-                      lineHeight: 19,
-                      letterSpacing: -0.14,
+                      fontSize: 15,
+                      lineHeight: 20,
+                      letterSpacing: -0.15,
                     }}
                   >
                     {category.title}
                   </Text>
                   <View>
-                    <X20 color={Colors[colorScheme || "light"].buttonActive} />
+                    <X20 color={Colors[colorScheme || "light"].textMedium} />
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
           </View>
         </View>
@@ -477,7 +525,6 @@ export default function TabOneScreen() {
             style={styles.inputText}
             label={label}
             onChangeText={(text) => {
-              // Update the corresponding state based on inputName
               switch (inputName) {
                 case "dummyTitle":
                   setDummyTitle(text);
@@ -493,7 +540,6 @@ export default function TabOneScreen() {
               }
             }}
             value={
-              // Get the corresponding value based on inputName
               inputName === "dummyTitle"
                 ? dummyTitle
                 : inputName === "dummyDescription"

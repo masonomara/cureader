@@ -48,9 +48,7 @@ export default function ArticleCard({
 
   const getImageSize = () => {
     RNImage.getSize(imageUrl, (width, height) => {
-      // Callback function that gets called with the width and height of the image
       setImageWidth(width);
-      // You can add further logic based on the image size if needed
     });
   };
 
@@ -75,16 +73,6 @@ export default function ArticleCard({
         url: item.links[0]?.url || "",
         tintColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       });
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log("Shared with activity type of:", result.activityType);
-        } else {
-          console.log("Shared");
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log("Dismissed");
-      }
     } catch (error) {
       console.error("Error sharing:", error.message);
     }
@@ -104,7 +92,7 @@ export default function ArticleCard({
       await updateUserBookmarks(updatedUserBookmarks);
     } catch (error) {
       console.error("Error handling bookmark:", error);
-      setIsBookmarked(!isBookmarked); // Revert the state if there's an error
+      setIsBookmarked(!isBookmarked);
     }
   };
 
@@ -113,7 +101,7 @@ export default function ArticleCard({
       await supabase
         .from("profiles")
         .update({
-          bookmarks: updatedBookmarks.map((bookmark) => bookmark), // Assuming 'id' is the unique identifier
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
         })
         .eq("id", user.id);
     } catch (error) {
@@ -161,7 +149,7 @@ export default function ArticleCard({
       paddingTop: 24,
       paddingLeft: 16,
       paddingRight: 16,
-      paddingBottom: 7,
+      paddingBottom: 11,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -315,7 +303,6 @@ export default function ArticleCard({
       gap: 5,
       paddingRight: 12,
       paddingLeft: 10,
-      // borderWidth: 0.5,
       borderColor: Colors[colorScheme || "light"].border,
       borderRadius: 100,
       backgroundColor: Colors[colorScheme || "light"].surfaceOne,

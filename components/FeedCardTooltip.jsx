@@ -61,7 +61,7 @@ export default function FeedCardToolTip({ item }) {
       );
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
+      setIsSubscribed(!isSubscribed);
     }
   };
 

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Text, TouchableOpacity, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext } from "../_layout";
@@ -32,14 +26,12 @@ export default function Bookmarks() {
 
   useEffect(() => {
     if (userBookmarks != null) {
-      // Set userInitialBookmarks to userBookmarks on initial build
       setUserInitialBookmarks(userBookmarks);
     }
   }, [userBookmarks]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Fetch or update userBookmarks here
     setRefreshing(false);
   };
 

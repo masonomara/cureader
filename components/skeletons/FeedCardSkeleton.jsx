@@ -137,17 +137,8 @@ export default function FeedCardSkeleton() {
 
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
-          {/* <Text style={styles.title} numberOfLines={2}>
-            {item.channel_title}
-          </Text> */}
           <View style={styles.titleSkeleton}></View>
-          {/* {item.channel_description ? (
-            <Text numberOfLines={2} style={styles.description}>
-              {formatDescription(item.channel_description, 200)}
-            </Text>
-          ) : (
-            <Text numberOfLines={2} style={styles.description}></Text>
-          )} */}
+
           <View style={styles.descriptionSkeletonContainer}>
             <View style={styles.descriptionSkeletonOne}></View>
             <View style={styles.descriptionSkeletonTwo}></View>

@@ -71,14 +71,14 @@ export default function FeedCardProfile({ item, user }) {
       );
     } catch (error) {
       console.error("Error handling subscription:", error);
-      setIsSubscribed(!isSubscribed); // Revert the state if there's an error
+      setIsSubscribed(!isSubscribed);
     }
   };
 
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
+      borderTopWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
@@ -289,13 +289,6 @@ export default function FeedCardProfile({ item, user }) {
           )}
         </View>
         <View style={styles.cardControls}>
-          {/* {console.log(
-            "Debug Values:",
-            item.channel_creator,
-            user.id,
-            userAdmin
-          )} */}
-
           {shouldRenderEditButton && (
             <TouchableOpacity
               style={styles.editButtonWrapper}
