@@ -168,11 +168,11 @@ export default function Bookmarks() {
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
+      fontFamily: "InterSemiBold",
       fontWeight: "700",
-      fontSize: 24,
+      fontSize: 25,
       lineHeight: 31,
-      letterSpacing: -0.24,
+      letterSpacing: -0.25,
     },
     textButton: {
       paddingHorizontal: 8,
@@ -200,7 +200,7 @@ export default function Bookmarks() {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontWeight: "400",
       fontSize: 19,
       textAlign: "center",
       lineHeight: 24,
