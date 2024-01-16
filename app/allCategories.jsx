@@ -12,6 +12,7 @@ import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "react-native";
+import CategoriesContainer from "../components/CategoriesContainer";
 
 export default function TabOneScreen() {
   const { feedCategories, feeds } = useContext(FeedContext);
@@ -58,14 +59,13 @@ export default function TabOneScreen() {
     categoriesContainer: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: 20,
+      marginBottom: 38,
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 8,
       rowGap: 8,
       overflow: "hidden",
-      marginTop: 4,
     },
     categoryWrapper: {
       width: CARD_WIDTH / 2 - 4,
@@ -78,7 +78,6 @@ export default function TabOneScreen() {
       alignItems: "center",
       justifyContent: "flex-start",
       flexDirection: "column",
-
       overflow: "hidden",
     },
     categoryImagesWrapper: {
@@ -103,26 +102,29 @@ export default function TabOneScreen() {
       display: "flex",
       alignItems: "flex-start",
       justifyContent: "center",
-      padding: 12,
-      paddingVertical: 12,
+      padding: 10,
+      paddingVertical: 13,
     },
     categoryTitle: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
       textAlign: "left",
       width: "100%",
     },
-    categorySubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
+
+    categorySubTitle: {
+      flex: 1,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: -0.15,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+      minHeight: 36,
     },
     flashList: {
       display: "flex",
@@ -144,8 +146,8 @@ export default function TabOneScreen() {
 
           <View style={styles.categoriesContainer}>
             {feedCategories
-
               .sort((a, b) => b.channels.length - a.channels.length)
+
               .map((category) => {
                 const filteredFeeds = feeds
                   .filter(
@@ -159,50 +161,14 @@ export default function TabOneScreen() {
                       b.channel_subscribers.length -
                       a.channel_subscribers.length
                   );
-
                 if (category.channels && category.channels.length > 0) {
                   return (
-                    <Pressable
+                    <CategoriesContainer
                       key={category.id}
-                      style={styles.categoryWrapper}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/categoryView",
-                          params: {
-                            title: category.title,
-                            channels: category.channels,
-                            id: category.id,
-                            feeds: filteredFeeds,
-                          },
-                        })
-                      }
-                    >
-                      <View style={styles.categoryImagesWrapper}>
-                        {filteredFeeds.slice(0, 1).map((feed, index) => (
-                          <View
-                            key={feed.id}
-                            style={styles.categoryImageWrapperSingle}
-                          >
-                            <Image
-                              style={{
-                                flex: 1,
-                              }}
-                              contentFit="cover"
-                              source={{ uri: feed.channel_image_url }}
-                            />
-                          </View>
-                        ))}
-                      </View>
-                      <View style={styles.categoryTitleWrapper}>
-                        <Text
-                          style={styles.categoryTitle}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {category.title}
-                        </Text>
-                      </View>
-                    </Pressable>
+                      category={category}
+                      feeds={feeds}
+                      router={router}
+                    />
                   );
                 } else {
                   return null;
