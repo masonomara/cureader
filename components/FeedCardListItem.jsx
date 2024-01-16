@@ -1,9 +1,14 @@
 import { useState, useContext, useLayoutEffect } from "react";
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Pressable,
+} from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
-import { supabase } from "../config/supabase";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
@@ -12,9 +17,13 @@ import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
+import Dots20 from "./icons/20/Dots20";
+
+const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCardListItem({ item, user }) {
   const {
+    userAdmin,
     userSubscriptionUrls,
     userSubscriptionIds,
     setUserSubscriptionIds,
@@ -26,6 +35,9 @@ export default function FeedCardListItem({ item, user }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
+
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
@@ -67,37 +79,28 @@ export default function FeedCardListItem({ item, user }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
+      borderTopWidth: 0.5,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
       display: "flex",
       flex: 1,
-      width: "100%",
-      paddingHorizontal: 16,
-      gap: 0,
-      paddingVertical: 12,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
+      width: CARD_WIDTH,
+      gap: 10,
+      paddingVertical: 10,
     },
     cardContent: {
       display: "flex",
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
     },
     title: {
       display: "flex",
@@ -111,26 +114,37 @@ export default function FeedCardListItem({ item, user }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      gap: 3,
+      alignItems: "center",
     },
     description: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
+    },
+    editButtonWrapper: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editButton: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      borderRadius: 8,
+      justifyContent: "center",
     },
     subscribeButtonWrapper: {
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -139,7 +153,7 @@ export default function FeedCardListItem({ item, user }) {
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -148,12 +162,11 @@ export default function FeedCardListItem({ item, user }) {
     subscribedButton: {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       borderRadius: 100,
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -164,7 +177,7 @@ export default function FeedCardListItem({ item, user }) {
       letterSpacing: -0.15,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -172,22 +185,23 @@ export default function FeedCardListItem({ item, user }) {
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
+      height: 68,
+      width: 68,
+      borderRadius: 12,
       backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 23,
-      lineHeight: 26,
+      lineHeight: 23,
       letterSpacing: -0.173,
-      height: 26,
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -232,17 +246,16 @@ export default function FeedCardListItem({ item, user }) {
         <View
           style={{
             aspectRatio: "1/1",
-            width: 64,
+            width: 68,
             overflow: "hidden",
-            borderRadius: 10,
+            borderRadius: 12,
+            borderWidth: 0.5,
+            borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >
           <Image
             style={{
               flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: item.channel_image_url }}
@@ -251,18 +264,46 @@ export default function FeedCardListItem({ item, user }) {
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={1}>
             {item.channel_title}
           </Text>
-          {item.channel_description ? (
+          {item.channel_description && (
             <Text numberOfLines={2} style={styles.description}>
               {formatDescription(item.channel_description, 200)}
             </Text>
-          ) : (
-            <Text numberOfLines={2} style={styles.description}></Text>
           )}
         </View>
         <View style={styles.cardControls}>
+          {shouldRenderEditButton && (
+            <TouchableOpacity
+              style={styles.editButtonWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/editFeedView",
+                  params: {
+                    title: item.channel_title,
+                    description: item.channel_description,
+                    image: item.channel_image_url,
+                    subscribers: item.channel_subscribers,
+                    url: item.channel_url,
+                    id: item.id,
+                    user: user,
+                    userId: user.id,
+                    subscribed: isSubscribed,
+                    userSubscriptionIds: userSubscriptionIds,
+                  },
+                })
+              }
+            >
+              <View style={styles.editButton}>
+                <Dots20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}
