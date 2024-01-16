@@ -30,7 +30,6 @@ function CategoriesContainer({ category, feeds, router }) {
       borderWidth: 1,
 
       borderColor: `${Colors[colorScheme || "light"].border}`,
-      // backgroundColor: Colors[colorScheme || "light"].surfaceOne,
       borderRadius: 16,
       display: "flex",
       alignItems: "center",

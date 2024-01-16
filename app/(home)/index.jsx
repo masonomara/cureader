@@ -139,9 +139,6 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
-        // showErrorAlert(
-        //   `Error fetching RSS feed from ${url}. Please try again.`
-        // );
       }
     };
 
@@ -216,9 +213,6 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
-        // showErrorAlert(
-        //   `Error fetching RSS feed from ${url}. Please try again.`
-        // );
       }
     };
 

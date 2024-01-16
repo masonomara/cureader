@@ -70,9 +70,7 @@ export default function TabOneScreen() {
     categoryWrapper: {
       width: CARD_WIDTH / 2 - 4,
       borderWidth: 1,
-
       borderColor: `${Colors[colorScheme || "light"].border}`,
-      // backgroundColor: Colors[colorScheme || "light"].surfaceOne,
       borderRadius: 16,
       display: "flex",
       alignItems: "center",

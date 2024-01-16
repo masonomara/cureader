@@ -77,8 +77,6 @@ export default function FeedCardFeedPreview({ item }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      // borderWidth: 1,
-      // borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
       flexDirection: "column",
       display: "flex",
@@ -222,7 +220,6 @@ export default function FeedCardFeedPreview({ item }) {
       dispaly: "flex",
       flexDirection: "row",
       gap: 5,
-
     },
   };
 
