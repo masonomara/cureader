@@ -29,7 +29,7 @@ export const FeedContext = createContext({
 export const AuthContext = createContext({
   session: null,
   user: null,
-  userAdmin: false,
+  userAdmin: null,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
   userSubscriptionUrlsFetched: false,
@@ -40,6 +40,7 @@ export const AuthContext = createContext({
 });
 
 export const unstable_settings = {
+  // NOTE: initial route fake splash screen?
   initialRouteName: "(home)",
 };
 
@@ -79,7 +80,7 @@ function RootLayoutNav() {
   const [popularFeeds, setPopularFeeds] = useState(null);
   const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
-  const [userAdmin, setUserAdmin] = useState(false);
+  const [userAdmin, setUserAdmin] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
@@ -91,6 +92,29 @@ function RootLayoutNav() {
   const [feedsParsed, setFeedsParsed] = useState(false);
   const [session, setSession] = useState(null);
   const colorScheme = useColorScheme();
+
+  // useEffect(() => {
+  //   SplashScreen.hideAsync();
+  //   console.log("[LAYOUT 0.1] prepping fetchFeeds:");
+  //   async function fetchFeeds() {
+  //     console.log("[LAYOUT 0.2] running fetchFeeds:");
+  //     try {
+  //       const { data: feedsData, error } = await supabase
+  //         .from("channels")
+  //         .select("*");
+  //       if (error) {
+  //         console.error("Error fetching feeds:", error);
+  //         return;
+  //       }
+  //       setFeeds(feedsData);
+  //       setFeedsFetched(true);
+  //     } catch (error) {
+  //       console.error("Error fetching feeds:", error);
+  //     }
+  //   }
+
+  //   fetchFeeds();
+  // }, []);
 
   const sortFeedsBySubscribers = (feeds) => {
     return feeds.slice().sort((a, b) => {
@@ -150,7 +174,6 @@ function RootLayoutNav() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-
         SplashScreen.hideAsync();
         setUser(user);
 
@@ -164,8 +187,6 @@ function RootLayoutNav() {
 
         setUserBookmarks(bookmarks);
 
-     
-
         async function fetchFeeds() {
           try {
             const { data: categoriesData, error } = await supabase
@@ -175,8 +196,6 @@ function RootLayoutNav() {
               console.error("Error fetching feeds:", error);
               return;
             }
-
-            
 
             setFeedCategories(categoriesData);
             try {
@@ -190,7 +209,6 @@ function RootLayoutNav() {
 
               setFeeds(feedsData);
               setFeedsFetched(true);
-              
             } catch (error) {
               console.error("Error fetching feeds:", error);
             }
@@ -240,6 +258,7 @@ function RootLayoutNav() {
         setUserBookmarks(bookmarks);
 
         if (feedsFetched) {
+          //router.replace("(home)");
         }
       } else {
         router.replace("(login)");
