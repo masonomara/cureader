@@ -65,6 +65,13 @@ export default function Explore() {
 
   const ref = useRef(null);
 
+  const chunkedCategories = chunkArray(
+    feedCategories
+      .sort((a, b) => b.channels.length - a.channels.length)
+      .slice(0, 20),
+    4
+  );
+
   useScrollToTop(
     React.useRef({
       scrollToTop: () => ref.current?.scrollTo({ y: 0 }),
@@ -212,12 +219,17 @@ export default function Explore() {
       paddingHorizontal: 16,
       marginBottom: 38,
     },
+
     popularChannelList: {
       gap: 8,
       paddingHorizontal: 16,
       marginBottom: 16,
     },
-
+    categoriesList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 38,
+    },
     inputWrapper: {
       paddingHorizontal: 16,
       width: "100%",
@@ -533,7 +545,6 @@ export default function Explore() {
       alignItems: "center",
       justifyContent: "flex-start",
       flexDirection: "column",
-
       overflow: "hidden",
     },
     categoryImagesWrapper: {
@@ -558,26 +569,28 @@ export default function Explore() {
       display: "flex",
       alignItems: "flex-start",
       justifyContent: "center",
-      padding: 12,
-      paddingVertical: 12,
+      padding: 10,
+      paddingVertical: 13,
     },
     categoryTitle: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
       textAlign: "left",
       width: "100%",
     },
-    categorySubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
+
+    categorySubTitle: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: -0.15,
+      lineHeight: 18,
+      letterSpacing: -0.13,
+      minHeight: 36,
     },
   };
 
@@ -748,76 +761,104 @@ export default function Explore() {
               });
             }}
           >
-            <Text style={styles.textButtonText}>View More</Text>
+            <Text style={styles.textButtonText}>View All</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.categoriesContainer}>
-          {feedCategories
-            .sort((a, b) => b.channels.length - a.channels.length)
-            .slice(0, 4)
-            .map((category) => {
-              const filteredFeeds = feeds
-                .filter(
-                  (feed) =>
-                    feed.channel_categories &&
-                    feed.channel_categories.includes(category.title) &&
-                    feed.channel_image_url
-                )
-                .sort(
-                  (a, b) =>
-                    b.channel_subscribers.length - a.channel_subscribers.length
-                );
+        <ScrollView
+          horizontal
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.categoriesList]}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8}
+          snapToAlignment={"left"}
+        >
+          {chunkedCategories.map((row, rowIndex) => (
+            <View
+              key={rowIndex}
+              style={{
+                flexDirection: "row",
+                gap: 8,
+                flexWrap: "wrap",
+                width: CARD_WIDTH,
+              }}
+            >
+              {row.map((category) => {
+                const filteredFeeds = feeds
+                  .filter(
+                    (feed) =>
+                      feed.channel_categories &&
+                      feed.channel_categories.includes(category.title) &&
+                      feed.channel_image_url
+                  )
+                  .sort(
+                    (a, b) =>
+                      b.channel_subscribers.length -
+                      a.channel_subscribers.length
+                  );
 
-              if (category.channels && category.channels.length > 0) {
-                return (
-                  <Pressable
-                    key={category.id}
-                    style={styles.categoryWrapper}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/categoryView",
-                        params: {
-                          title: category.title,
-                          channels: category.channels,
-                          id: category.id,
-                          feeds: filteredFeeds,
-                        },
-                      })
-                    }
-                  >
-                    <View style={styles.categoryImagesWrapper}>
-                      {filteredFeeds.slice(0, 1).map((feed, index) => (
-                        <View
-                          key={feed.id}
-                          style={styles.categoryImageWrapperSingle}
+                if (category.channels && category.channels.length > 0) {
+                  return (
+                    <Pressable
+                      key={category.id}
+                      style={styles.categoryWrapper}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/categoryView",
+                          params: {
+                            title: category.title,
+                            channels: category.channels,
+                            id: category.id,
+                            feeds: filteredFeeds,
+                          },
+                        })
+                      }
+                    >
+                      <View style={styles.categoryImagesWrapper}>
+                        {filteredFeeds.slice(0, 1).map((feed, index) => (
+                          <View
+                            key={feed.id}
+                            style={styles.categoryImageWrapperSingle}
+                          >
+                            <Image
+                              style={{
+                                flex: 1,
+                              }}
+                              contentFit="cover"
+                              source={{ uri: feed.channel_image_url }}
+                            />
+                          </View>
+                        ))}
+                      </View>
+                      <View style={styles.categoryTitleWrapper}>
+                        <Text
+                          style={styles.categoryTitle}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
                         >
-                          <Image
-                            style={{
-                              flex: 1,
-                            }}
-                            contentFit="cover"
-                            source={{ uri: feed.channel_image_url }}
-                          />
-                        </View>
-                      ))}
-                    </View>
-                    <View style={styles.categoryTitleWrapper}>
-                      <Text
-                        style={styles.categoryTitle}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {category.title}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
-              } else {
-                return null;
-              }
-            })}
-        </View>
+                          {category.title}
+                        </Text>
+                        <Text
+                          style={styles.categorySubTitle}
+                          numberOfLines={2}
+                          ellipsizeMode="tail"
+                        >
+                          {filteredFeeds
+                            .slice(0, 4)
+                            .map((feed) => feed.channel_title)
+                            .join(", ")}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                } else {
+                  return null;
+                }
+              })}
+            </View>
+          ))}
+        </ScrollView>
 
         <View style={styles.headerWrapper}>
           <Text style={styles.title}>Random Feeds</Text>
@@ -842,7 +883,7 @@ export default function Explore() {
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
           >
-            {randomFeeds.slice(0, 8).map((item) => (
+            {randomFeeds.slice(0, 5).map((item) => (
               <FeedCardFeatured key={item.id} item={item} user={user} />
             ))}
           </ScrollView>
