@@ -150,6 +150,8 @@ function RootLayoutNav() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
+
+        SplashScreen.hideAsync();
         setUser(user);
 
         setUserFetched(true);
@@ -162,6 +164,8 @@ function RootLayoutNav() {
 
         setUserBookmarks(bookmarks);
 
+     
+
         async function fetchFeeds() {
           try {
             const { data: categoriesData, error } = await supabase
@@ -171,6 +175,8 @@ function RootLayoutNav() {
               console.error("Error fetching feeds:", error);
               return;
             }
+
+            
 
             setFeedCategories(categoriesData);
             try {
@@ -184,7 +190,7 @@ function RootLayoutNav() {
 
               setFeeds(feedsData);
               setFeedsFetched(true);
-              SplashScreen.hideAsync();
+              
             } catch (error) {
               console.error("Error fetching feeds:", error);
             }
