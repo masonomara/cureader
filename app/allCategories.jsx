@@ -41,34 +41,19 @@ export default function TabOneScreen() {
     },
     headerWrapper: {
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: 9,
       gap: 3,
       width: "100%",
       maxWidth: "100%",
-      height: 86,
-    },
-    titleWrapper: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "flex-start",
-      alignItems: "center",
-    },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      paddingTop: 41,
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
-      letterSpacing: -0.24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
     },
     categoriesContainer: {
       flex: 1,
@@ -154,12 +139,7 @@ export default function TabOneScreen() {
           showsHorizontalScrollIndicator={false}
         >
           <View style={styles.headerWrapper}>
-            <View style={styles.titleWrapper}>
-              <Text style={styles.title}>Categories</Text>
-            </View>
-            <Text style={styles.headerSubtitle}>
-              Browse popular feeds and categories.
-            </Text>
+            <Text style={styles.title}>Categories</Text>
           </View>
 
           <View style={styles.categoriesContainer}>

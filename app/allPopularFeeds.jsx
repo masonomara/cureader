@@ -36,7 +36,7 @@ export default function TabOneScreen() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-      paddingHorizontal: 0,
+      paddingHorizontal: 16,
     },
     button: {
       height: 48,
@@ -67,35 +67,23 @@ export default function TabOneScreen() {
       letterSpacing: -0.17,
     },
     headerWrapper: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingHorizontal: 0,
+      paddingVertical: 9,
       gap: 3,
       width: "100%",
       maxWidth: "100%",
-      height: 86,
-    },
-    titleWrapper: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "flex-start",
-      alignItems: "center",
-    },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      paddingTop: 41,
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
-      letterSpacing: -0.24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+    },
+    flashListFooter: {
+      height: 16,
     },
   });
 
@@ -109,14 +97,13 @@ export default function TabOneScreen() {
           estimatedItemSize={200}
           ListHeaderComponent={
             <View style={styles.headerWrapper}>
-              <View style={styles.titleWrapper}>
+             
                 <Text style={styles.title}>Popular Feeds</Text>
-              </View>
-              <Text style={styles.headerSubtitle}>
-                Follow some of our most popular feeds.
-              </Text>
+           
+           
             </View>
           }
+          ListFooterComponent={() => <View style={styles.flashListFooter} />}
           renderItem={({ item }) => {
             return <FeedCardListItem key={item.id} item={item} user={user} />;
           }}
