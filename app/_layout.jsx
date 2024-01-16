@@ -285,6 +285,17 @@ function RootLayoutNav() {
     }
   };
 
+  const styles = {
+    headerTitleText: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+  };
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <MenuProvider
@@ -342,15 +353,12 @@ function RootLayoutNav() {
                 options={({ route }) => ({
                   title: route.params.title || "RSS Feed",
                   headerStyle: {
-                    headerTransparent: true,
                     shadowColor: "transparent",
                     backgroundColor: Colors[colorScheme || "light"].background,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
-                  headerBackTitle: "Explore",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
                 })}
               />
               <Stack.Screen
