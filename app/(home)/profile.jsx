@@ -80,14 +80,6 @@ export default function Profile() {
         <Text style={styles.title}>
           {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
         </Text>
-        {userInitialFeeds.length === 0 && (
-          <TouchableOpacity
-            style={styles.textButton}
-            onPress={() => router.push({ pathname: "/allPopularFeeds" })}
-          >
-            <Text style={styles.textButtonText}>View more</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </>
   );
