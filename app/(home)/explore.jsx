@@ -30,6 +30,7 @@ import { useScrollToTop } from "@react-navigation/native";
 import { chunkArray } from "../utils/Formatting";
 import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeaturedSkeleton";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
+import FeedCardListItem from "../../components/FeedCardListItem";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -209,13 +210,12 @@ export default function Explore() {
     randomChannelList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 16,
+      marginBottom: 38,
     },
     popularChannelList: {
+      gap: 8,
       paddingHorizontal: 16,
-      display: "flex",
-      flexDirection: "column",
-      width: "100%",
+      marginBottom: 16,
     },
 
     inputWrapper: {
@@ -377,43 +377,37 @@ export default function Explore() {
     },
     headerWrapper: {
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: 9,
       gap: 3,
-    },
-    titleWrapper: {
-      marginTop: 0,
       width: "100%",
-      marginTop: 8,
+      minWidth: "100%",
+      display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
-      letterSpacing: -0.24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 34,
+      letterSpacing: -0.28,
     },
     textButton: {
-      paddingHorizontal: 8,
-      paddingVertical: 3,
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: -8,
+      height: 44,
     },
     textButtonText: {
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     loadingContainer: {
@@ -520,7 +514,7 @@ export default function Explore() {
     categoriesContainer: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: 20,
+      marginBottom: 38,
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
@@ -649,7 +643,7 @@ export default function Explore() {
               snapToAlignment={"left"}
             >
               {searchResults.map((item) => (
-                <FeedCard key={item.id} item={item} user={user} />
+                <FeedCardListItem key={item.id} item={item} user={user} />
               ))}
             </View>
           )}
@@ -745,24 +739,17 @@ export default function Explore() {
         ref={ref}
       >
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Categories</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allCategories",
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.headerSubtitle}>
-            {randomFeeds != null
-              ? "Browse popular feeds and categories."
-              : "Loading..."}
-          </Text>
+          <Text style={styles.title}>Categories</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allCategories",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View More</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.categoriesContainer}>
@@ -833,25 +820,17 @@ export default function Explore() {
         </View>
 
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Random Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allRandomFeeds",
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.headerSubtitle}>
-            {randomFeeds != null
-              ? "Explore some randomly selected feeds."
-              : "Loading..."}
-          </Text>
+          <Text style={styles.title}>Random Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allRandomFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View More</Text>
+          </TouchableOpacity>
         </View>
         {randomFeeds != null ? (
           <ScrollView
@@ -883,31 +862,24 @@ export default function Explore() {
           </ScrollView>
         )}
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allPopularFeeds",
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.headerSubtitle}>
-            {popularFeeds != null
-              ? "Follow our community's most popular feeds."
-              : "Loading..."}
-          </Text>
+          <Text style={styles.title}>Popular Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allPopularFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View More</Text>
+          </TouchableOpacity>
         </View>
         {popularFeeds != null ? (
           <ScrollView
             horizontal
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.randomChannelList]}
+            contentContainerStyle={[styles.popularChannelList]}
             decelerationRate={0}
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
@@ -922,7 +894,7 @@ export default function Explore() {
                 }}
               >
                 {chunk.map((item) => (
-                  <FeedCard key={item.id} item={item} user={user} />
+                  <FeedCardListItem key={item.id} item={item} user={user} />
                 ))}
               </View>
             ))}
@@ -932,7 +904,7 @@ export default function Explore() {
             horizontal
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.randomChannelList]}
+            contentContainerStyle={[styles.popularChannelList]}
             decelerationRate={0}
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
