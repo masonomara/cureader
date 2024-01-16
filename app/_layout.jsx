@@ -29,7 +29,7 @@ export const FeedContext = createContext({
 export const AuthContext = createContext({
   session: null,
   user: null,
-  userAdmin: false,
+  userAdmin: null,
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
   userSubscriptionUrlsFetched: false,
@@ -79,7 +79,7 @@ function RootLayoutNav() {
   const [popularFeeds, setPopularFeeds] = useState(null);
   const [randomFeeds, setRandomFeeds] = useState(null);
   const [user, setUser] = useState(null);
-  const [userAdmin, setUserAdmin] = useState(false);
+  const [userAdmin, setUserAdmin] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
   const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
@@ -150,7 +150,6 @@ function RootLayoutNav() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-
         SplashScreen.hideAsync();
         setUser(user);
 
@@ -164,8 +163,6 @@ function RootLayoutNav() {
 
         setUserBookmarks(bookmarks);
 
-     
-
         async function fetchFeeds() {
           try {
             const { data: categoriesData, error } = await supabase
@@ -175,8 +172,6 @@ function RootLayoutNav() {
               console.error("Error fetching feeds:", error);
               return;
             }
-
-            
 
             setFeedCategories(categoriesData);
             try {
@@ -190,7 +185,6 @@ function RootLayoutNav() {
 
               setFeeds(feedsData);
               setFeedsFetched(true);
-              
             } catch (error) {
               console.error("Error fetching feeds:", error);
             }
