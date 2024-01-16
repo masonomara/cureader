@@ -44,32 +44,28 @@ export default function FeedCardListItem({ item, user }) {
   }, [userSubscriptionIds, item.id]);
 
   const handleSubscribe = async () => {
-    const optimisticSubscribed = !isSubscribed;
-    setIsSubscribed(optimisticSubscribed);
+    setIsSubscribed(!isSubscribed);
 
     try {
-      const updatedUserSubscriptionIds = optimisticSubscribed
-        ? [...userSubscriptionIds, item.id]
-        : userSubscriptionIds.filter((id) => id !== item.id);
+      const updatedUserSubscriptionIds = isSubscribed
+        ? userSubscriptionIds.filter((id) => id !== item.id)
+        : [...userSubscriptionIds, item.id];
 
-      const updatedUserSubscriptionUrls = optimisticSubscribed
-        ? [...userSubscriptionUrls, item.channel_url]
-        : userSubscriptionUrls.filter((url) => url !== item.channel_url);
+      const updatedUserSubscriptionUrls = isSubscribed
+        ? userSubscriptionUrls.filter((url) => url !== item.channel_url)
+        : [...userSubscriptionUrls, item.channel_url];
 
       setUserSubscriptionIds(updatedUserSubscriptionIds);
       setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-      await updateUserSubscriptions(
-        updatedUserSubscriptionIds,
-        updatedUserSubscriptionUrls,
-        user.id
-      );
-      await updateChannelSubscribers(
-        item.id,
-        user.id,
-        optimisticSubscribed,
-        feeds
-      );
+      await Promise.all([
+        updateUserSubscriptions(
+          updatedUserSubscriptionIds,
+          updatedUserSubscriptionUrls,
+          user.id
+        ),
+        updateChannelSubscribers(item.id, user.id, !isSubscribed, feeds),
+      ]);
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed);
@@ -144,7 +140,7 @@ export default function FeedCardListItem({ item, user }) {
       justifyContent: "center",
     },
     subscribeButtonWrapper: {
-      width: 84,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -153,7 +149,7 @@ export default function FeedCardListItem({ item, user }) {
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
-      width: 84,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -162,7 +158,7 @@ export default function FeedCardListItem({ item, user }) {
     subscribedButton: {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       borderRadius: 100,
-      width: 84,
+      width: 88,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

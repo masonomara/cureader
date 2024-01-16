@@ -29,19 +29,20 @@ export default function FeedCardProfile({ item, user }) {
     setUserSubscriptionIds,
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
-
-  const shouldRenderEditButton =
-    item.channel_creator === user.id || userAdmin === true;
-
-  const colorScheme = useColorScheme();
   const { feeds } = useContext(FeedContext);
+  const colorScheme = useColorScheme();
+
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
 
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
+
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);
+
   const handleSubscribe = async () => {
     const optimisticSubscribed = !isSubscribed;
     setIsSubscribed(optimisticSubscribed);
@@ -100,8 +101,6 @@ export default function FeedCardProfile({ item, user }) {
       alignItems: "flex-start",
       justifyContent: "center",
       overflow: "hidden",
-      // borderWidth: 1,
-      // borderColor: "red",
     },
     title: {
       display: "flex",
@@ -145,7 +144,7 @@ export default function FeedCardProfile({ item, user }) {
       justifyContent: "center",
     },
     subscribeButtonWrapper: {
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -154,36 +153,36 @@ export default function FeedCardProfile({ item, user }) {
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
       borderRadius: 100,
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 32,
+      height: 34,
     },
     subscribedButton: {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
       borderRadius: 100,
-      width: 88,
+      width: 84,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 32,
+      height: 34,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
       fontFamily: "InterBold",
       fontWeight: "700",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     subscribedButtonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     noImageContainer: {
       height: 68,

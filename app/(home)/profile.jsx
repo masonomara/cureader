@@ -12,7 +12,7 @@ import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
-import FeedCardProfile from "../../components/FeedCardProfile";
+import FeedCardListItem from "../../components/FeedCardListItem";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
@@ -54,7 +54,7 @@ export default function Profile() {
 
   const renderHeaderText = () => (
     <>
-      <View style={styles.profileHeader}>
+      {/* <View style={styles.profileHeader}>
         <Text style={styles.username}>
           Hello {user?.user_metadata?.displayName || null}
         </Text>
@@ -75,7 +75,7 @@ export default function Profile() {
             <Text style={styles.buttonText}>View Explore Page</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </View> */}
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>
           {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
@@ -188,28 +188,13 @@ export default function Profile() {
       width: "100%",
       maxWidth: "100%",
     },
-    titleWrapperUserFeeds: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "flex-start",
-      alignItems: "center",
-    },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
       fontSize: 28,
       lineHeight: 34,
-      letterSpacing: -0.24,
+      letterSpacing: -0.28,
     },
     textButton: {
       paddingHorizontal: 8,
@@ -237,7 +222,7 @@ export default function Profile() {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontWeight: "400",
       fontSize: 19,
       textAlign: "center",
       lineHeight: 24,
@@ -261,7 +246,7 @@ export default function Profile() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
-    feedListFooter: {
+    flashListFooter: {
       height: 16,
     },
   };
@@ -277,10 +262,10 @@ export default function Profile() {
             estimatedItemSize={200}
             ref={ref}
             renderItem={({ item }) => (
-              <FeedCardProfile key={item.id} item={item} user={user} />
+              <FeedCardListItem key={item.id} item={item} user={user} />
             )}
             ListHeaderComponent={renderHeaderText}
-            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            ListFooterComponent={() => <View style={styles.flashListFooter} />}
             onRefresh={onRefresh}
             refreshing={refreshing}
           />
@@ -295,7 +280,7 @@ export default function Profile() {
             ref={ref}
             renderItem={() => <FeedCardSkeleton />}
             ListHeaderComponent={renderHeaderText}
-            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            ListFooterComponent={() => <View style={styles.flashListFooter} />}
             onRefresh={onRefresh}
             refreshing={refreshing}
           />

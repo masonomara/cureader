@@ -1,17 +1,25 @@
 import { useState, useContext, useLayoutEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Pressable,
+} from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
-import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
 import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
-import Edit20 from "./icons/20/Edit20";
+import Dots20 from "./icons/20/Dots20";
 import { router } from "expo-router";
+import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
+
+const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCardFeedPreview({ item }) {
   const itemId = parseInt(item.id, 10);
@@ -29,6 +37,9 @@ export default function FeedCardFeedPreview({ item }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(itemId)
   );
+
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(itemId));
@@ -49,17 +60,14 @@ export default function FeedCardFeedPreview({ item }) {
       setUserSubscriptionIds(updatedUserSubscriptionIds);
       setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-      await updateUserSubscriptions(
-        updatedUserSubscriptionIds,
-        updatedUserSubscriptionUrls,
-        user.id
-      );
-      await updateChannelSubscribers(
-        itemId,
-        user.id,
-        optimisticSubscribed,
-        feeds
-      );
+      await Promise.all([
+        updateUserSubscriptions(
+          updatedUserSubscriptionIds,
+          updatedUserSubscriptionUrls,
+          user.id
+        ),
+        updateChannelSubscribers(item.id, user.id, !isSubscribed, feeds),
+      ]);
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed);
@@ -69,67 +77,72 @@ export default function FeedCardFeedPreview({ item }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderBottomWidth: 1,
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      alignItems: "center",
-      flexDirection: "row",
+      // borderWidth: 1,
+      // borderColor: `${Colors[colorScheme || "light"].border}`,
+      alignItems: "flex-start",
+      flexDirection: "column",
       display: "flex",
-      flex: 1,
-      width: "100%",
+
+      overflow: "hidden",
       gap: 0,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
+      flex: 1,
     },
     cardContent: {
       display: "flex",
-      alignItems: "center",
-      flexDirection: "row",
-      flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
-      gap: 8,
-    },
-    cardInfo: {
-      flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
-      overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
-    },
-    title: {
-      display: "flex",
-      flexDirection: "row",
+      flexDirection: "column",
       width: "100%",
-      alignItems: "flex-start",
-      flexWrap: "wrap",
+      padding: 16,
+      paddingTop: 13,
+      paddingBottom: 11,
+      flex: 1,
+      borderTopWidth: 0.5,
+
+      borderBottomWidth: 3,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
+    },
+
+    title: {
+      flex: 1,
+
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-      marginBottom: 2,
+      fontSize: 34,
+      lineHeight: 34,
+      marginVertical: 3.5,
+      letterSpacing: -0.28,
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      alignItems: "flex-start",
+      flex: 1,
     },
     description: {
       flex: 1,
-      maxHeight: 38,
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterRegular",
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterMedium",
       fontWeight: "400",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-      height: "100%",
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
+      paddingRight: 22,
+      marginBottom: 27,
+    },
+    editButtonWrapper: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editButton: {
+      height: 34,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      borderRadius: 8,
+      justifyContent: "center",
     },
     subscribeButtonWrapper: {
       width: 88,
@@ -155,7 +168,6 @@ export default function FeedCardFeedPreview({ item }) {
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -166,7 +178,7 @@ export default function FeedCardFeedPreview({ item }) {
       letterSpacing: -0.15,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -174,9 +186,11 @@ export default function FeedCardFeedPreview({ item }) {
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
+      aspectRatio: "5/3",
+      width: "100%",
+      overflow: "hidden",
+      borderTopEndRadius: 12,
+      borderTopStartRadius: 12,
       backgroundColor: getColorForLetter(item.title[0]),
       display: "flex",
       alignItems: "center",
@@ -186,30 +200,29 @@ export default function FeedCardFeedPreview({ item }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 23,
-      lineHeight: 26,
-      letterSpacing: -0.173,
-      height: 26,
+      fontSize: 72,
+      lineHeight: 75,
+      letterSpacing: -0.54,
+      height: 75,
       color: getTextColorForLetter(item.title[0]),
       textAlignVertical: "center",
       textAlign: "center",
       width: "1000%",
     },
-    editButtonWrapper: {
-      height: 44,
-      width: 44,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
+    feedTitle: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 20,
+      lineHeight: 25,
+      letterSpacing: -0.2,
+      marginBottom: -3,
     },
-    editButton: {
-      height: 34,
-      width: 34,
-      display: "flex",
-      alignItems: "center",
-      borderRadius: 100,
-      justifyContent: "center",
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
+    buttonsWrapper: {
+      dispaly: "flex",
+      flexDirection: "row",
+      gap: 5,
+
     },
   };
 
@@ -218,30 +231,26 @@ export default function FeedCardFeedPreview({ item }) {
       {!item.image ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
-            {item.title} {item.title}
+            {item.title} {item.title} {item.title} {item.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.title} {item.title} {item.title}
+            {item.title} {item.title} {item.title} {item.title} {item.title}
           </Text>
           <Text style={styles.noImageContainerText}>
-            {item.title} {item.title}
+            {item.title} {item.title} {item.title} {item.title}
           </Text>
         </View>
       ) : (
         <View
           style={{
-            aspectRatio: "1/1",
-            width: 64,
+            aspectRatio: "5/3",
+            width: "100%",
             overflow: "hidden",
-            borderRadius: 10,
           }}
         >
           <Image
             style={{
               flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: item.image }}
@@ -249,49 +258,20 @@ export default function FeedCardFeedPreview({ item }) {
         </View>
       )}
       <View style={styles.cardContent}>
-        <View style={styles.cardInfo}>
+        <View style={styles.cardControls}>
           <Text style={styles.title} numberOfLines={2}>
             {item.title}
           </Text>
-          {item.description ? (
-            <Text style={styles.description} numberOfLines={2}>
-              {formatDescription(item.description, 300)}
-            </Text>
-          ) : (
-            <Text numberOfLines={2} style={styles.description}></Text>
-          )}
         </View>
-        <View style={styles.cardControls}>
-          {item.channel_creator === user.id ||
-            (userAdmin == true && (
-              <TouchableOpacity
-                style={styles.editButtonWrapper}
-                onPress={() =>
-                  router.push({
-                    pathname: "/editFeedView",
-                    params: {
-                      title: item.title,
-                      description: item.description,
-                      image: item.image,
-                      subscribers: item.subscribers,
-                      url: item.url,
-                      id: item.id,
-                      user: user,
-                      userId: user.id,
-                      subscribed: isSubscribed,
-                      userSubscriptionIds: userSubscriptionIds,
-                    },
-                  })
-                }
-              >
-                <View style={styles.editButton}>
-                  <Edit20
-                    style={styles.buttonImage}
-                    color={Colors[colorScheme || "light"].buttonActive}
-                  />
-                </View>
-              </TouchableOpacity>
-            ))}
+        {item.description ? (
+          <Text numberOfLines={3} style={styles.description}>
+            {formatDescription(item.description, 200)}
+          </Text>
+        ) : (
+          <Text numberOfLines={3} style={styles.description}></Text>
+        )}
+        {/* <Text style={styles.feedTitle}>Feed</Text> */}
+        <View style={styles.buttonsWrapper}>
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}
             onPress={handleSubscribe}
@@ -312,6 +292,35 @@ export default function FeedCardFeedPreview({ item }) {
               </Text>
             </View>
           </TouchableOpacity>
+          {shouldRenderEditButton && (
+            <TouchableOpacity
+              style={styles.editButtonWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/editFeedView",
+                  params: {
+                    title: item.title,
+                    description: item.description,
+                    image: item.image,
+                    subscribers: item.channel_subscribers,
+                    url: item.channel_url,
+                    id: item.id,
+                    user: user,
+                    userId: user.id,
+                    subscribed: isSubscribed,
+                    userSubscriptionIds: userSubscriptionIds,
+                  },
+                })
+              }
+            >
+              <View style={styles.editButton}>
+                <Dots20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>
