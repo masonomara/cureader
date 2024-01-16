@@ -249,7 +249,7 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 2,
+
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
@@ -267,9 +267,9 @@ export default function ArticleCard({
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
-      fontSize: 15,
+      fontSize: 14,
       lineHeight: 20,
-      letterSpacing: -0.15,
+      letterSpacing: -0.14,
     },
     cardControls: {
       display: "flex",
@@ -316,9 +316,9 @@ export default function ArticleCard({
       letterSpacing: -0.14,
     },
     noImageContainer: {
-      height: 76,
-      width: 76,
-      borderRadius: 12,
+      height: 74,
+      width: 74,
+      borderRadius: 100,
       marginTop: 25.3,
       backgroundColor: getColorForLetter(publication),
       display: "flex",
@@ -350,15 +350,14 @@ export default function ArticleCard({
               width: "100%",
               borderRadius: 12,
               overflow: "hidden",
+              borderWidth: 0.5,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
               marginBottom: 12,
             }}
           >
             <RNImage
               style={{
                 flex: 1,
-                borderRadius: 12,
-                borderWidth: 0.67,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
               }}
               contentFit="cover"
               source={{ uri: imageUrl || fallbackImage || item.image?.url }}
@@ -423,9 +422,9 @@ export default function ArticleCard({
                   borderRadius: 12,
                   marginTop: 25.3,
                   marginBottom: 3,
-                  maxWidth: 76,
-                  width: 76,
-                  borderWidth: 0.67,
+                  maxWidth: 74,
+                  width: 74,
+                  borderWidth: 0.5,
                   borderColor: `${Colors[colorScheme || "light"].border}`,
                 }}
                 contentFit="cover"

@@ -13,11 +13,11 @@ import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
-import Edit20 from "./icons/20/Edit20";
 import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
+import Dots20 from "./icons/20/Dots20";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -78,36 +78,30 @@ export default function FeedCardProfile({ item, user }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderTopWidth: 1,
+      borderTopWidth: 0.5,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
       display: "flex",
       flex: 1,
       width: CARD_WIDTH,
-      gap: 0,
+      gap: 10,
       paddingVertical: 12,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
     },
     cardContent: {
       display: "flex",
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      marginBottom: -2,
+      // borderWidth: 1,
+      // borderColor: "red",
     },
     title: {
       display: "flex",
@@ -121,7 +115,6 @@ export default function FeedCardProfile({ item, user }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
@@ -129,31 +122,27 @@ export default function FeedCardProfile({ item, user }) {
       alignItems: "center",
     },
     description: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
     },
     editButtonWrapper: {
       height: 44,
-      width: 44,
+      width: 40,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
     },
     editButton: {
-      height: 34,
-      width: 34,
+      height: 44,
+      width: 40,
       display: "flex",
       alignItems: "center",
       borderRadius: 100,
       justifyContent: "center",
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
     },
     subscribeButtonWrapper: {
       width: 88,
@@ -169,7 +158,7 @@ export default function FeedCardProfile({ item, user }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 34,
+      height: 32,
     },
     subscribedButton: {
       backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
@@ -178,29 +167,28 @@ export default function FeedCardProfile({ item, user }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      height: 34,
-      opacity: 0.87,
+      height: 32,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
       fontFamily: "InterBold",
       fontWeight: "700",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
+      height: 56,
+      width: 56,
+      borderRadius: 8,
       backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
       alignItems: "center",
@@ -210,10 +198,10 @@ export default function FeedCardProfile({ item, user }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 23,
-      lineHeight: 26,
+      fontSize: 16,
+      lineHeight: 16,
       letterSpacing: -0.173,
-      height: 26,
+
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -258,17 +246,16 @@ export default function FeedCardProfile({ item, user }) {
         <View
           style={{
             aspectRatio: "1/1",
-            width: 64,
+            width: 68,
             overflow: "hidden",
-            borderRadius: 10,
+            borderRadius: 16,
+            borderWidth: 0.5,
+            borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >
           <Image
             style={{
               flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: item.channel_image_url }}
@@ -277,15 +264,13 @@ export default function FeedCardProfile({ item, user }) {
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={1}>
             {item.channel_title}
           </Text>
-          {item.channel_description ? (
+          {item.channel_description && (
             <Text numberOfLines={2} style={styles.description}>
               {formatDescription(item.channel_description, 200)}
             </Text>
-          ) : (
-            <Text numberOfLines={2} style={styles.description}></Text>
           )}
         </View>
         <View style={styles.cardControls}>
@@ -311,7 +296,7 @@ export default function FeedCardProfile({ item, user }) {
               }
             >
               <View style={styles.editButton}>
-                <Edit20
+                <Dots20
                   style={styles.buttonImage}
                   color={Colors[colorScheme || "light"].buttonActive}
                 />

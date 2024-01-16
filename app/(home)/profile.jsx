@@ -35,9 +35,12 @@ export default function Profile() {
       const fetchedFeeds = feeds.filter((feed) =>
         userSubscriptionUrls.includes(feed.channel_url)
       );
+      fetchedFeeds.sort(
+        (a, b) => b.channel_subscribers.length - a.channel_subscribers.length
+      );
       setUserInitialFeeds(fetchedFeeds);
     }
-  }, [userSubscriptionUrls]);
+  }, []);
 
   useEffect(() => {
     fetchUserFeeds();
@@ -74,32 +77,17 @@ export default function Profile() {
         )}
       </View>
       <View style={styles.headerWrapper}>
-        <View
-          style={
-            userInitialFeeds.length > 0
-              ? styles.titleWrapperUserFeeds
-              : styles.titleWrapper
-          }
-        >
-          <Text style={styles.title}>
-            {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
-          </Text>
-          {userInitialFeeds.length === 0 && (
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => router.push({ pathname: "/allPopularFeeds" })}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <Text style={styles.headerSubtitle}>
-          {userSubscriptionUrls == null
-            ? "Loading..."
-            : userInitialFeeds.length > 0
-            ? "Manage all your favorite feeds."
-            : "Get started with our most popular feeds."}
+        <Text style={styles.title}>
+          {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
         </Text>
+        {userInitialFeeds.length === 0 && (
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => router.push({ pathname: "/allPopularFeeds" })}
+          >
+            <Text style={styles.textButtonText}>View more</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </>
   );
@@ -203,18 +191,10 @@ export default function Profile() {
     },
     headerWrapper: {
       paddingHorizontal: 0,
-      paddingVertical: 12,
+      paddingVertical: 9,
       gap: 3,
       width: "100%",
       maxWidth: "100%",
-      height: 86,
-    },
-    titleWrapper: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
     },
     titleWrapperUserFeeds: {
       width: "100%",
@@ -235,8 +215,8 @@ export default function Profile() {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterBold",
       fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
+      fontSize: 28,
+      lineHeight: 34,
       letterSpacing: -0.24,
     },
     textButton: {
