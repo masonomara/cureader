@@ -18,7 +18,6 @@ import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
 import { useScrollToTop } from "@react-navigation/native";
-import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 import FeedCardListItem from "../../components/FeedCardListItem";
 import { chunkArray, formatPublicationDateProper } from "../utils/Formatting";
 import CategoriesContainer from "../../components/CategoriesContainer";
@@ -28,6 +27,7 @@ export default function Profile() {
   const { feeds, feedCategories, popularFeeds } = useContext(FeedContext);
   const { user, userSubscriptionUrls, userSubscriptionIds } =
     useContext(AuthContext);
+
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -128,17 +128,17 @@ export default function Profile() {
               ))}
           </View>
         </View>
-
-        {userInitialFeeds.length === 0 && (
+      </View>
+      {userSubscriptionIds.length == 0 ? (
+        <View style={styles.buttonWrapper}>
           <TouchableOpacity
             style={styles.button}
             onPress={() => router.push({ pathname: "/explore" })}
           >
             <Text style={styles.buttonText}>View Explore Page</Text>
           </TouchableOpacity>
-        )}
-      </View>
-      {userInitialFeeds.length > 0 && (
+        </View>
+      ) : (
         <>
           <View style={styles.headerWrapper}>
             <Text style={styles.title}>Your Categories</Text>
@@ -202,14 +202,13 @@ export default function Profile() {
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 16,
-      paddingBottom: userInitialFeeds.length > 0 ? 0 : 48,
+      paddingBottom: 0,
     },
     profileHeaderNoFeeds: {
       width: "100%",
       alignItems: "center",
       padding: 24,
       paddingHorizontal: 8,
-      paddingBottom: 48,
     },
     scrollViewContainer: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
@@ -259,16 +258,7 @@ export default function Profile() {
       lineHeight: 22,
       letterSpacing: -0,
     },
-    button: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
+
     buttonDisabled: {
       height: 48,
       width: "100%",
@@ -335,6 +325,10 @@ export default function Profile() {
       width: "100%",
       paddingRight: 44,
     },
+    buttonWrapper: {
+      paddingHorizontal: 16,
+      width: "100%",
+    },
     button: {
       height: 48,
       width: "100%",
@@ -344,6 +338,9 @@ export default function Profile() {
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: 8,
+      marginBottom: 39,
+      marginTop: 9,
+      marginHorizonal: 16,
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -359,14 +356,14 @@ export default function Profile() {
     categoriesList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 38,
+      marginBottom: 39,
     },
     userInfoContainer: {
       flex: 1,
       marginTop: 10,
       width: "100%",
       flexDirection: "row",
-      marginBottom: 38,
+      marginBottom: 39,
     },
     userInfoWrapper: {
       flexDirection: "column",
@@ -398,10 +395,10 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {userSubscriptionUrls != null ? (
+      {userInitialFeeds.length == 0 ? (
         <View style={styles.feedList}>
           <FlashList
-            data={userInitialFeeds.length > 0 ? userInitialFeeds : popularFeeds}
+            data={popularFeeds}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             estimatedItemSize={200}
@@ -423,12 +420,19 @@ export default function Profile() {
       ) : (
         <View style={styles.feedList}>
           <FlashList
-            data={Array(4).fill(null)}
+            data={feeds}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             estimatedItemSize={200}
             ref={ref}
-            renderItem={() => <FeedCardSkeleton />}
+            renderItem={({ item }) => (
+              <FeedCardListItem
+                key={item.id}
+                item={item}
+                user={user}
+                extraPadding={true}
+              />
+            )}
             ListHeaderComponent={renderHeaderText}
             ListFooterComponent={() => <View style={styles.flashListFooter} />}
             onRefresh={onRefresh}
