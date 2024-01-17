@@ -417,7 +417,15 @@ export default function Profile() {
       ) : (
         <View style={styles.feedList}>
           <FlashList
-            data={userInitialFeeds}
+            data={userInitialFeeds.sort((a, b) => {
+              const subscribersA = a.channel_subscribers
+                ? a.channel_subscribers.length
+                : 0;
+              const subscribersB = b.channel_subscribers
+                ? b.channel_subscribers.length
+                : 0;
+              return subscribersB - subscribersA;
+            })}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             estimatedItemSize={200}
