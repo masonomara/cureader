@@ -29,6 +29,7 @@ export default function Profile() {
     useContext(AuthContext);
 
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const ref = useRef(null);
@@ -40,7 +41,6 @@ export default function Profile() {
         .some((channel) => userSubscriptionIds.includes(parseInt(channel)))
     )
     .sort((a, b) => {
-      // Sort categories based on the number of matching channels/ids
       const aMatchingChannels = a.channels
         .flat()
         .filter((channel) =>
@@ -69,13 +69,9 @@ export default function Profile() {
 
   const fetchUserFeeds = useCallback(async () => {
     if (userSubscriptionUrls) {
-      const fetchedFeeds = feeds.filter((feed) =>
-        userSubscriptionUrls.includes(feed.channel_url)
+      setUserInitialFeeds(
+        feeds.filter((feed) => userSubscriptionUrls.includes(feed.channel_url))
       );
-      fetchedFeeds.sort(
-        (a, b) => b.channel_subscribers.length - a.channel_subscribers.length
-      );
-      setUserInitialFeeds(fetchedFeeds);
     }
   }, []);
 
@@ -85,7 +81,9 @@ export default function Profile() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchUserFeeds();
+    setUserInitialFeeds(
+      feeds.filter((feed) => userSubscriptionUrls.includes(feed.channel_url))
+    );
     setRefreshing(false);
   };
 
@@ -395,7 +393,7 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      {userInitialFeeds.length == 0 ? (
+      {userInitialFeeds.length < 1 || userSubscriptionUrls.length == 0 ? (
         <View style={styles.feedList}>
           <FlashList
             data={popularFeeds}
@@ -420,7 +418,7 @@ export default function Profile() {
       ) : (
         <View style={styles.feedList}>
           <FlashList
-            data={feeds}
+            data={userInitialFeeds}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             estimatedItemSize={200}
