@@ -22,7 +22,7 @@ function CategoriesContainer({ category, profile }) {
     categoriesContainer: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: 38,
+      marginBottom: 29,
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
@@ -64,7 +64,10 @@ function CategoriesContainer({ category, profile }) {
       alignItems: "flex-start",
       justifyContent: "center",
       padding: 10,
-      paddingVertical: 13,
+      paddingVertical: 10,
+      paddingBottom: 13,
+      borderTopWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     categoryTitle: {
       color: `${Colors[colorScheme || "light"].textHigh}`,

@@ -304,8 +304,8 @@ export default function ArticleCard({
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
+      fontFamily: "InterMedium",
+      fontWeight: "500",
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,

@@ -276,7 +276,7 @@ export default function Profile() {
     },
     headerWrapper: {
       paddingHorizontal: 16,
-      paddingVertical: 9,
+      paddingBottom: 10,
       gap: 3,
       width: "100%",
       maxWidth: "100%",

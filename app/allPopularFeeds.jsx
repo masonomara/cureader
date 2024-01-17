@@ -38,37 +38,9 @@ export default function TabOneScreen() {
       flex: 1,
       paddingHorizontal: 16,
     },
-    button: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
-    buttonDisabled: {
-      height: 48,
-      width: "100%",
-      flexDirection: "row",
-      backgroundColor: `${Colors[colorScheme || "light"].buttonMuted}`,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 8,
-    },
-    buttonText: {
-      color: `${Colors[colorScheme || "light"].colorOn}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.17,
-    },
     headerWrapper: {
       paddingHorizontal: 0,
-      paddingVertical: 9,
+      paddingBottom: 10,
       gap: 3,
       width: "100%",
       maxWidth: "100%",
@@ -97,10 +69,7 @@ export default function TabOneScreen() {
           estimatedItemSize={200}
           ListHeaderComponent={
             <View style={styles.headerWrapper}>
-             
-                <Text style={styles.title}>Popular Feeds</Text>
-           
-           
+              <Text style={styles.title}>Popular Feeds</Text>
             </View>
           }
           ListFooterComponent={() => <View style={styles.flashListFooter} />}

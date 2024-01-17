@@ -245,9 +245,8 @@ export default function Explore() {
     randomChannelList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 38,
+      marginBottom: 29,
     },
-
     popularChannelList: {
       gap: 8,
       paddingHorizontal: 16,
@@ -256,14 +255,13 @@ export default function Explore() {
     categoriesList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 38,
+      marginBottom: 29,
     },
     inputWrapper: {
       paddingHorizontal: 16,
       width: "100%",
       paddingBottom: 8,
       paddingTop: 8,
-
       height: 76,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
@@ -324,20 +322,10 @@ export default function Explore() {
       lineHeight: 22,
       letterSpacing: -0,
     },
-    inputText: {
-      flex: 1,
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
-    },
     searchContainer: {
       paddingHorizontal: 16,
       width: "100%",
       zIndex: 1,
-
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       flex: 1,
     },
@@ -363,19 +351,6 @@ export default function Explore() {
       lineHeight: 20,
       letterSpacing: -0.15,
     },
-    searchTextWrapper: {
-      paddingTop: 8,
-      width: "100%",
-      marginBottom: 16,
-    },
-    searchText: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     noResultsWrapper: {
       width: "100%",
       alignItems: "flex-start",
@@ -387,45 +362,9 @@ export default function Explore() {
       gap: 19,
       marginTop: 19,
     },
-    noResultsHeader: {
-      paddingBottom: 3,
-      paddingTop: 20,
-      width: "100%",
-      maxWidth: 304,
-    },
-    noResultsHeaderText: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.19,
-    },
-    noResultsTextWrapper: {
-      width: "100%",
-      maxWidth: 304,
-    },
-    noResultsText: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-    },
-    noResultsTextBold: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-    },
     headerWrapper: {
       paddingHorizontal: 16,
-      paddingVertical: 9,
+      paddingBottom: 10,
       gap: 3,
       width: "100%",
       minWidth: "100%",
@@ -458,17 +397,6 @@ export default function Explore() {
       letterSpacing: -0.16,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
-    loadingContainer: {
-      paddingHorizontal: 16,
-      marginBottom: 16,
-      flex: 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-      borderWidth: 1,
-      borderColor: "red",
-    },
     searchResultsList: {
       alignItems: "center",
       justifyContent: "center",
@@ -484,28 +412,9 @@ export default function Explore() {
       rowGap: 8,
       overflow: "hidden",
     },
-    feedsLoadingScreen: {},
-    feedsLoadingContainer: {
-      gap: 10,
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "row",
-      width: CARD_WIDTH,
-    },
-    feedsLoadingText: {
-      textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
-    },
-
     searchPreviewTextContainer: {
       width: "100%",
     },
-
     searchPreviewTextWrapperContainer: {
       alignItems: "flex-start",
       justifyContent: "flex-start",

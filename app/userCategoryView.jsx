@@ -18,7 +18,6 @@ export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const filteredFeeds = feeds
     .filter(
@@ -101,7 +100,7 @@ export default function TabOneScreen() {
     },
     headerWrapper: {
       paddingHorizontal: 0,
-      paddingVertical: 9,
+      paddingBottom: 10,
       gap: 3,
       width: "100%",
       paddingTop: 41,
