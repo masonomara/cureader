@@ -8,10 +8,12 @@ import {
   useColorScheme,
 } from "react-native";
 import Colors from "../constants/Colors.js";
-import { AuthContext } from "../app/_layout.jsx";
+import { AuthContext, FeedContext } from "../app/_layout.jsx";
+import { router } from "expo-router";
 
-function CategoriesContainer({ category, feeds, router, profile }) {
+function CategoriesContainer({ category, profile }) {
   const { userSubscriptionIds } = useContext(AuthContext);
+  const { feeds } = useContext(FeedContext);
 
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
@@ -31,7 +33,6 @@ function CategoriesContainer({ category, feeds, router, profile }) {
     categoryWrapper: {
       width: CARD_WIDTH / 2 - 4,
       borderWidth: 1,
-
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderRadius: 16,
       display: "flex",

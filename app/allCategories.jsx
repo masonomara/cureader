@@ -21,8 +21,6 @@ export default function TabOneScreen() {
 
   const colorScheme = useColorScheme();
 
-
-
   const styles = {
     container: {
       flex: 1,
@@ -144,33 +142,12 @@ export default function TabOneScreen() {
 
           <View style={styles.categoriesContainer}>
             {feedCategories
+              .filter((category) => category.channels.length > 0)
               .sort((a, b) => b.channels.length - a.channels.length)
-
               .map((category) => {
-                const filteredFeeds = feeds
-                  .filter(
-                    (feed) =>
-                      feed.channel_categories &&
-                      feed.channel_categories.includes(category.title) &&
-                      feed.channel_image_url
-                  )
-                  .sort(
-                    (a, b) =>
-                      b.channel_subscribers.length -
-                      a.channel_subscribers.length
-                  );
-                if (category.channels && category.channels.length > 0) {
-                  return (
-                    <CategoriesContainer
-                      key={category.id}
-                      category={category}
-                      feeds={feeds}
-                      router={router}
-                    />
-                  );
-                } else {
-                  return null;
-                }
+                return (
+                  <CategoriesContainer key={category.id} category={category} />
+                );
               })}
           </View>
         </ScrollView>

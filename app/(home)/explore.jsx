@@ -15,10 +15,11 @@ import {
   Dimensions,
   TouchableOpacity,
   Keyboard,
+  Pressable,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
-import * as WebBrowser from "expo-web-browser";
+import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
@@ -66,6 +67,7 @@ export default function Explore() {
 
   const chunkedCategories = chunkArray(
     feedCategories
+      .filter((category) => category.channels.length > 0)
       .sort((a, b) => b.channels.length - a.channels.length)
       .slice(0, 20),
     4
@@ -199,12 +201,12 @@ export default function Explore() {
             const titleMatch = category.title
               .toLowerCase()
               .includes(lowercasedInput);
+            const hasChannels = category.channels.length > 0;
 
-            return titleMatch;
+            return titleMatch && hasChannels;
           });
 
           setSearchResultsCategories(filteredCategories);
-          console.log(filteredCategories);
         } else {
           setSearchResultsCategories([]);
         }
@@ -666,7 +668,7 @@ export default function Explore() {
             </>
           )}
 
-          {/* <View style={styles.noResultsWrapper}>
+          <View style={styles.noResultsWrapper}>
             {searchResults.length == 0 &&
               !channelData.wait &&
               channelData.title && (
@@ -742,7 +744,7 @@ export default function Explore() {
                 </Text>
               </View>
             </View>
-          </View> */}
+          </View>
         </ScrollView>
       ) : (
         <View style={styles.searchContainer}></View>
