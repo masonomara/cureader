@@ -12,7 +12,6 @@ import { useColorScheme } from "react-native";
 import { MenuProvider } from "react-native-popup-menu";
 import Colors from "../constants/Colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Dots20 from "../components/icons/20/Dots20.jsx";
 
 export const FeedContext = createContext({
   feeds: null,
