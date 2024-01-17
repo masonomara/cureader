@@ -14,7 +14,6 @@ import { Text, View } from "../../components/Themed";
 import * as rssParser from "react-native-rss-parser";
 import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
-import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardListItem from "../../components/FeedCardListItem";
 
@@ -522,9 +521,7 @@ export default function Index() {
                     ListHeaderComponent={() => (
                       <>
                         <View style={styles.noFeedsHeader}>
-                          <Text style={styles.username}>
-                            Welcome!
-                          </Text>
+                          <Text style={styles.username}>Welcome!</Text>
                           <Text style={styles.subtitle}>
                             Feed free to view your Explore Page or see our most
                             popular feeds below.

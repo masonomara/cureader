@@ -10,7 +10,8 @@ import FeedCardListItem from "../components/FeedCardListItem";
 
 export default function TabOneScreen() {
   const { feeds } = useContext(FeedContext);
-  const { user, userSubscriptionUrls, userSubscriptionIds } = useContext(AuthContext);
+  const { user, userSubscriptionUrls, userSubscriptionIds } =
+    useContext(AuthContext);
 
   const params = useLocalSearchParams();
 
