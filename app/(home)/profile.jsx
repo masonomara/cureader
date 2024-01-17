@@ -367,7 +367,7 @@ export default function Profile() {
       width: 77,
     },
     userInfoTitle: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 20,
@@ -375,7 +375,7 @@ export default function Profile() {
       letterSpacing: -0.2,
     },
     userInfoSubtitle: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
