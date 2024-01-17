@@ -103,24 +103,24 @@ export default function Auth() {
     },
 
     title: {
-      marginBottom: 4,
-      marginTop: 4,
+      marginBottom: 3,
+      marginTop: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 28,
+      letterSpacing: -0.28,
     },
     subtitle: {
       marginBottom: 35,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 17,
       textAlign: "center",
-      fontWeight: "400",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     label: {
       width: "100%",
@@ -245,7 +245,7 @@ export default function Auth() {
         <View style={styles.content}>
           <Text style={styles.title}>Create an account</Text>
           <Text style={styles.subtitle}>
-            Please enter the following information
+            Please enter the following information.
           </Text>
           <Text style={styles.label}>Your display name</Text>
           <TextInput

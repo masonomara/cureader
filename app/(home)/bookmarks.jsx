@@ -165,7 +165,7 @@ export default function Bookmarks() {
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
-      width: '100%',
+      width: "100%",
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -188,24 +188,25 @@ export default function Bookmarks() {
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     username: {
+      marginBottom: 3,
+      marginTop: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 34,
-      lineHeight: 41,
-      letterSpacing: -0.34,
-      width: "100%",
+      fontSize: 28,
+      lineHeight: 28,
+      letterSpacing: -0.28,
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 19,
-      textAlign: "left",
-      lineHeight: 24,
-      letterSpacing: -0.19,
-      width: '100%',
+      fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 17,
+      textAlign: "center",
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      paddingHorizontal: 8,
     },
     button: {
       height: 48,
@@ -240,8 +241,8 @@ export default function Bookmarks() {
               <View style={styles.noFeedsHeader}>
                 <Text style={styles.username}>Bookmarks Page</Text>
                 <Text style={styles.subtitle}>
-                  Feel free to save any articles you find interesting or can't
-                  get to yet.
+                  Save any articles you find interesting or haven't had a chance
+                  to read yet and view them here.
                 </Text>
                 <TouchableOpacity
                   style={styles.button}

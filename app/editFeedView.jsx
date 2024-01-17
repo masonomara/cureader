@@ -229,6 +229,7 @@ export default function TabOneScreen() {
       alignItems: "center",
       justifyContent: "flex-start",
       padding: 16,
+      paddingHorizontal: 24,
       paddingTop: 40,
       paddingBottom: 96,
     },
@@ -244,27 +245,30 @@ export default function TabOneScreen() {
       flex: 1,
     },
     title: {
+      marginBottom: 3,
+      marginTop: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 34,
-      lineHeight: 41,
-      letterSpacing: -0.34,
-      width: "100%",
+      fontSize: 28,
+      lineHeight: 28,
+      letterSpacing: -0.28,
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
-      fontWeight: "400",
-      fontSize: 19,
-      textAlign: "left",
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      fontWeight: "500",
+      fontSize: 17,
+      textAlign: "center",
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      paddingHorizontal: 8,
     },
+
     label: {
       width: "100%",
-      paddingHorizontal: 10,
+      paddingHorizontal: 2,
       alignItems: "flex-start",
 
       marginBottom: 5,
@@ -277,7 +281,7 @@ export default function TabOneScreen() {
     },
     input: {
       flex: 1,
-      marginHorizontal: 8,
+
       borderRadius: 20,
 
       height: 56,
@@ -359,7 +363,6 @@ export default function TabOneScreen() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
-      paddingHorizontal: 8,
     },
     buttonWrapperScrollView: {
       position: "absolute",
@@ -410,7 +413,8 @@ export default function TabOneScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Edit Public Feed</Text>
           <Text style={styles.subtitle}>
-            You are able to edit this public feed as the first subscriber.
+            As a feed admin, any changes you make to this feed will be visible
+            to the entire Cureader community.
           </Text>
           <Text style={styles.label}>Feed Preview</Text>
           <FeedCardDummyPreview
@@ -470,7 +474,6 @@ export default function TabOneScreen() {
               gap: 8,
               width: "100%",
 
-              paddingHorizontal: 8,
               marginTop: -4,
               marginBottom: 24,
             }}

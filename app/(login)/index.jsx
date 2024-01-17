@@ -97,24 +97,24 @@ export default function Auth() {
       alignItems: "center",
     },
     title: {
-      marginBottom: 4,
-      marginTop: 4,
+      marginBottom: 3,
+      marginTop: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 28,
+      letterSpacing: -0.28,
     },
     subtitle: {
       marginBottom: 35,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
-      fontWeight: "400",
-      fontSize: 19,
+      fontWeight: "500",
+      fontSize: 17,
       textAlign: "center",
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     label: {
       width: "100%",
@@ -255,7 +255,7 @@ export default function Auth() {
       >
         <View style={styles.content}>
           <Text style={styles.title}>Welcome!</Text>
-          <Text style={styles.subtitle}>Please log in to continue</Text>
+          <Text style={styles.subtitle}>Please log in to continue.</Text>
           {renderInput("Email", "email")}
           {renderInput("Password", "password", true)}
           <View style={styles.optionTextCreditWrapper}>
