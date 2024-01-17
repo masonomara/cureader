@@ -177,11 +177,13 @@ export default function TabOneScreen() {
       const { error: updateCategoryError } = await supabase
         .from("categories")
         .update({
-          channels: feeds.filter(
-            (feed) =>
-              feed.channel_categories?.includes(category.title) &
-              (feed.id != params.id)
-          ),
+          channels: feeds
+            .filter(
+              (feed) =>
+                feed.channel_categories?.includes(category.title) &
+                (feed.id != params.id)
+            )
+            .map((feed) => feed.id.toString()),
         })
         .eq("id", category.id);
 
