@@ -17,54 +17,55 @@ import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
+import Dots20 from "./icons/20/Dots20";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCard({ item, user }) {
   const {
+    userAdmin,
     userSubscriptionUrls,
     userSubscriptionIds,
     setUserSubscriptionIds,
     setUserSubscriptionUrls,
   } = useContext(AuthContext);
-
-  const colorScheme = useColorScheme();
   const { feeds } = useContext(FeedContext);
+  const colorScheme = useColorScheme();
+
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
+
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);
 
   const handleSubscribe = async () => {
-    const optimisticSubscribed = !isSubscribed;
-    setIsSubscribed(optimisticSubscribed);
+    setIsSubscribed(!isSubscribed);
 
     try {
-      const updatedUserSubscriptionIds = optimisticSubscribed
-        ? [...userSubscriptionIds, item.id]
-        : userSubscriptionIds.filter((id) => id !== item.id);
+      const updatedUserSubscriptionIds = isSubscribed
+        ? userSubscriptionIds.filter((id) => id !== item.id)
+        : [...userSubscriptionIds, item.id];
 
-      const updatedUserSubscriptionUrls = optimisticSubscribed
-        ? [...userSubscriptionUrls, item.channel_url]
-        : userSubscriptionUrls.filter((url) => url !== item.channel_url);
+      const updatedUserSubscriptionUrls = isSubscribed
+        ? userSubscriptionUrls.filter((url) => url !== item.channel_url)
+        : [...userSubscriptionUrls, item.channel_url];
 
       setUserSubscriptionIds(updatedUserSubscriptionIds);
       setUserSubscriptionUrls(updatedUserSubscriptionUrls);
 
-      await updateUserSubscriptions(
-        updatedUserSubscriptionIds,
-        updatedUserSubscriptionUrls,
-        user.id
-      );
-      await updateChannelSubscribers(
-        item.id,
-        user.id,
-        optimisticSubscribed,
-        feeds
-      );
+      await Promise.all([
+        updateUserSubscriptions(
+          updatedUserSubscriptionIds,
+          updatedUserSubscriptionUrls,
+          user.id
+        ),
+        updateChannelSubscribers(item.id, user.id, !isSubscribed, feeds),
+      ]);
     } catch (error) {
       console.error("Error handling subscription:", error);
       setIsSubscribed(!isSubscribed);
@@ -80,10 +81,10 @@ export default function FeedCard({ item, user }) {
       flexDirection: "column",
       display: "flex",
       width: CARD_WIDTH,
-      borderRadius: 12,
+      borderRadius: 16,
       overflow: "hidden",
       gap: 0,
-      height: "auto",
+      flex: 1,
     },
     cardContent: {
       display: "flex",
@@ -108,32 +109,48 @@ export default function FeedCard({ item, user }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      flex: 1,
     },
     cardControls: {
-      marginTop: 2,
       flexDirection: "row",
-      gap: 8,
       alignItems: "flex-end",
       flex: 1,
     },
     description: {
       flex: 1,
       color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
+      minHeight: 38,
+    },
+    editButtonWrapper: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      marginTop: -6,
+      marginLeft: 8,
+      marginRight: -5,
+    },
+    editButton: {
+      height: 34,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      borderRadius: 8,
+      justifyContent: "center",
     },
     subscribeButtonWrapper: {
       width: 88,
       display: "flex",
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-end",
       height: 44,
-      marginVertical: -5,
+      marginLeft: 8,
+      marginTop: -6,
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -152,7 +169,6 @@ export default function FeedCard({ item, user }) {
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -163,7 +179,7 @@ export default function FeedCard({ item, user }) {
       letterSpacing: -0.15,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -185,10 +201,10 @@ export default function FeedCard({ item, user }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 72,
-      lineHeight: 75,
+      fontSize: 80,
+      lineHeight: 80,
       letterSpacing: -0.54,
-      height: 75,
+
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -240,6 +256,7 @@ export default function FeedCard({ item, user }) {
             overflow: "hidden",
             borderTopEndRadius: 12,
             borderTopStartRadius: 12,
+            backgroundColor: `white`,
           }}
         >
           <Image
@@ -262,6 +279,35 @@ export default function FeedCard({ item, user }) {
             </Text>
           ) : (
             <Text numberOfLines={2} style={styles.description}></Text>
+          )}
+          {shouldRenderEditButton && (
+            <TouchableOpacity
+              style={styles.editButtonWrapper}
+              onPress={() =>
+                router.push({
+                  pathname: "/editFeedView",
+                  params: {
+                    title: item.channel_title,
+                    description: item.channel_description,
+                    image: item.channel_image_url,
+                    subscribers: item.channel_subscribers,
+                    url: item.channel_url,
+                    id: item.id,
+                    user: user,
+                    userId: user.id,
+                    subscribed: isSubscribed,
+                    userSubscriptionIds: userSubscriptionIds,
+                  },
+                })
+              }
+            >
+              <View style={styles.editButton}>
+                <Dots20
+                  style={styles.buttonImage}
+                  color={Colors[colorScheme || "light"].buttonActive}
+                />
+              </View>
+            </TouchableOpacity>
           )}
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}

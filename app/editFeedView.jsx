@@ -177,11 +177,13 @@ export default function TabOneScreen() {
       const { error: updateCategoryError } = await supabase
         .from("categories")
         .update({
-          channels: feeds.filter(
-            (feed) =>
-              feed.channel_categories?.includes(category.title) &
-              (feed.id != params.id)
-          ),
+          channels: feeds
+            .filter(
+              (feed) =>
+                feed.channel_categories?.includes(category.title) &
+                (feed.id != params.id)
+            )
+            .map((feed) => feed.id.toString()),
         })
         .eq("id", category.id);
 
@@ -226,8 +228,8 @@ export default function TabOneScreen() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       alignItems: "center",
       justifyContent: "flex-start",
-      padding: 24,
-
+      padding: 16,
+      paddingTop: 40,
       paddingBottom: 96,
     },
     containerScrollView: {
@@ -242,29 +244,29 @@ export default function TabOneScreen() {
       flex: 1,
     },
     title: {
-      marginBottom: 4,
-      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     subtitle: {
-      marginBottom: 24,
+      marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontWeight: "400",
       fontSize: 19,
-      textAlign: "center",
+      textAlign: "left",
       lineHeight: 24,
       letterSpacing: -0.19,
     },
     label: {
       width: "100%",
+      paddingHorizontal: 10,
       alignItems: "flex-start",
-      flexWrap: "wrap",
+
       marginBottom: 5,
       color: `${Colors[colorScheme || "light"].textLow}`,
       fontFamily: "InterMedium",
@@ -274,8 +276,10 @@ export default function TabOneScreen() {
       letterSpacing: -0.13,
     },
     input: {
-      width: "100%",
+      flex: 1,
+      marginHorizontal: 8,
       borderRadius: 20,
+
       height: 56,
       minHeight: 56,
       marginBottom: 16,
@@ -355,6 +359,7 @@ export default function TabOneScreen() {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       paddingVertical: 8,
       paddingTop: 40,
+      paddingHorizontal: 8,
     },
     buttonWrapperScrollView: {
       position: "absolute",
@@ -457,10 +462,15 @@ export default function TabOneScreen() {
           <View
             style={{
               display: "flex",
+              marginHorizontal: 8,
               flexDirection: "row",
+              alignItems: "flex-start",
+              justifyContent: "flex-start",
               flexWrap: "wrap",
               gap: 8,
               width: "100%",
+
+              paddingHorizontal: 8,
               marginTop: -4,
               marginBottom: 24,
             }}

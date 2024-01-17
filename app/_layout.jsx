@@ -310,6 +310,24 @@ function RootLayoutNav() {
     }
   };
 
+  const styles = {
+    headerTitleText: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+    },
+    headerBackButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
+    },
+  };
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <MenuProvider
@@ -356,26 +374,27 @@ function RootLayoutNav() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="(signup)" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
 
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
               <Stack.Screen
                 name="addChannel"
                 options={{ presentation: "modal", title: "Add Channel" }}
               />
+
               <Stack.Screen
                 name="feedView"
                 options={({ route }) => ({
                   title: route.params.title || "RSS Feed",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
-                  headerBackTitle: "Explore",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 })}
               />
               <Stack.Screen
@@ -383,15 +402,15 @@ function RootLayoutNav() {
                 options={({ route }) => ({
                   title: `Edit ${route.params.title}` || "Edit Feed",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
                   headerBackTitle: "Back",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 })}
               />
               <Stack.Screen
@@ -399,15 +418,31 @@ function RootLayoutNav() {
                 options={({ route }) => ({
                   title: `${route.params.title}` || "Category",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
                   headerBackTitle: "Back",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
+                })}
+              />
+              <Stack.Screen
+                name="userCategoryView"
+                options={({ route }) => ({
+                  title: `${route.params.title}` || "Category",
+                  headerStyle: {
+                    shadowColor: "white",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 })}
               />
               <Stack.Screen
@@ -415,15 +450,15 @@ function RootLayoutNav() {
                 options={{
                   title: "Popular Feeds",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
-                  headerBackTitle: "Explore",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 }}
               />
               <Stack.Screen
@@ -431,15 +466,15 @@ function RootLayoutNav() {
                 options={{
                   title: "Categories",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
-                  headerBackTitle: "Explore",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 }}
               />
               <Stack.Screen
@@ -447,15 +482,15 @@ function RootLayoutNav() {
                 options={{
                   title: "Random Feeds",
                   headerStyle: {
-                    headerTransparent: true,
-                    shadowColor: "transparent",
+                    shadowColor: "white",
                     backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
                   },
                   headerTintColor: Colors[colorScheme || "light"].colorPrimary,
-                  headerBackTitle: "Explore",
-                  headerTitleStyle: {
-                    color: Colors[colorScheme || "light"].textHigh,
-                  },
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
                 }}
               />
             </Stack>

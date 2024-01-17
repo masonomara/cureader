@@ -16,6 +16,7 @@ import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 import FeedCard from "../../components/FeedCard";
 import { useScrollToTop } from "@react-navigation/native";
+import FeedCardListItem from "../../components/FeedCardListItem";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -138,9 +139,6 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
-        // showErrorAlert(
-        //   `Error fetching RSS feed from ${url}. Please try again.`
-        // );
       }
     };
 
@@ -215,9 +213,6 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
-        // showErrorAlert(
-        //   `Error fetching RSS feed from ${url}. Please try again.`
-        // );
       }
     };
 
@@ -309,28 +304,29 @@ export default function Index() {
       width: "100%",
       alignItems: "center",
       padding: 24,
-      paddingHorizontal: 8,
+      paddingHorizontal: 0,
       paddingBottom: 48,
     },
     username: {
-      marginBottom: 4,
-      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 19,
-      textAlign: "center",
+      textAlign: "left",
       lineHeight: 24,
       letterSpacing: -0.19,
+      width: "100%",
+      paddingRight: 44,
     },
     button: {
       height: 48,
@@ -415,96 +411,40 @@ export default function Index() {
     },
     headerWrapper: {
       paddingHorizontal: 0,
-      paddingVertical: 12,
+      paddingVertical: 9,
       gap: 3,
       width: "100%",
-      maxWidth: "100%",
-      height: 86,
-    },
-    titleWrapper: {
-      marginTop: 0,
-      width: "100%",
-      marginTop: 8,
+      minWidth: "100%",
+      display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 25,
       lineHeight: 31,
-      letterSpacing: -0.24,
+      letterSpacing: -0.25,
     },
     textButton: {
-      paddingHorizontal: 8,
-      paddingVertical: 3,
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: -8,
+      height: 44,
     },
     textButtonText: {
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
-    dailyQuoteContainer: {
-      padding: 16,
-      paddingVertical: 24,
-      paddingBottom: 12,
-      marginBottom: 0,
-      alignContent: "center",
-      justifyContent: "center",
-      flex: 1,
-      height: "100%",
 
-      position: "absolute",
-    },
-    dailyQuoteContainerLoading: {
-      padding: 16,
-      paddingVertical: 24,
-      paddingBottom: 12,
-      marginBottom: 0,
-      alignContent: "center",
-      justifyContent: "center",
-      flex: 1,
-      position: "absolute",
-      zIndex: -1,
-    },
-    dailyQuoteWrapper: {
-      gap: 12,
-      alignContent: "center",
-      justifyContent: "center",
-      paddingHorizontal: 8,
-    },
-    dailyQuoteQuote: {
-      textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 25,
-      lineHeight: 31,
-      letterSpacing: -0.187,
-    },
-    dailyQuoteAuthor: {
-      textAlign: "center",
-      color: `${Colors[colorScheme || "light"].textMedium}`,
-      fontFamily: "InterMediumItalic",
-      fontWeight: "500",
-      fontStyle: "italic",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     seeThrough: {
       opacity: 0,
     },
@@ -583,7 +523,7 @@ export default function Index() {
                       <>
                         <View style={styles.noFeedsHeader}>
                           <Text style={styles.username}>
-                            Welcome to Cureader!
+                            Welcome!
                           </Text>
                           <Text style={styles.subtitle}>
                             Feed free to view your Explore Page or see our most
@@ -603,24 +543,17 @@ export default function Index() {
                           </TouchableOpacity>
                         </View>
                         <View style={styles.headerWrapper}>
-                          <View style={styles.titleWrapper}>
-                            <Text style={styles.title}>Popular Feeds</Text>
-                            <TouchableOpacity
-                              style={styles.textButton}
-                              onPress={() => {
-                                router.push({
-                                  pathname: "/allPopularFeeds",
-                                });
-                              }}
-                            >
-                              <Text style={styles.textButtonText}>
-                                View more
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                          <Text style={styles.headerSubtitle}>
-                            Get started with our most popular feeds.
-                          </Text>
+                          <Text style={styles.title}>Popular Feeds</Text>
+                          <TouchableOpacity
+                            style={styles.textButton}
+                            onPress={() => {
+                              router.push({
+                                pathname: "/allPopularFeeds",
+                              });
+                            }}
+                          >
+                            <Text style={styles.textButtonText}>View More</Text>
+                          </TouchableOpacity>
                         </View>
                       </>
                     )}
@@ -629,7 +562,7 @@ export default function Index() {
                     showsHorizontalScrollIndicator={false}
                     estimatedItemSize={200}
                     renderItem={({ item }) => (
-                      <FeedCard key={item.id} item={item} user={user} />
+                      <FeedCardListItem key={item.id} item={item} user={user} />
                     )}
                     ListFooterComponent={() => (
                       <View style={styles.feedListFooter} />

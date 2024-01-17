@@ -149,7 +149,7 @@ export default function ArticleCard({
       paddingTop: 24,
       paddingLeft: 16,
       paddingRight: 16,
-      paddingBottom: 11,
+      paddingBottom: 7,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -249,7 +249,7 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 2,
+
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
@@ -267,9 +267,9 @@ export default function ArticleCard({
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
-      fontSize: 15,
+      fontSize: 14,
       lineHeight: 20,
-      letterSpacing: -0.15,
+      letterSpacing: -0.14,
     },
     cardControls: {
       display: "flex",
@@ -316,10 +316,14 @@ export default function ArticleCard({
       letterSpacing: -0.14,
     },
     noImageContainer: {
-      height: 76,
-      width: 76,
+      aspectRatio: 1 / 1,
+      flex: 1,
       borderRadius: 12,
       marginTop: 25.3,
+      maxWidth: 74,
+      width: 74,
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
       backgroundColor: getColorForLetter(publication),
       display: "flex",
       alignItems: "center",
@@ -329,10 +333,9 @@ export default function ArticleCard({
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 33,
-      letterSpacing: -0.173,
-      height: 33,
+      fontSize: 25,
+      lineHeight: 25,
+      letterSpacing: -0.187,
       color: getTextColorForLetter(publication),
       textAlignVertical: "center",
       textAlign: "center",
@@ -350,15 +353,15 @@ export default function ArticleCard({
               width: "100%",
               borderRadius: 12,
               overflow: "hidden",
+              borderWidth: 0.5,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
               marginBottom: 12,
+              backgroundColor: `white`,
             }}
           >
             <RNImage
               style={{
                 flex: 1,
-                borderRadius: 12,
-                borderWidth: 0.67,
-                borderColor: `${Colors[colorScheme || "light"].border}`,
               }}
               contentFit="cover"
               source={{ uri: imageUrl || fallbackImage || item.image?.url }}
@@ -423,10 +426,11 @@ export default function ArticleCard({
                   borderRadius: 12,
                   marginTop: 25.3,
                   marginBottom: 3,
-                  maxWidth: 76,
-                  width: 76,
-                  borderWidth: 0.67,
+                  maxWidth: 74,
+                  width: 74,
+                  borderWidth: 0.5,
                   borderColor: `${Colors[colorScheme || "light"].border}`,
+                  backgroundColor: `white`,
                 }}
                 contentFit="cover"
                 source={{ uri: fallbackImage || item.image?.url }}

@@ -117,7 +117,7 @@ export default function Auth() {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
       textAlign: "center",
-      fontWeight: "700",
+      fontWeight: "400",
       fontSize: 19,
       lineHeight: 24,
       letterSpacing: -0.19,

@@ -93,28 +93,20 @@ export default function FeedCardToolTip({ item }) {
       flex: 1,
       width: "100%",
       gap: 0,
-      paddingVertical: 12,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
+      paddingVertical: 10,
     },
     cardContent: {
       display: "flex",
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
     },
     title: {
       display: "flex",
@@ -128,23 +120,19 @@ export default function FeedCardToolTip({ item }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      gap: 3,
+      alignItems: "center",
     },
     description: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -182,7 +170,6 @@ export default function FeedCardToolTip({ item }) {
       letterSpacing: -0.15,
     },
     tooptipPublicationWrapper: {
-      borderBottomWidth: 1,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderBottomWidth: 1,
       borderColor: `${Colors[colorScheme || "light"].border}`,
@@ -191,30 +178,22 @@ export default function FeedCardToolTip({ item }) {
       display: "flex",
       flex: 1,
       width: "100%",
-      gap: 0,
-      paddingVertical: 12,
+      gap: 10,
+      paddingVertical: 10,
       paddingBottom: 16,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
     },
     tooltipContent: {
       display: "flex",
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
     },
     tooltipInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
     },
     tooltipTitle: {
       display: "flex",
@@ -228,18 +207,14 @@ export default function FeedCardToolTip({ item }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     tooltipDescription: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
     },
     tooltipDivider: {
       height: 1,
@@ -247,8 +222,8 @@ export default function FeedCardToolTip({ item }) {
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
+      height: 68,
+      width: 68,
       borderRadius: 10,
       backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
@@ -260,9 +235,8 @@ export default function FeedCardToolTip({ item }) {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 23,
-      lineHeight: 26,
+      lineHeight: 23,
       letterSpacing: -0.173,
-      height: 26,
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -275,7 +249,6 @@ export default function FeedCardToolTip({ item }) {
       justifyContent: "center",
       flexDirection: "row",
       gap: 5,
-      backgroundColor: Colors[colorScheme || "light"].surfaceOne,
       borderRadius: 100,
     },
   };
@@ -361,17 +334,17 @@ export default function FeedCardToolTip({ item }) {
             <View
               style={{
                 aspectRatio: "1/1",
-                width: 64,
+                width: 68,
                 overflow: "hidden",
-                borderRadius: 10,
+
+                borderRadius: 12,
+                borderWidth: 0.5,
+                borderColor: `${Colors[colorScheme || "light"].border}`,
               }}
             >
               <Image
                 style={{
                   flex: 1,
-                  borderRadius: 12,
-                  borderWidth: 0.67,
-                  borderColor: `${Colors[colorScheme || "light"].border}`,
                 }}
                 contentFit="cover"
                 source={{ uri: item.channel_image_url }}
@@ -380,7 +353,7 @@ export default function FeedCardToolTip({ item }) {
           )}
           <View style={styles.tooltipContent}>
             <View style={styles.tooltipInfo}>
-              <Text style={styles.tooltipTitle} numberOfLines={2}>
+              <Text style={styles.tooltipTitle} numberOfLines={1}>
                 {item.channel_title}
               </Text>
               {item.channel_description ? (

@@ -40,7 +40,7 @@ export default function Bookmarks() {
       width: "100%",
       alignItems: "center",
       padding: 24,
-      paddingHorizontal: 24,
+      paddingHorizontal: 16,
       paddingBottom: 48,
     },
     container: {
@@ -58,14 +58,14 @@ export default function Bookmarks() {
     profileHeader: {
       width: "100%",
       alignItems: "center",
-      padding: 24,
+      padding: 16,
       paddingHorizontal: 8,
       paddingBottom: userInitialBookmarks?.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
       width: "100%",
       alignItems: "center",
-      padding: 24,
+      padding: 16,
       paddingHorizontal: 8,
       paddingBottom: 48,
     },
@@ -165,14 +165,15 @@ export default function Bookmarks() {
       fontSize: 15,
       lineHeight: 20,
       letterSpacing: -0.15,
+      width: '100%',
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
+      fontFamily: "InterSemiBold",
       fontWeight: "700",
-      fontSize: 24,
+      fontSize: 25,
       lineHeight: 31,
-      letterSpacing: -0.24,
+      letterSpacing: -0.25,
     },
     textButton: {
       paddingHorizontal: 8,
@@ -187,24 +188,24 @@ export default function Bookmarks() {
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     username: {
-      marginBottom: 4,
-      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 19,
-      textAlign: "center",
+      textAlign: "left",
       lineHeight: 24,
       letterSpacing: -0.19,
+      width: '100%',
     },
     button: {
       height: 48,
@@ -237,7 +238,7 @@ export default function Bookmarks() {
             ref={ref}
             ListEmptyComponent={() => (
               <View style={styles.noFeedsHeader}>
-                <Text style={styles.username}>Like anything?</Text>
+                <Text style={styles.username}>Bookmarks Page</Text>
                 <Text style={styles.subtitle}>
                   Feel free to save any articles you find interesting or can't
                   get to yet.

@@ -238,7 +238,6 @@ export default function TabOneScreen() {
 
   return (
     <>
-      <FeedCardFeedPreview item={params} />
       <View style={styles.articleList}>
         <FlashList
           data={rssItems}
@@ -254,6 +253,7 @@ export default function TabOneScreen() {
               user={user}
             />
           )}
+          ListHeaderComponent={() => <FeedCardFeedPreview item={params} />}
         />
       </View>
     </>

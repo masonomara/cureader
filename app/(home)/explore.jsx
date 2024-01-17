@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useRef,
+  useMemo,
 } from "react";
 import {
   ScrollView,
@@ -15,21 +16,21 @@ import {
   TouchableOpacity,
   Keyboard,
   Pressable,
-  Image,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
-import * as WebBrowser from "expo-web-browser";
-import FeedCard from "../../components/FeedCard";
+import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
-import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import { useScrollToTop } from "@react-navigation/native";
 import { chunkArray } from "../utils/Formatting";
 import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeaturedSkeleton";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
+import FeedCardListItem from "../../components/FeedCardListItem";
+import CategoriesContainer from "../../components/CategoriesContainer";
+import * as WebBrowser from "expo-web-browser";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -49,9 +50,18 @@ export default function Explore() {
   const [searchInput, setSearchInput] = useState("");
   const [parserInput, setParserInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchResultsCategories, setSearchResultsCategories] = useState([]);
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
+  };
 
   const [channelData, setChannelData] = useState({
     title: "",
@@ -63,6 +73,14 @@ export default function Explore() {
   });
 
   const ref = useRef(null);
+
+  const chunkedCategories = chunkArray(
+    feedCategories
+      .filter((category) => category.channels.length > 0)
+      .sort((a, b) => b.channels.length - a.channels.length)
+      .slice(0, 20),
+    4
+  );
 
   useScrollToTop(
     React.useRef({
@@ -83,7 +101,8 @@ export default function Explore() {
     setTextInputFocused(true);
   }, []);
 
-  const handleSearchInput = (searchInput) => {
+  const handleSearchInput = useCallback((searchInput) => {
+    setSearchInput(searchInput);
     setIsSearching(true);
     searchInput = searchInput.trim();
     let moddedSearchInput = "";
@@ -106,16 +125,7 @@ export default function Explore() {
     }));
 
     setParserInput(moddedSearchInput);
-    setSearchInput(searchInput);
-  };
-
-  const _handlePressButtonAsync = async (url) => {
-    try {
-      await WebBrowser.openBrowserAsync(url);
-    } catch (error) {
-      console.error("Error opening browser:", error);
-    }
-  };
+  }, []);
 
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
@@ -188,7 +198,32 @@ export default function Explore() {
 
       filterResults();
     }
-  }, [searchInput, feeds]);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (feedCategories != null) {
+      const filterResults = () => {
+        if (searchInput !== null) {
+          const lowercasedInput = searchInput.toLowerCase();
+
+          const filteredCategories = feedCategories.filter((category) => {
+            const titleMatch = category.title
+              .toLowerCase()
+              .includes(lowercasedInput);
+            const hasChannels = category.channels.length > 0;
+
+            return titleMatch && hasChannels;
+          });
+
+          setSearchResultsCategories(filteredCategories);
+        } else {
+          setSearchResultsCategories([]);
+        }
+      };
+
+      filterResults();
+    }
+  }, [searchInput]);
 
   const styles = {
     container: {
@@ -205,23 +240,28 @@ export default function Explore() {
       flexDirection: "column",
       width: "100%",
       maxWidth: "100%",
+      paddingTop: 16,
     },
     randomChannelList: {
       gap: 8,
       paddingHorizontal: 16,
-      marginBottom: 16,
-    },
-    popularChannelList: {
-      paddingHorizontal: 16,
-      display: "flex",
-      flexDirection: "column",
-      width: "100%",
+      marginBottom: 38,
     },
 
+    popularChannelList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+    },
+    categoriesList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 38,
+    },
     inputWrapper: {
       paddingHorizontal: 16,
       width: "100%",
-      paddingBottom: 12,
+      paddingBottom: 8,
       paddingTop: 8,
 
       height: 76,
@@ -230,7 +270,7 @@ export default function Explore() {
     searchIcon: {
       position: "absolute",
       left: 32,
-      top: 24,
+      top: 26,
       zIndex: 2,
       pointerEvents: "none",
     },
@@ -238,7 +278,7 @@ export default function Explore() {
       position: "absolute",
       right: 24,
       zIndex: 2,
-      height: 56,
+      height: 60,
       width: 44,
       top: 8,
       alignItems: "center",
@@ -302,10 +342,18 @@ export default function Explore() {
       flex: 1,
     },
     searchHeader: {
-      borderBottomWidth: 1,
+      borderBottomWidth: 0.5,
       paddingBottom: 7,
       paddingTop: 8,
       borderBottomColor: `${Colors[colorScheme || "light"].border}`,
+    },
+    searchHeaderNoResults: {
+      borderBottomWidth: 0.5,
+      paddingBottom: 7,
+      paddingTop: 8,
+      borderBottomColor: `${Colors[colorScheme || "light"].border}`,
+      width: "100%",
+      marginTop: 24,
     },
     searchHeaderText: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -330,7 +378,7 @@ export default function Explore() {
     },
     noResultsWrapper: {
       width: "100%",
-      alignItems: "center",
+      alignItems: "flex-start",
       marginBottom: 19,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
@@ -377,43 +425,37 @@ export default function Explore() {
     },
     headerWrapper: {
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: 9,
       gap: 3,
-    },
-    titleWrapper: {
-      marginTop: 0,
       width: "100%",
-      marginTop: 8,
+      minWidth: "100%",
+      display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
     },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-    },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
-      letterSpacing: -0.24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 34,
+      letterSpacing: -0.28,
     },
     textButton: {
-      paddingHorizontal: 8,
-      paddingVertical: 3,
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      marginVertical: -8,
+      height: 44,
     },
     textButtonText: {
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     loadingContainer: {
@@ -430,6 +472,17 @@ export default function Explore() {
     searchResultsList: {
       alignItems: "center",
       justifyContent: "center",
+    },
+    searchResultsListCategories: {
+      flex: 1,
+      marginBottom: 16,
+      marginTop: 8,
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      rowGap: 8,
+      overflow: "hidden",
     },
     feedsLoadingScreen: {},
     feedsLoadingContainer: {
@@ -454,51 +507,33 @@ export default function Explore() {
     },
 
     searchPreviewTextWrapperContainer: {
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "flex-start",
       paddingHorizontal: 0,
       display: "flex",
-      paddingHorizontal: 16,
     },
     searchPreviewHeader: {
-      color: Colors[colorScheme || "light"].textHigh,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-      width: "100%",
-      textAlign: "left",
-      marginBottom: 3,
-
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     searchPreviewTextWrapper: {
       color: Colors[colorScheme || "light"].textHigh,
       textAlign: "left",
       fontFamily: "InterRegular",
       fontWeight: "400",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-      maxWidth: 450,
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      flex: 1,
-      flexWrap: "wrap",
-      width: "100%",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     searchPreviewText: {
       color: Colors[colorScheme || "light"].textMedium,
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -508,6 +543,7 @@ export default function Explore() {
       marginVertical: -5,
       alignItems: "center",
       justifyContent: "center",
+      width: "auto",
     },
     searchPreviewTextPressable: {
       color: Colors[colorScheme || "light"].textMedium,
@@ -516,74 +552,6 @@ export default function Explore() {
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-    },
-    categoriesContainer: {
-      flex: 1,
-      paddingHorizontal: 16,
-      marginBottom: 20,
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      rowGap: 8,
-      overflow: "hidden",
-    },
-    categoryWrapper: {
-      width: CARD_WIDTH / 2 - 4,
-      borderWidth: 1,
-
-      borderColor: `${Colors[colorScheme || "light"].border}`,
-      // backgroundColor: Colors[colorScheme || "light"].surfaceOne,
-      borderRadius: 16,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      flexDirection: "column",
-
-      overflow: "hidden",
-    },
-    categoryImagesWrapper: {
-      aspectRatio: 5 / 3,
-      width: "100%",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "row",
-      flexWrap: "wrap",
-      backgroundColor: "white",
-    },
-    categoryImageWrapperSingle: {
-      aspectRatio: 5 / 3,
-      width: "100%",
-      overflow: "hidden",
-    },
-
-    categoryTitleWrapper: {
-      overflow: "hidden",
-      flex: 1,
-      width: "100%",
-      display: "flex",
-      alignItems: "flex-start",
-      justifyContent: "center",
-      padding: 12,
-      paddingVertical: 12,
-    },
-    categoryTitle: {
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterSemiBold",
-      fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-      textAlign: "left",
-      width: "100%",
-    },
-    categorySubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterRegular",
-      fontWeight: "400",
-      fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: -0.15,
     },
   };
 
@@ -623,35 +591,81 @@ export default function Explore() {
       </View>
       {textInputFocused || searchInput.length > 0 ? (
         <ScrollView style={styles.searchContainer}>
-          <View style={styles.searchHeader}>
-            <Text style={styles.searchHeaderText}>
-              {searchInput.length > 0
-                ? searchResults.length == 0 &&
-                  !channelData.wait &&
-                  channelData.title
-                  ? "RSS Feed found from URL"
-                  : searchResults.length > 0 || channelData.title
-                  ? `Search Results (${searchResults.length})`
-                  : searchResults.length === 0 && channelData.wait
-                  ? "Searching..."
-                  : "No Search Results Found"
-                : "Search Results"}
-            </Text>
-          </View>
+          {searchInput.length === 0 && (
+            <View style={styles.searchHeader}>
+              <Text style={styles.searchHeaderText}>
+                {searchInput.length > 0
+                  ? searchResults.length == 0 &&
+                    !channelData.wait &&
+                    channelData.title
+                    ? "Feed found from URL"
+                    : searchResults.length > 0 || channelData.title
+                    ? `Feeds (${searchResults.length})`
+                    : searchResults.length === 0 && channelData.wait
+                    ? "Searching..."
+                    : "No Feeds Found"
+                  : "Search Results (0)"}
+              </Text>
+            </View>
+          )}
 
           {searchInput.length > 0 && (
-            <View
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              style={[styles.searchResultsList]}
-              decelerationRate={0}
-              snapToInterval={CARD_WIDTH + 8}
-              snapToAlignment={"left"}
-            >
-              {searchResults.map((item) => (
-                <FeedCard key={item.id} item={item} user={user} />
-              ))}
-            </View>
+            <>
+              {searchResultsCategories.length > 0 ? (
+                <>
+                  <View style={styles.searchHeader}>
+                    <Text style={styles.searchHeaderText}>
+                      {searchInput.length > 0
+                        ? searchResultsCategories.length === 0 &&
+                          !channelData.wait &&
+                          channelData.title
+                          ? "Category found from URL"
+                          : searchResultsCategories.length > 0 ||
+                            channelData.title
+                          ? `Categories (${searchResultsCategories.length})`
+                          : searchResultsCategories.length === 0 &&
+                            channelData.wait
+                          ? "Searching..."
+                          : "No Categories Found"
+                        : "Search Results"}
+                    </Text>
+                  </View>
+                  <View style={[styles.searchResultsListCategories]}>
+                    {searchResultsCategories.map((item) => (
+                      <CategoriesContainer key={item.id} category={item} />
+                    ))}
+                  </View>
+                </>
+              ) : (
+                <></>
+              )}
+
+              <View style={styles.searchHeader}>
+                <Text style={styles.searchHeaderText}>
+                  {searchInput.length > 0
+                    ? searchResults.length == 0 &&
+                      !channelData.wait &&
+                      channelData.title
+                      ? "Feed found from URL"
+                      : searchResults.length > 0 || channelData.title
+                      ? `Feeds (${searchResults.length})`
+                      : searchResults.length === 0 && channelData.wait
+                      ? "Searching..."
+                      : "No Feeds Found"
+                    : "Search Results"}
+                </Text>
+              </View>
+              <View style={[styles.searchResultsList]}>
+                {searchResults.map((item) => (
+                  <FeedCardListItem
+                    key={item.id}
+                    item={item}
+                    user={user}
+                    borderBottom={true}
+                  />
+                ))}
+              </View>
+            </>
           )}
 
           <View style={styles.noResultsWrapper}>
@@ -665,6 +679,11 @@ export default function Explore() {
                   channelImageUrl={channelData.imageUrl}
                 />
               )}
+
+            <View style={styles.searchHeaderNoResults}>
+              <Text style={styles.searchHeaderText}>Need help?</Text>
+            </View>
+
             <View style={styles.searchPreviewTextContainer}>
               <Text style={styles.searchPreviewHeader}>
                 Subscribing to RSS Feeds
@@ -745,113 +764,57 @@ export default function Explore() {
         ref={ref}
       >
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Categories</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allCategories",
-                });
+          <Text style={styles.title}>Categories</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allCategories",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.categoriesList]}
+          decelerationRate={0}
+          snapToInterval={CARD_WIDTH + 8}
+          snapToAlignment={"left"}
+        >
+          {chunkedCategories.map((row, rowIndex) => (
+            <View
+              key={rowIndex}
+              style={{
+                flexDirection: "row",
+                gap: 8,
+                flexWrap: "wrap",
+                width: CARD_WIDTH,
               }}
             >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.headerSubtitle}>
-            {randomFeeds != null
-              ? "Browse popular feeds and categories."
-              : "Loading..."}
-          </Text>
-        </View>
-
-        <View style={styles.categoriesContainer}>
-          {feedCategories
-            .sort((a, b) => b.channels.length - a.channels.length)
-            .slice(0, 4)
-            .map((category) => {
-              const filteredFeeds = feeds
-                .filter(
-                  (feed) =>
-                    feed.channel_categories &&
-                    feed.channel_categories.includes(category.title) &&
-                    feed.channel_image_url
-                )
-                .sort(
-                  (a, b) =>
-                    b.channel_subscribers.length - a.channel_subscribers.length
-                );
-
-              if (category.channels && category.channels.length > 0) {
-                return (
-                  <Pressable
-                    key={category.id}
-                    style={styles.categoryWrapper}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/categoryView",
-                        params: {
-                          title: category.title,
-                          channels: category.channels,
-                          id: category.id,
-                          feeds: filteredFeeds,
-                        },
-                      })
-                    }
-                  >
-                    <View style={styles.categoryImagesWrapper}>
-                      {filteredFeeds.slice(0, 1).map((feed, index) => (
-                        <View
-                          key={feed.id}
-                          style={styles.categoryImageWrapperSingle}
-                        >
-                          <Image
-                            style={{
-                              flex: 1,
-                            }}
-                            contentFit="cover"
-                            source={{ uri: feed.channel_image_url }}
-                          />
-                        </View>
-                      ))}
-                    </View>
-                    <View style={styles.categoryTitleWrapper}>
-                      <Text
-                        style={styles.categoryTitle}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {category.title}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
-              } else {
-                return null;
-              }
-            })}
-        </View>
+              {row.map((category) => (
+                <CategoriesContainer key={category.id} category={category} />
+              ))}
+            </View>
+          ))}
+        </ScrollView>
 
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Random Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allRandomFeeds",
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.headerSubtitle}>
-            {randomFeeds != null
-              ? "Explore some randomly selected feeds."
-              : "Loading..."}
-          </Text>
+          <Text style={styles.title}>Random Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allRandomFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View More</Text>
+          </TouchableOpacity>
         </View>
         {randomFeeds != null ? (
           <ScrollView
@@ -863,7 +826,7 @@ export default function Explore() {
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
           >
-            {randomFeeds.slice(0, 8).map((item) => (
+            {randomFeeds.slice(0, 5).map((item) => (
               <FeedCardFeatured key={item.id} item={item} user={user} />
             ))}
           </ScrollView>
@@ -883,31 +846,24 @@ export default function Explore() {
           </ScrollView>
         )}
         <View style={styles.headerWrapper}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Feeds</Text>
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => {
-                router.push({
-                  pathname: "/allPopularFeeds",
-                });
-              }}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.headerSubtitle}>
-            {popularFeeds != null
-              ? "Follow our community's most popular feeds."
-              : "Loading..."}
-          </Text>
+          <Text style={styles.title}>Popular Feeds</Text>
+          <TouchableOpacity
+            style={styles.textButton}
+            onPress={() => {
+              router.push({
+                pathname: "/allPopularFeeds",
+              });
+            }}
+          >
+            <Text style={styles.textButtonText}>View More</Text>
+          </TouchableOpacity>
         </View>
         {popularFeeds != null ? (
           <ScrollView
             horizontal
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.randomChannelList]}
+            contentContainerStyle={[styles.popularChannelList]}
             decelerationRate={0}
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
@@ -922,7 +878,7 @@ export default function Explore() {
                 }}
               >
                 {chunk.map((item) => (
-                  <FeedCard key={item.id} item={item} user={user} />
+                  <FeedCardListItem key={item.id} item={item} user={user} />
                 ))}
               </View>
             ))}
@@ -932,7 +888,7 @@ export default function Explore() {
             horizontal
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.randomChannelList]}
+            contentContainerStyle={[styles.popularChannelList]}
             decelerationRate={0}
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}

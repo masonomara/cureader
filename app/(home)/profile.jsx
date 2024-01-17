@@ -5,23 +5,60 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  useColorScheme,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
 import { FeedContext, AuthContext } from "../_layout";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
-import FeedCardProfile from "../../components/FeedCardProfile";
+import FeedCardListItem from "../../components/FeedCardListItem";
+import { chunkArray, formatPublicationDateProper } from "../utils/Formatting";
+import CategoriesContainer from "../../components/CategoriesContainer";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const { feeds, popularFeeds } = useContext(FeedContext);
-  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const { feeds, feedCategories, popularFeeds } = useContext(FeedContext);
+  const { user, userSubscriptionUrls, userSubscriptionIds } =
+    useContext(AuthContext);
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const ref = useRef(null);
+
+  const filteredCategories = feedCategories
+    .filter((category) =>
+      category.channels
+        .flat()
+        .some((channel) => userSubscriptionIds.includes(parseInt(channel)))
+    )
+    .sort((a, b) => {
+      // Sort categories based on the number of matching channels/ids
+      const aMatchingChannels = a.channels
+        .flat()
+        .filter((channel) =>
+          userSubscriptionIds.includes(parseInt(channel))
+        ).length;
+
+      const bMatchingChannels = b.channels
+        .flat()
+        .filter((channel) =>
+          userSubscriptionIds.includes(parseInt(channel))
+        ).length;
+
+      return bMatchingChannels - aMatchingChannels;
+    });
+
+  const chunkedCategories = chunkArray(filteredCategories, 2);
+
+  const CARD_WIDTH = Dimensions.get("window").width - 32;
 
   useScrollToTop(
     useRef({
@@ -35,9 +72,12 @@ export default function Profile() {
       const fetchedFeeds = feeds.filter((feed) =>
         userSubscriptionUrls.includes(feed.channel_url)
       );
+      fetchedFeeds.sort(
+        (a, b) => b.channel_subscribers.length - a.channel_subscribers.length
+      );
       setUserInitialFeeds(fetchedFeeds);
     }
-  }, [userSubscriptionUrls]);
+  }, []);
 
   useEffect(() => {
     fetchUserFeeds();
@@ -52,18 +92,43 @@ export default function Profile() {
   const renderHeaderText = () => (
     <>
       <View style={styles.profileHeader}>
-        <Text style={styles.username}>
+        <Text style={styles.userTitle} numberOfLines={1}>
           Hello {user?.user_metadata?.displayName || null}
         </Text>
-        <Text style={styles.subtitle}>
-          {userSubscriptionUrls === null
-            ? "Your feeds are currently loading..."
-            : userInitialFeeds.length === 1
-            ? "You are currently subscribed to 1 feed."
-            : userInitialFeeds.length > 1
-            ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
-            : "It looks like you aren't subscribed to any feeds yet!"}
-        </Text>
+
+        <View style={styles.userInfoContainer}>
+          <View style={styles.userInfoWrapper}>
+            <Text style={styles.userInfoTitle}>
+              {userSubscriptionIds.length}
+            </Text>
+            <Text style={styles.userInfoSubtitle}>Feeds</Text>
+          </View>
+          <View style={styles.userInfoDivider} />
+          <View style={styles.userInfoWrapper}>
+            <Text style={styles.userInfoTitle}>
+              {filteredCategories.length}
+            </Text>
+            <Text style={styles.userInfoSubtitle}>Categories</Text>
+          </View>
+          <View style={styles.userInfoDivider} />
+          <View style={styles.userInfoWrapper}>
+            {formatPublicationDateProper(user.created_at)
+              .split(" ")
+              .map((part, index) => (
+                <Text
+                  key={index}
+                  style={
+                    index % 2 === 0
+                      ? styles.userInfoTitle
+                      : styles.userInfoSubtitle
+                  }
+                >
+                  {part}
+                </Text>
+              ))}
+          </View>
+        </View>
+
         {userInitialFeeds.length === 0 && (
           <TouchableOpacity
             style={styles.button}
@@ -73,32 +138,45 @@ export default function Profile() {
           </TouchableOpacity>
         )}
       </View>
+      {userInitialFeeds.length > 0 && (
+        <>
+          <View style={styles.headerWrapper}>
+            <Text style={styles.title}>Your Categories</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.categoriesList]}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8}
+            snapToAlignment={"left"}
+          >
+            {chunkedCategories.map((row, rowIndex) => (
+              <View
+                key={rowIndex}
+                style={{
+                  flexDirection: "row",
+                  gap: 8,
+                  flexWrap: "wrap",
+                  width: CARD_WIDTH,
+                }}
+              >
+                {row.map((category) => (
+                  <CategoriesContainer
+                    key={category.id}
+                    category={category}
+                    profile={true}
+                  />
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+        </>
+      )}
       <View style={styles.headerWrapper}>
-        <View
-          style={
-            userInitialFeeds.length > 0
-              ? styles.titleWrapperUserFeeds
-              : styles.titleWrapper
-          }
-        >
-          <Text style={styles.title}>
-            {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
-          </Text>
-          {userInitialFeeds.length === 0 && (
-            <TouchableOpacity
-              style={styles.textButton}
-              onPress={() => router.push({ pathname: "/allPopularFeeds" })}
-            >
-              <Text style={styles.textButtonText}>View more</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <Text style={styles.headerSubtitle}>
-          {userSubscriptionUrls == null
-            ? "Loading..."
-            : userInitialFeeds.length > 0
-            ? "Manage all your favorite feeds."
-            : "Get started with our most popular feeds."}
+        <Text style={styles.title}>
+          {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
         </Text>
       </View>
     </>
@@ -118,13 +196,12 @@ export default function Profile() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-      paddingHorizontal: 16,
     },
     profileHeader: {
       width: "100%",
       alignItems: "center",
       padding: 24,
-      paddingHorizontal: 8,
+      paddingHorizontal: 16,
       paddingBottom: userInitialFeeds.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
@@ -144,6 +221,15 @@ export default function Profile() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
+    },
+    userTitle: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     input: {
       width: "100%",
@@ -202,42 +288,19 @@ export default function Profile() {
       letterSpacing: -0.17,
     },
     headerWrapper: {
-      paddingHorizontal: 0,
-      paddingVertical: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 9,
       gap: 3,
       width: "100%",
       maxWidth: "100%",
-      height: 86,
-    },
-    titleWrapper: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    titleWrapperUserFeeds: {
-      width: "100%",
-      marginTop: 8,
-      flexDirection: "row",
-      justifyContent: "flex-start",
-      alignItems: "center",
-    },
-    headerSubtitle: {
-      color: `${Colors[colorScheme || "light"].textLow}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
     },
     title: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterBold",
-      fontWeight: "700",
-      fontSize: 24,
-      lineHeight: 31,
-      letterSpacing: -0.24,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 34,
+      letterSpacing: -0.28,
     },
     textButton: {
       paddingHorizontal: 8,
@@ -252,24 +315,25 @@ export default function Profile() {
       color: `${Colors[colorScheme || "light"].colorPrimary}`,
     },
     username: {
-      marginBottom: 4,
-      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterMedium",
-      fontWeight: "700",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 19,
-      textAlign: "center",
+      textAlign: "left",
       lineHeight: 24,
       letterSpacing: -0.19,
+      width: "100%",
+      paddingRight: 44,
     },
     button: {
       height: 48,
@@ -289,8 +353,46 @@ export default function Profile() {
       lineHeight: 22,
       letterSpacing: -0.17,
     },
-    feedListFooter: {
+    flashListFooter: {
       height: 16,
+    },
+    categoriesList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 38,
+    },
+    userInfoContainer: {
+      flex: 1,
+      marginTop: 10,
+      width: "100%",
+      flexDirection: "row",
+      marginBottom: 38,
+    },
+    userInfoWrapper: {
+      flexDirection: "column",
+      width: 77,
+    },
+    userInfoTitle: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 20,
+      lineHeight: 25,
+      letterSpacing: -0.2,
+    },
+    userInfoSubtitle: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+    },
+    userInfoDivider: {
+      height: "100%",
+      width: 1,
+      marginHorizontal: 16,
+      backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
   };
 
@@ -305,10 +407,15 @@ export default function Profile() {
             estimatedItemSize={200}
             ref={ref}
             renderItem={({ item }) => (
-              <FeedCardProfile key={item.id} item={item} user={user} />
+              <FeedCardListItem
+                key={item.id}
+                item={item}
+                user={user}
+                extraPadding={true}
+              />
             )}
             ListHeaderComponent={renderHeaderText}
-            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            ListFooterComponent={() => <View style={styles.flashListFooter} />}
             onRefresh={onRefresh}
             refreshing={refreshing}
           />
@@ -323,7 +430,7 @@ export default function Profile() {
             ref={ref}
             renderItem={() => <FeedCardSkeleton />}
             ListHeaderComponent={renderHeaderText}
-            ListFooterComponent={() => <View style={styles.feedListFooter} />}
+            ListFooterComponent={() => <View style={styles.flashListFooter} />}
             onRefresh={onRefresh}
             refreshing={refreshing}
           />

@@ -10,7 +10,7 @@ import FeedCardListItem from "../components/FeedCardListItem";
 
 export default function TabOneScreen() {
   const { feeds } = useContext(FeedContext);
-  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const { user, userSubscriptionUrls, userSubscriptionIds } = useContext(AuthContext);
 
   const params = useLocalSearchParams();
 
@@ -24,6 +24,7 @@ export default function TabOneScreen() {
       (feed) =>
         feed.channel_categories &&
         feed.channel_categories.includes(params.title) &&
+        userSubscriptionIds.includes(feed.id) &&
         feed.channel_image_url
     )
     .sort(
