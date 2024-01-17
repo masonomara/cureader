@@ -5,7 +5,14 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { TouchableOpacity, Text, View, useColorScheme } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  useColorScheme,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import Colors from "../../constants/Colors";
@@ -13,15 +20,45 @@ import { FeedContext, AuthContext } from "../_layout";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 import FeedCardListItem from "../../components/FeedCardListItem";
+import { chunkArray } from "../utils/Formatting";
+import CategoriesContainer from "../../components/CategoriesContainer";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const { feeds, popularFeeds } = useContext(FeedContext);
-  const { user, userSubscriptionUrls } = useContext(AuthContext);
+  const { feeds, feedCategories, popularFeeds } = useContext(FeedContext);
+  const { user, userSubscriptionUrls, userSubscriptionIds } =
+    useContext(AuthContext);
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const ref = useRef(null);
+
+  const filteredCategories = feedCategories
+    .filter((category) =>
+      category.channels
+        .flat()
+        .some((channel) => userSubscriptionIds.includes(parseInt(channel)))
+    )
+    .sort((a, b) => {
+      // Sort categories based on the number of matching channels/ids
+      const aMatchingChannels = a.channels
+        .flat()
+        .filter((channel) =>
+          userSubscriptionIds.includes(parseInt(channel))
+        ).length;
+
+      const bMatchingChannels = b.channels
+        .flat()
+        .filter((channel) =>
+          userSubscriptionIds.includes(parseInt(channel))
+        ).length;
+
+      return bMatchingChannels - aMatchingChannels;
+    });
+
+  const chunkedCategories = chunkArray(filteredCategories, 2);
+
+  const CARD_WIDTH = Dimensions.get("window").width - 32;
 
   useScrollToTop(
     useRef({
@@ -76,6 +113,44 @@ export default function Profile() {
           </TouchableOpacity>
         )}
       </View> */}
+      {userInitialFeeds.length > 0 && (
+        <>
+          <View style={styles.headerWrapper}>
+            <Text style={styles.title}>Your Categories</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.categoriesList]}
+            decelerationRate={0}
+            snapToInterval={CARD_WIDTH + 8}
+            snapToAlignment={"left"}
+          >
+            {chunkedCategories.map((row, rowIndex) => (
+              <View
+                key={rowIndex}
+                style={{
+                  flexDirection: "row",
+                  gap: 8,
+                  flexWrap: "wrap",
+                  width: CARD_WIDTH,
+                }}
+              >
+                {row.map((category) => (
+                  <CategoriesContainer
+                    key={category.id}
+                    category={category}
+                    feeds={feeds}
+                    router={router}
+                    profile={true}
+                  />
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+        </>
+      )}
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>
           {userInitialFeeds.length > 0 ? "Your Feeds" : "Popular Feeds"}
@@ -98,7 +173,6 @@ export default function Profile() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-      paddingHorizontal: 16,
     },
     profileHeader: {
       width: "100%",
@@ -182,7 +256,7 @@ export default function Profile() {
       letterSpacing: -0.17,
     },
     headerWrapper: {
-      paddingHorizontal: 0,
+      paddingHorizontal: 16,
       paddingVertical: 9,
       gap: 3,
       width: "100%",
@@ -249,6 +323,11 @@ export default function Profile() {
     flashListFooter: {
       height: 16,
     },
+    categoriesList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      marginBottom: 38,
+    },
   };
 
   return (
@@ -262,7 +341,12 @@ export default function Profile() {
             estimatedItemSize={200}
             ref={ref}
             renderItem={({ item }) => (
-              <FeedCardListItem key={item.id} item={item} user={user} />
+              <FeedCardListItem
+                key={item.id}
+                item={item}
+                user={user}
+                extraPadding={true}
+              />
             )}
             ListHeaderComponent={renderHeaderText}
             ListFooterComponent={() => <View style={styles.flashListFooter} />}

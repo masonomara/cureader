@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   useColorScheme,
 } from "react-native";
 import Colors from "../constants/Colors.js";
+import { AuthContext } from "../app/_layout.jsx";
 
-function CategoriesContainer({ category, feeds, router }) {
+function CategoriesContainer({ category, feeds, router, profile }) {
+  const { userSubscriptionIds } = useContext(AuthContext);
+
   const colorScheme = useColorScheme();
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -89,6 +92,7 @@ function CategoriesContainer({ category, feeds, router }) {
       (feed) =>
         feed.channel_categories &&
         feed.channel_categories.includes(category.title) &&
+        (profile ? userSubscriptionIds.includes(feed.id) : true) &&
         feed.channel_image_url
     )
     .sort(
@@ -102,7 +106,8 @@ function CategoriesContainer({ category, feeds, router }) {
         style={styles.categoryWrapper}
         onPress={() =>
           router.push({
-            pathname: "/categoryView",
+            pathname: profile ? "/userCategoryView" : "/categoryView",
+
             params: {
               title: category.title,
               channels: category.channels,
