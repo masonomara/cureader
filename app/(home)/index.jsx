@@ -525,8 +525,8 @@ export default function Index() {
                             Welcome to Cureader!
                           </Text>
                           <Text style={styles.subtitle}>
-                            Feel free to explore your Explore Page or check out
-                            our most popular feeds below.
+                            Feel free to check out the Explore Page or get
+                            started by subscribing to a feed below.
                           </Text>
                           <TouchableOpacity
                             style={styles.button}
