@@ -89,8 +89,6 @@ export default function Profile() {
     setRefreshing(false);
   };
 
-  console.log(user);
-
   const renderHeaderText = () => (
     <>
       <View style={styles.profileHeader}>
@@ -100,7 +98,9 @@ export default function Profile() {
 
         <View style={styles.userInfoContainer}>
           <View style={styles.userInfoWrapper}>
-            <Text style={styles.userInfoTitle}>{userSubscriptionIds.length}</Text>
+            <Text style={styles.userInfoTitle}>
+              {userSubscriptionIds.length}
+            </Text>
             <Text style={styles.userInfoSubtitle}>Feeds</Text>
           </View>
           <View style={styles.userInfoDivider} />
@@ -166,8 +166,6 @@ export default function Profile() {
                   <CategoriesContainer
                     key={category.id}
                     category={category}
-                    feeds={feeds}
-                    router={router}
                     profile={true}
                   />
                 ))}

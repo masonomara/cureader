@@ -22,7 +22,12 @@ import Dots20 from "./icons/20/Dots20";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-export default function FeedCardListItem({ item, user, extraPadding }) {
+export default function FeedCardListItem({
+  item,
+  user,
+  extraPadding,
+  borderBottom,
+}) {
   const {
     userAdmin,
     userSubscriptionUrls,
@@ -76,7 +81,8 @@ export default function FeedCardListItem({ item, user, extraPadding }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderTopWidth: 0.5,
+      ...(!borderBottom && { borderTopWidth: 0.5 }),
+      ...(borderBottom && { borderBottomWidth: 0.5 }),
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
@@ -85,7 +91,7 @@ export default function FeedCardListItem({ item, user, extraPadding }) {
       width: CARD_WIDTH,
       gap: 10,
       paddingVertical: 10,
-      ...(extraPadding && { marginHorizontal: 16 }), // Conditionally apply paddingHorizontal
+      ...(extraPadding && { marginHorizontal: 16 }),
     },
     cardContent: {
       display: "flex",
