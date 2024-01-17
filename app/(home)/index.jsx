@@ -410,7 +410,7 @@ export default function Index() {
     },
     headerWrapper: {
       paddingHorizontal: 0,
-      paddingVertical: 9,
+      paddingBottom: 10,
       gap: 3,
       width: "100%",
       minWidth: "100%",

@@ -42,9 +42,6 @@ export default function FeedCardListItem({
     userSubscriptionIds.includes(item.id)
   );
 
-  const shouldRenderEditButton =
-    item.channel_creator === user.id || userAdmin === true;
-
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
   }, [userSubscriptionIds, item.id]);
@@ -77,6 +74,9 @@ export default function FeedCardListItem({
       setIsSubscribed(!isSubscribed);
     }
   };
+
+  const shouldRenderEditButton =
+    item.channel_creator === user.id || userAdmin === true;
 
   const styles = {
     card: {

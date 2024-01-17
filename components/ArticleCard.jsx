@@ -34,12 +34,45 @@ export default function ArticleCard({
   const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
   const [isBookmarked, setIsBookmarked] = useState(
-    userBookmarks.some((bookmark) => bookmark.id === item.id)
+    userBookmarks.some((bookmark) => bookmark.title === item.title)
   );
 
   useLayoutEffect(() => {
-    setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
+    setIsBookmarked(
+      userBookmarks.some((bookmark) => bookmark.title === item.title)
+    );
   }, [userBookmarks, item]);
+
+  const handleBookmark = async () => {
+    setIsBookmarked(!isBookmarked);
+
+    try {
+      const updatedUserBookmarks = isBookmarked
+        ? userBookmarks.filter((bookmark) => bookmark.title !== item.title)
+        : [...userBookmarks, item];
+
+      setUserBookmarks(updatedUserBookmarks);
+
+      await updateUserBookmarks(updatedUserBookmarks);
+    } catch (error) {
+      console.error("Error handling bookmark:", error);
+      setIsBookmarked(!isBookmarked);
+    }
+  };
+
+  const updateUserBookmarks = async (updatedBookmarks) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user bookmarks:", error);
+      throw error;
+    }
+  };
 
   const [imageWidth, setImageWidth] = useState(0);
 
@@ -78,38 +111,6 @@ export default function ArticleCard({
     }
   };
 
-  const handleBookmark = async () => {
-    const optimisticBookmark = !isBookmarked;
-    setIsBookmarked(optimisticBookmark);
-
-    try {
-      const updatedUserBookmarks = optimisticBookmark
-        ? [...userBookmarks, item]
-        : userBookmarks.filter((bookmark) => bookmark !== item);
-
-      setUserBookmarks(updatedUserBookmarks);
-
-      await updateUserBookmarks(updatedUserBookmarks);
-    } catch (error) {
-      console.error("Error handling bookmark:", error);
-      setIsBookmarked(!isBookmarked);
-    }
-  };
-
-  const updateUserBookmarks = async (updatedBookmarks) => {
-    try {
-      await supabase
-        .from("profiles")
-        .update({
-          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
-        })
-        .eq("id", user.id);
-    } catch (error) {
-      console.error("Error updating user bookmarks:", error);
-      throw error;
-    }
-  };
-
   const renderCardControls = () => (
     <View style={styles.cardControls}>
       <View style={styles.cardButtons}>
@@ -145,11 +146,9 @@ export default function ArticleCard({
 
   const styles = {
     card: {
-      borderBottomWidth: 2,
-      paddingTop: 24,
-      paddingLeft: 16,
-      paddingRight: 16,
-      paddingBottom: 7,
+      borderBottomWidth: 1,
+      paddingHorizontal: 16,
+      paddingTop: 16,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -179,7 +178,7 @@ export default function ArticleCard({
     },
     cardContentWrapper: {
       display: "flex",
-      paddingBottom: 0,
+
       flexDirection: "column",
       alignItems: "flex-start",
       flex: 1,
@@ -203,7 +202,7 @@ export default function ArticleCard({
       flexDirection: "column",
       width: "100%",
       alignItems: "flex-start",
-      marginBottom: 6,
+
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
@@ -220,11 +219,8 @@ export default function ArticleCard({
       alignItems: "center",
       justifyContent: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 6,
-
       overflow: "hidden",
-      height: 19,
-      gap: 7,
+      marginBottom: 3,
     },
     publicationText: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
@@ -263,8 +259,7 @@ export default function ArticleCard({
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
-      marginBottom: 27,
-      color: `${Colors[colorScheme || "light"].textMedium}`,
+      color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
@@ -279,6 +274,7 @@ export default function ArticleCard({
       flexDirection: "row",
       width: "100%",
       height: 44,
+      marginTop: 16,
     },
     cardButtons: {
       display: "flex",
@@ -300,28 +296,28 @@ export default function ArticleCard({
       alignItems: "center",
       justifyContent: "center",
       flexDirection: "row",
+      borderWidth: 0.5,
+      paddingLeft: 10,
       gap: 5,
       paddingRight: 12,
-      paddingLeft: 10,
       borderColor: Colors[colorScheme || "light"].border,
       borderRadius: 100,
-      backgroundColor: Colors[colorScheme || "light"].surfaceOne,
     },
     buttonText: {
       color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterMedium",
       fontWeight: "500",
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.14,
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
     },
     noImageContainer: {
       aspectRatio: 1 / 1,
       flex: 1,
       borderRadius: 12,
-      marginTop: 25.3,
-      maxWidth: 74,
-      width: 74,
+      maxWidth: 68,
+      width: 68,
+      marginTop: 19,
       borderWidth: 0.5,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       backgroundColor: getColorForLetter(publication),
@@ -370,9 +366,7 @@ export default function ArticleCard({
           <View style={styles.cardContent}>
             <View style={styles.cardContentWrapper}>
               <Text style={styles.publicationWrapper}>
-                <Text style={styles.publicationText}>
-                  {publication}&nbsp;&nbsp;
-                </Text>
+                <Text style={styles.publicationText}>{publication}&nbsp;</Text>
                 <Text style={styles.articleDate}>
                   {formatPublicationDate(item.published)}
                 </Text>
@@ -392,7 +386,7 @@ export default function ArticleCard({
           <View
             style={{
               width: "100%",
-              gap: 10,
+              gap: 16,
               flexDirection: "row",
             }}
           >
@@ -403,7 +397,7 @@ export default function ArticleCard({
               }}
             >
               <View style={styles.publicationWrapper}>
-                <Text style={styles.publicationText}>{publication}</Text>
+                <Text style={styles.publicationText}>{publication}&nbsp;</Text>
                 <Text style={styles.articleDate}>
                   {formatPublicationDate(item.published)}
                 </Text>
@@ -424,10 +418,9 @@ export default function ArticleCard({
                   aspectRatio: 1 / 1,
                   flex: 1,
                   borderRadius: 12,
-                  marginTop: 25.3,
-                  marginBottom: 3,
-                  maxWidth: 74,
-                  width: 74,
+                  marginTop: 19,
+                  maxWidth: 68,
+                  width: 68,
                   borderWidth: 0.5,
                   borderColor: `${Colors[colorScheme || "light"].border}`,
                   backgroundColor: `white`,
