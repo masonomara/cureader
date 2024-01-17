@@ -34,12 +34,45 @@ export default function ArticleCard({
   const { userBookmarks, setUserBookmarks } = useContext(AuthContext);
 
   const [isBookmarked, setIsBookmarked] = useState(
-    userBookmarks.some((bookmark) => bookmark.id === item.id)
+    userBookmarks.some((bookmark) => bookmark.title === item.title)
   );
 
   useLayoutEffect(() => {
-    setIsBookmarked(userBookmarks.some((bookmark) => bookmark.id === item.id));
+    setIsBookmarked(
+      userBookmarks.some((bookmark) => bookmark.title === item.title)
+    );
   }, [userBookmarks, item]);
+
+  const handleBookmark = async () => {
+    setIsBookmarked(!isBookmarked);
+
+    try {
+      const updatedUserBookmarks = isBookmarked
+        ? userBookmarks.filter((bookmark) => bookmark.title !== item.title)
+        : [...userBookmarks, item];
+
+      setUserBookmarks(updatedUserBookmarks);
+
+      await updateUserBookmarks(updatedUserBookmarks);
+    } catch (error) {
+      console.error("Error handling bookmark:", error);
+      setIsBookmarked(!isBookmarked);
+    }
+  };
+
+  const updateUserBookmarks = async (updatedBookmarks) => {
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
+        })
+        .eq("id", user.id);
+    } catch (error) {
+      console.error("Error updating user bookmarks:", error);
+      throw error;
+    }
+  };
 
   const [imageWidth, setImageWidth] = useState(0);
 
@@ -75,38 +108,6 @@ export default function ArticleCard({
       });
     } catch (error) {
       console.error("Error sharing:", error.message);
-    }
-  };
-
-  const handleBookmark = async () => {
-    const optimisticBookmark = !isBookmarked;
-    setIsBookmarked(optimisticBookmark);
-
-    try {
-      const updatedUserBookmarks = optimisticBookmark
-        ? [...userBookmarks, item]
-        : userBookmarks.filter((bookmark) => bookmark !== item);
-
-      setUserBookmarks(updatedUserBookmarks);
-
-      await updateUserBookmarks(updatedUserBookmarks);
-    } catch (error) {
-      console.error("Error handling bookmark:", error);
-      setIsBookmarked(!isBookmarked);
-    }
-  };
-
-  const updateUserBookmarks = async (updatedBookmarks) => {
-    try {
-      await supabase
-        .from("profiles")
-        .update({
-          bookmarks: updatedBookmarks.map((bookmark) => bookmark),
-        })
-        .eq("id", user.id);
-    } catch (error) {
-      console.error("Error updating user bookmarks:", error);
-      throw error;
     }
   };
 
