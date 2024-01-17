@@ -21,7 +21,7 @@ export default function TabOneScreen() {
 
   const colorScheme = useColorScheme();
 
-  console.log(feedCategories);
+
 
   const styles = {
     container: {
