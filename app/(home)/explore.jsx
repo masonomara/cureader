@@ -51,6 +51,7 @@ export default function Explore() {
   const [searchInput, setSearchInput] = useState("");
   const [parserInput, setParserInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchResultsCategories, setSearchResultsCategories] = useState([]);
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
@@ -197,7 +198,32 @@ export default function Explore() {
 
       filterResults();
     }
-  }, [searchInput, feeds]);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (feedCategories != null) {
+      const filterResults = () => {
+        if (searchInput !== null) {
+          const lowercasedInput = searchInput.toLowerCase();
+
+          const filteredCategories = feedCategories.filter((category) => {
+            const titleMatch = category.title
+              .toLowerCase()
+              .includes(lowercasedInput);
+
+            return titleMatch;
+          });
+
+          setSearchResultsCategories(filteredCategories);
+          console.log(filteredCategories);
+        } else {
+          setSearchResultsCategories([]);
+        }
+      };
+
+      filterResults();
+    }
+  }, [searchInput]);
 
   const styles = {
     container: {
@@ -316,7 +342,7 @@ export default function Explore() {
       flex: 1,
     },
     searchHeader: {
-      borderBottomWidth: 1,
+      borderBottomWidth: 0.5,
       paddingBottom: 7,
       paddingTop: 8,
       borderBottomColor: `${Colors[colorScheme || "light"].border}`,
@@ -438,6 +464,17 @@ export default function Explore() {
     searchResultsList: {
       alignItems: "center",
       justifyContent: "center",
+    },
+    searchResultsListCategories: {
+      flex: 1,
+      marginBottom: 16,
+      marginTop: 8,
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      rowGap: 8,
+      overflow: "hidden",
     },
     feedsLoadingScreen: {},
     feedsLoadingContainer: {
@@ -563,38 +600,84 @@ export default function Explore() {
       </View>
       {textInputFocused || searchInput.length > 0 ? (
         <ScrollView style={styles.searchContainer}>
-          <View style={styles.searchHeader}>
-            <Text style={styles.searchHeaderText}>
-              {searchInput.length > 0
-                ? searchResults.length == 0 &&
-                  !channelData.wait &&
-                  channelData.title
-                  ? "RSS Feed found from URL"
-                  : searchResults.length > 0 || channelData.title
-                  ? `Search Results (${searchResults.length})`
-                  : searchResults.length === 0 && channelData.wait
-                  ? "Searching..."
-                  : "No Search Results Found"
-                : "Search Results"}
-            </Text>
-          </View>
-
-          {searchInput.length > 0 && (
-            <View
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              style={[styles.searchResultsList]}
-              decelerationRate={0}
-              snapToInterval={CARD_WIDTH + 8}
-              snapToAlignment={"left"}
-            >
-              {searchResults.map((item) => (
-                <FeedCardListItem key={item.id} item={item} user={user} />
-              ))}
+          {searchInput.length == 0 && (
+            <View style={styles.searchHeader}>
+              <Text style={styles.searchHeaderText}>
+                {searchInput.length > 0
+                  ? searchResults.length == 0 &&
+                    !channelData.wait &&
+                    channelData.title
+                    ? "Feed found from URL"
+                    : searchResults.length > 0 || channelData.title
+                    ? `Feeds (${searchResults.length})`
+                    : searchResults.length === 0 && channelData.wait
+                    ? "Searching..."
+                    : "No Feeds Found"
+                  : "Search Results"}
+              </Text>
             </View>
           )}
 
-          <View style={styles.noResultsWrapper}>
+          {searchInput.length > 0 && (
+            <>
+              {searchResultsCategories.length > 0 ? (
+                <>
+                  <View style={styles.searchHeader}>
+                    <Text style={styles.searchHeaderText}>
+                      {searchInput.length > 0
+                        ? searchResultsCategories.length === 0 &&
+                          !channelData.wait &&
+                          channelData.title
+                          ? "Category found from URL"
+                          : searchResultsCategories.length > 0 ||
+                            channelData.title
+                          ? `Categories (${searchResultsCategories.length})`
+                          : searchResultsCategories.length === 0 &&
+                            channelData.wait
+                          ? "Searching..."
+                          : "No Categories Found"
+                        : "Search Results"}
+                    </Text>
+                  </View>
+                  <View style={[styles.searchResultsListCategories]}>
+                    {searchResultsCategories.map((item) => (
+                      <CategoriesContainer key={item.id} category={item} />
+                    ))}
+                  </View>
+                </>
+              ) : (
+                <></>
+              )}
+
+              <View style={styles.searchHeader}>
+                <Text style={styles.searchHeaderText}>
+                  {searchInput.length > 0
+                    ? searchResults.length == 0 &&
+                      !channelData.wait &&
+                      channelData.title
+                      ? "Feed found from URL"
+                      : searchResults.length > 0 || channelData.title
+                      ? `Feeds (${searchResults.length})`
+                      : searchResults.length === 0 && channelData.wait
+                      ? "Searching..."
+                      : "No Feeds Found"
+                    : "Search Results"}
+                </Text>
+              </View>
+              <View style={[styles.searchResultsList]}>
+                {searchResults.map((item) => (
+                  <FeedCardListItem
+                    key={item.id}
+                    item={item}
+                    user={user}
+                    borderBottom={true}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+
+          {/* <View style={styles.noResultsWrapper}>
             {searchResults.length == 0 &&
               !channelData.wait &&
               channelData.title && (
@@ -670,7 +753,7 @@ export default function Explore() {
                 </Text>
               </View>
             </View>
-          </View>
+          </View> */}
         </ScrollView>
       ) : (
         <View style={styles.searchContainer}></View>
@@ -718,12 +801,7 @@ export default function Explore() {
               }}
             >
               {row.map((category) => (
-                <CategoriesContainer
-                  key={category.id}
-                  category={category}
-                  feeds={feeds}
-                  router={router}
-                />
+                <CategoriesContainer key={category.id} category={category} />
               ))}
             </View>
           ))}
