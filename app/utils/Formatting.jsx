@@ -12,6 +12,22 @@ export function formatPublicationDate(published) {
   return `${yearsAgo}y`;
 }
 
+export function formatPublicationDateProper(published) {
+  const timeDifference = new Date() - new Date(published);
+  const minutesAgo = Math.floor(timeDifference / (60 * 1000));
+  const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
+  const daysAgo = Math.floor(hoursAgo / 24);
+  const monthsAgo = Math.floor(daysAgo / 30); // Assuming 30 days in a month
+  const yearsAgo = Math.floor(daysAgo / 365);
+
+  if (minutesAgo < 1) return "Just now";
+  if (hoursAgo < 24) return `${hoursAgo} ${hoursAgo === 1 ? "Hour" : "Hours"}`;
+  if (daysAgo < 30) return `${daysAgo} ${daysAgo === 1 ? "Day" : "Days"}`;
+  if (monthsAgo < 12)
+    return `${monthsAgo} ${monthsAgo === 1 ? "Month" : "Months"}`;
+  return `${yearsAgo} ${yearsAgo === 1 ? "Year" : "Years"}`;
+}
+
 export function formatDescription(description, maxLength) {
   const formattedDescription = description
     .replace(/<[^>]*>/g, "")
