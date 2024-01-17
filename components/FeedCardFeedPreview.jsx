@@ -66,7 +66,7 @@ export default function FeedCardFeedPreview({ item }) {
           updatedUserSubscriptionUrls,
           user.id
         ),
-        updateChannelSubscribers(item.id, user.id, !isSubscribed, feeds),
+        updateChannelSubscribers(itemId, user.id, !isSubscribed, feeds),
       ]);
     } catch (error) {
       console.error("Error handling subscription:", error);
