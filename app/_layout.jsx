@@ -406,6 +406,22 @@ function RootLayoutNav() {
                 })}
               />
               <Stack.Screen
+                name="userCategoryView"
+                options={({ route }) => ({
+                  title: `${route.params.title}` || "Category",
+                  headerStyle: {
+                    shadowColor: "white",
+                    backgroundColor: Colors[colorScheme || "light"].background,
+                    elevation: 0,
+                    shadowOpacity: 0,
+                  },
+                  headerTintColor: Colors[colorScheme || "light"].colorPrimary,
+                  headerBackTitle: "Back",
+                  headerTitleStyle: styles.headerTitleText,
+                  headerBackTitleStyle: styles.headerBackButtonText,
+                })}
+              />
+              <Stack.Screen
                 name="allPopularFeeds"
                 options={{
                   title: "Popular Feeds",
