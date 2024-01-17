@@ -265,7 +265,7 @@ export default function FeedCardFeedPreview({ item }) {
         ) : (
           <Text numberOfLines={3} style={styles.description}></Text>
         )}
-        {/* <Text style={styles.feedTitle}>Feed</Text> */}
+
         <View style={styles.buttonsWrapper}>
           <TouchableOpacity
             style={styles.subscribeButtonWrapper}

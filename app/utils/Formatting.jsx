@@ -17,7 +17,7 @@ export function formatPublicationDateProper(published) {
   const minutesAgo = Math.floor(timeDifference / (60 * 1000));
   const hoursAgo = Math.floor(timeDifference / (60 * 60 * 1000));
   const daysAgo = Math.floor(hoursAgo / 24);
-  const monthsAgo = Math.floor(daysAgo / 30); // Assuming 30 days in a month
+  const monthsAgo = Math.floor(daysAgo / 30);
   const yearsAgo = Math.floor(daysAgo / 365);
 
   if (minutesAgo < 1) return "Just now";

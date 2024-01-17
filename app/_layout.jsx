@@ -93,29 +93,6 @@ function RootLayoutNav() {
   const [session, setSession] = useState(null);
   const colorScheme = useColorScheme();
 
-  // useEffect(() => {
-  //   SplashScreen.hideAsync();
-  //   console.log("[LAYOUT 0.1] prepping fetchFeeds:");
-  //   async function fetchFeeds() {
-  //     console.log("[LAYOUT 0.2] running fetchFeeds:");
-  //     try {
-  //       const { data: feedsData, error } = await supabase
-  //         .from("channels")
-  //         .select("*");
-  //       if (error) {
-  //         console.error("Error fetching feeds:", error);
-  //         return;
-  //       }
-  //       setFeeds(feedsData);
-  //       setFeedsFetched(true);
-  //     } catch (error) {
-  //       console.error("Error fetching feeds:", error);
-  //     }
-  //   }
-
-  //   fetchFeeds();
-  // }, []);
-
   const sortFeedsBySubscribers = (feeds) => {
     return feeds.slice().sort((a, b) => {
       const subscribersA = a.channel_subscribers
