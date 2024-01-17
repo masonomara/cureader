@@ -20,7 +20,7 @@ import { FeedContext, AuthContext } from "../_layout";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 import FeedCardListItem from "../../components/FeedCardListItem";
-import { chunkArray } from "../utils/Formatting";
+import { chunkArray, formatPublicationDateProper } from "../utils/Formatting";
 import CategoriesContainer from "../../components/CategoriesContainer";
 
 export default function Profile() {
@@ -89,21 +89,46 @@ export default function Profile() {
     setRefreshing(false);
   };
 
+  console.log(user);
+
   const renderHeaderText = () => (
     <>
-      {/* <View style={styles.profileHeader}>
-        <Text style={styles.username}>
+      <View style={styles.profileHeader}>
+        <Text style={styles.userTitle} numberOfLines={1}>
           Hello {user?.user_metadata?.displayName || null}
         </Text>
-        <Text style={styles.subtitle}>
-          {userSubscriptionUrls === null
-            ? "Your feeds are currently loading..."
-            : userInitialFeeds.length === 1
-            ? "You are currently subscribed to 1 feed."
-            : userInitialFeeds.length > 1
-            ? `You are currently subscribed to ${userInitialFeeds.length} feeds.`
-            : "It looks like you aren't subscribed to any feeds yet!"}
-        </Text>
+
+        <View style={styles.userInfoContainer}>
+          <View style={styles.userInfoWrapper}>
+            <Text style={styles.userInfoTitle}>{userSubscriptionIds.length}</Text>
+            <Text style={styles.userInfoSubtitle}>Feeds</Text>
+          </View>
+          <View style={styles.userInfoDivider} />
+          <View style={styles.userInfoWrapper}>
+            <Text style={styles.userInfoTitle}>
+              {filteredCategories.length}
+            </Text>
+            <Text style={styles.userInfoSubtitle}>Categories</Text>
+          </View>
+          <View style={styles.userInfoDivider} />
+          <View style={styles.userInfoWrapper}>
+            {formatPublicationDateProper(user.created_at)
+              .split(" ")
+              .map((part, index) => (
+                <Text
+                  key={index}
+                  style={
+                    index % 2 === 0
+                      ? styles.userInfoTitle
+                      : styles.userInfoSubtitle
+                  }
+                >
+                  {part}
+                </Text>
+              ))}
+          </View>
+        </View>
+
         {userInitialFeeds.length === 0 && (
           <TouchableOpacity
             style={styles.button}
@@ -112,7 +137,7 @@ export default function Profile() {
             <Text style={styles.buttonText}>View Explore Page</Text>
           </TouchableOpacity>
         )}
-      </View> */}
+      </View>
       {userInitialFeeds.length > 0 && (
         <>
           <View style={styles.headerWrapper}>
@@ -178,7 +203,7 @@ export default function Profile() {
       width: "100%",
       alignItems: "center",
       padding: 24,
-      paddingHorizontal: 8,
+      paddingHorizontal: 16,
       paddingBottom: userInitialFeeds.length > 0 ? 0 : 48,
     },
     profileHeaderNoFeeds: {
@@ -198,6 +223,15 @@ export default function Profile() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
+    },
+    userTitle: {
+      color: `${Colors[colorScheme || "light"].textHigh}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     input: {
       width: "100%",
@@ -327,6 +361,39 @@ export default function Profile() {
       gap: 8,
       paddingHorizontal: 16,
       marginBottom: 38,
+    },
+    userInfoContainer: {
+      flex: 1,
+      marginTop: 15,
+      width: "100%",
+      flexDirection: "row",
+      marginBottom: 38,
+    },
+    userInfoWrapper: {
+      flexDirection: "column",
+      width: 77,
+    },
+    userInfoTitle: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 20,
+      lineHeight: 25,
+      letterSpacing: -0.2,
+    },
+    userInfoSubtitle: {
+      color: `${Colors[colorScheme || "light"].textMedium}`,
+      fontFamily: "InterRegular",
+      fontWeight: "400",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
+    },
+    userInfoDivider: {
+      height: "100%",
+      width: 1,
+      marginHorizontal: 16,
+      backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
   };
 
