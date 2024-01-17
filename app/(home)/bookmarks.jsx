@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 import { Text, TouchableOpacity, useColorScheme } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { AuthContext } from "../_layout";
@@ -13,6 +19,7 @@ export default function Bookmarks() {
   const colorScheme = useColorScheme();
   const { user, userBookmarks } = useContext(AuthContext);
   const [userInitialBookmarks, setUserInitialBookmarks] = useState([]);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const ref = useRef(null);
@@ -24,14 +31,19 @@ export default function Bookmarks() {
     })
   );
 
-  useEffect(() => {
-    if (userBookmarks != null) {
+  const fetchUserBookmarks = useCallback(async () => {
+    if (userBookmarks) {
       setUserInitialBookmarks(userBookmarks);
     }
-  }, [userBookmarks]);
+  }, []);
+
+  useEffect(() => {
+    fetchUserBookmarks();
+  }, [fetchUserBookmarks]);
 
   const onRefresh = async () => {
     setRefreshing(true);
+    setUserInitialBookmarks(userBookmarks);
     setRefreshing(false);
   };
 

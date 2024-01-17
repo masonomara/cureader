@@ -27,7 +27,6 @@ export default function Profile() {
   const { feeds, feedCategories, popularFeeds } = useContext(FeedContext);
   const { user, userSubscriptionUrls, userSubscriptionIds } =
     useContext(AuthContext);
-
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
 
   const [refreshing, setRefreshing] = useState(false);
