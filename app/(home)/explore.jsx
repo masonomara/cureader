@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useRef,
+  useMemo,
 } from "react";
 import {
   ScrollView,
@@ -14,18 +15,14 @@ import {
   Dimensions,
   TouchableOpacity,
   Keyboard,
-  Pressable,
-  Image,
 } from "react-native";
 import { AuthContext, FeedContext } from "../_layout";
 import FeedCardFeatured from "../../components/FeedCardFeatured";
 import * as WebBrowser from "expo-web-browser";
-import FeedCard from "../../components/FeedCard";
 import Colors from "../../constants/Colors";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import * as rssParser from "react-native-rss-parser";
-import FeedCardSearchPreview from "../../components/FeedCardSearchPreview";
 import { useScrollToTop } from "@react-navigation/native";
 import { chunkArray } from "../utils/Formatting";
 import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeaturedSkeleton";
@@ -93,7 +90,8 @@ export default function Explore() {
     setTextInputFocused(true);
   }, []);
 
-  const handleSearchInput = (searchInput) => {
+  const handleSearchInput = useCallback((searchInput) => {
+    setSearchInput(searchInput);
     setIsSearching(true);
     searchInput = searchInput.trim();
     let moddedSearchInput = "";
@@ -116,16 +114,7 @@ export default function Explore() {
     }));
 
     setParserInput(moddedSearchInput);
-    setSearchInput(searchInput);
-  };
-
-  const _handlePressButtonAsync = async (url) => {
-    try {
-      await WebBrowser.openBrowserAsync(url);
-    } catch (error) {
-      console.error("Error opening browser:", error);
-    }
-  };
+  }, []);
 
   useEffect(() => {
     const delayTimer = setTimeout(async () => {
@@ -270,7 +259,7 @@ export default function Explore() {
     searchIcon: {
       position: "absolute",
       left: 32,
-      top: 24,
+      top: 26,
       zIndex: 2,
       pointerEvents: "none",
     },
@@ -278,7 +267,7 @@ export default function Explore() {
       position: "absolute",
       right: 24,
       zIndex: 2,
-      height: 56,
+      height: 60,
       width: 44,
       top: 8,
       alignItems: "center",
@@ -600,7 +589,7 @@ export default function Explore() {
       </View>
       {textInputFocused || searchInput.length > 0 ? (
         <ScrollView style={styles.searchContainer}>
-          {searchInput.length == 0 && (
+          {searchInput.length === 0 && (
             <View style={styles.searchHeader}>
               <Text style={styles.searchHeaderText}>
                 {searchInput.length > 0
