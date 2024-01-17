@@ -356,6 +356,7 @@ export default function ArticleCard({
               borderWidth: 0.5,
               borderColor: `${Colors[colorScheme || "light"].border}`,
               marginBottom: 12,
+              backgroundColor: `white`,
             }}
           >
             <RNImage
@@ -429,6 +430,7 @@ export default function ArticleCard({
                   width: 74,
                   borderWidth: 0.5,
                   borderColor: `${Colors[colorScheme || "light"].border}`,
+                  backgroundColor: `white`,
                 }}
                 contentFit="cover"
                 source={{ uri: fallbackImage || item.image?.url }}

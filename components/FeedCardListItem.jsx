@@ -13,6 +13,7 @@ import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
+
 import {
   updateChannelSubscribers,
   updateUserSubscriptions,
@@ -21,7 +22,7 @@ import Dots20 from "./icons/20/Dots20";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
-export default function FeedCardListItem({ item, user }) {
+export default function FeedCardListItem({ item, user, extraPadding }) {
   const {
     userAdmin,
     userSubscriptionUrls,
@@ -84,6 +85,7 @@ export default function FeedCardListItem({ item, user }) {
       width: CARD_WIDTH,
       gap: 10,
       paddingVertical: 10,
+      ...(extraPadding && { marginHorizontal: 16 }), // Conditionally apply paddingHorizontal
     },
     cardContent: {
       display: "flex",
@@ -246,6 +248,7 @@ export default function FeedCardListItem({ item, user }) {
             overflow: "hidden",
             borderRadius: 12,
             borderWidth: 0.5,
+            backgroundColor: `white`,
             borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >

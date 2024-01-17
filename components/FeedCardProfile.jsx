@@ -250,6 +250,7 @@ export default function FeedCardProfile({ item, user }) {
             overflow: "hidden",
             borderRadius: 12,
             borderWidth: 0.5,
+            backgroundColor: `white`,
             borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >

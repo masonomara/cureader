@@ -256,6 +256,7 @@ export default function FeedCard({ item, user }) {
             overflow: "hidden",
             borderTopEndRadius: 12,
             borderTopStartRadius: 12,
+            backgroundColor: `white`,
           }}
         >
           <Image

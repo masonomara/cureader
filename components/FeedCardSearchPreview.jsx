@@ -276,14 +276,15 @@ export default function FeedCardSearchPreview({
             width: 64,
             overflow: "hidden",
             borderRadius: 10,
+            backgroundColor: `white`,
+            borderWidth: 0.5,
+            borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >
           <Image
             style={{
               flex: 1,
               borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: channelImageUrl }}
