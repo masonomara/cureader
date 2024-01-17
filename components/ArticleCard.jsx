@@ -335,7 +335,7 @@ export default function ArticleCard({
       fontWeight: "500",
       fontSize: 25,
       lineHeight: 25,
-      letterSpacing: -0.173,
+      letterSpacing: -0.187,
       color: getTextColorForLetter(publication),
       textAlignVertical: "center",
       textAlign: "center",

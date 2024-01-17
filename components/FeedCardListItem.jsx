@@ -199,7 +199,7 @@ export default function FeedCardListItem({ item, user, extraPadding }) {
       fontWeight: "500",
       fontSize: 23,
       lineHeight: 23,
-      letterSpacing: -0.173,
+      letterSpacing: -0.172,
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",

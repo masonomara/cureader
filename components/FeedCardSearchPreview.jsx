@@ -232,8 +232,8 @@ export default function FeedCardSearchPreview({
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
+      height: 68,
+      width: 68,
       borderRadius: 10,
       backgroundColor: getColorForLetter(channelTitle[0]),
       display: "flex",
@@ -245,9 +245,9 @@ export default function FeedCardSearchPreview({
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 23,
-      lineHeight: 26,
-      letterSpacing: -0.173,
-      height: 26,
+      lineHeight: 23,
+      letterSpacing: -0.172,
+
       color: getTextColorForLetter(channelTitle[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -273,7 +273,7 @@ export default function FeedCardSearchPreview({
         <View
           style={{
             aspectRatio: "1/1",
-            width: 64,
+            width: 68,
             overflow: "hidden",
             borderRadius: 10,
             backgroundColor: `white`,

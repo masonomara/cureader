@@ -247,8 +247,8 @@ export default function FeedCardToolTip({ item }) {
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
+      height: 68,
+      width: 68,
       borderRadius: 10,
       backgroundColor: getColorForLetter(item.channel_title[0]),
       display: "flex",
@@ -260,9 +260,9 @@ export default function FeedCardToolTip({ item }) {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 23,
-      lineHeight: 26,
+      lineHeight: 23,
       letterSpacing: -0.173,
-      height: 26,
+
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -361,7 +361,7 @@ export default function FeedCardToolTip({ item }) {
             <View
               style={{
                 aspectRatio: "1/1",
-                width: 64,
+                width: 68,
                 overflow: "hidden",
                 borderRadius: 10,
               }}

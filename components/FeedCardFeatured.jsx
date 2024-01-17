@@ -201,10 +201,10 @@ export default function FeedCard({ item, user }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 72,
-      lineHeight: 75,
+      fontSize: 80,
+      lineHeight: 80,
       letterSpacing: -0.54,
-      height: 75,
+
       color: getTextColorForLetter(item.channel_title[0]),
       textAlignVertical: "center",
       textAlign: "center",

@@ -187,8 +187,6 @@ export default function FeedCardFeedPreview({ item }) {
       aspectRatio: "5/3",
       width: "100%",
       overflow: "hidden",
-      borderTopEndRadius: 12,
-      borderTopStartRadius: 12,
       backgroundColor: getColorForLetter(item.title[0]),
       display: "flex",
       alignItems: "center",
@@ -198,10 +196,10 @@ export default function FeedCardFeedPreview({ item }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 72,
-      lineHeight: 75,
-      letterSpacing: -0.54,
-      height: 75,
+      fontSize: 80,
+      lineHeight: 80,
+      letterSpacing: -0.6,
+
       color: getTextColorForLetter(item.title[0]),
       textAlignVertical: "center",
       textAlign: "center",
