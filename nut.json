@@ -1,0 +1,33 @@
+[
+  {
+    "feed": {
+      "id": 148,
+      "created_at": "2024-01-06T17:39:08.006944+00:00",
+      "channel_url": "https://news.ycombinator.com/rss",
+      "channel_title": "Hacker News",
+      "channel_creator": "7a431e01-c6f5-4b7f-9ece-85046a5c630b",
+      "channel_updated": "2024-01-16T03:07:03.072",
+      "channel_image_url": "https://play-lh.googleusercontent.com/S-jC2RtBE_9A29myfMZgU22AwF-eITjCBBMEf4YIqXODDiazO6fOhzw243IFCxytLDE",
+      "channel_categories": ["Startups", "Development", "Coding", "Technology"],
+      "channel_description": "Links for the intellectually curious, ranked by readers.",
+      "channel_subscribers": ["7a431e01-c6f5-4b7f-9ece-85046a5c630b"]
+    },
+    "image": {},
+    "links": [
+      {
+        "rel": "",
+        "url": "https://www.theregister.com/2024/01/17/google_search_results_spam/"
+      }
+    ],
+    "title": "Researchers confirm what we already knew: Google results are getting worse",
+    "itunes": { "authors": [] },
+    "authors": [],
+    "published": "Wed, 17 Jan 2024 18:44:17 +0000",
+    "categories": [],
+    "channelUrl": "https://news.ycombinator.com/",
+    "enclosures": [],
+    "description": "<a href=\"https://news.ycombinator.com/item?id=39031691\">Comments</a>",
+    "fallbackImage": "https://play-lh.googleusercontent.com/S-jC2RtBE_9A29myfMZgU22AwF-eITjCBBMEf4YIqXODDiazO6fOhzw243IFCxytLDE",
+    "publicationDate": "2024-01-17T18:44:17.000Z"
+  }
+]
