@@ -214,6 +214,7 @@ export default function Explore() {
       flexDirection: "column",
       width: "100%",
       maxWidth: "100%",
+      paddingTop: 16,
     },
     randomChannelList: {
       gap: 8,
@@ -234,7 +235,7 @@ export default function Explore() {
     inputWrapper: {
       paddingHorizontal: 16,
       width: "100%",
-      paddingBottom: 12,
+      paddingBottom: 8,
       paddingTop: 8,
 
       height: 76,
