@@ -304,28 +304,29 @@ export default function Index() {
       width: "100%",
       alignItems: "center",
       padding: 24,
-      paddingHorizontal: 8,
+      paddingHorizontal: 0,
       paddingBottom: 48,
     },
     username: {
-      marginBottom: 4,
-      marginTop: 4,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 34,
+      lineHeight: 41,
+      letterSpacing: -0.34,
+      width: "100%",
     },
     subtitle: {
       marginBottom: 36,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterMedium",
+      fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 19,
-      textAlign: "center",
+      textAlign: "left",
       lineHeight: 24,
       letterSpacing: -0.19,
+      width: "100%",
+      paddingRight: 44,
     },
     button: {
       height: 48,
@@ -522,7 +523,7 @@ export default function Index() {
                       <>
                         <View style={styles.noFeedsHeader}>
                           <Text style={styles.username}>
-                            Welcome to Cureader!
+                            Welcome!
                           </Text>
                           <Text style={styles.subtitle}>
                             Feed free to view your Explore Page or see our most

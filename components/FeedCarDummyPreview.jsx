@@ -13,20 +13,18 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
   const styles = {
     card: {
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
-      borderWidth: 1,
+      borderWidth: 0.5,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "center",
       flexDirection: "row",
       display: "flex",
       flex: 1,
       width: CARD_WIDTH,
-      gap: 0,
-      paddingVertical: 12,
-      height: 89,
-      minHeight: 89,
-      maxHeight: 89,
-      borderRadius: 12,
-      paddingHorizontal: 12,
+      gap: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      borderRadius: 16,
+
       marginBottom: 32,
     },
     cardContent: {
@@ -34,18 +32,13 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      marginBottom: -2,
     },
     title: {
       display: "flex",
@@ -59,23 +52,19 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      gap: 3,
+      alignItems: "center",
     },
     description: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -94,7 +83,6 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -105,7 +93,7 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       letterSpacing: -0.15,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -113,22 +101,23 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       letterSpacing: -0.15,
     },
     noImageContainer: {
-      height: 64,
-      width: 64,
-      borderRadius: 10,
+      height: 68,
+      width: 68,
+      borderRadius: 12,
       backgroundColor: getColorForLetter(title[0] || "a"),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
       fontSize: 23,
-      lineHeight: 26,
-      letterSpacing: -0.173,
-      height: 26,
+      lineHeight: 23,
+      letterSpacing: -0.172,
       color: getTextColorForLetter(title[0] || "a"),
       textAlignVertical: "center",
       textAlign: "center",
@@ -154,17 +143,17 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
         <View
           style={{
             aspectRatio: "1/1",
-            width: 64,
+            width: 68,
             overflow: "hidden",
-            borderRadius: 10,
+            borderRadius: 12,
+            borderWidth: 0.5,
+            backgroundColor: `white`,
+            borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >
           <Image
             style={{
               flex: 1,
-              borderRadius: 12,
-              borderWidth: 0.67,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: imageUrl }}

@@ -30,6 +30,7 @@ import FeedCardFeaturedSkeleton from "../../components/skeletons/FeedCardFeature
 import FeedCardSkeleton from "../../components/skeletons/FeedCardSkeleton";
 import FeedCardListItem from "../../components/FeedCardListItem";
 import CategoriesContainer from "../../components/CategoriesContainer";
+import * as WebBrowser from "expo-web-browser";
 
 function SearchIcon({ size, ...props }) {
   return <Feather size={size || 24} {...props} />;
@@ -53,6 +54,14 @@ export default function Explore() {
   const [isSearchInputSelected, setIsSearchInputSelected] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
+
+  const _handlePressButtonAsync = async (url) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      console.error("Error opening browser:", error);
+    }
+  };
 
   const [channelData, setChannelData] = useState({
     title: "",
@@ -338,6 +347,14 @@ export default function Explore() {
       paddingTop: 8,
       borderBottomColor: `${Colors[colorScheme || "light"].border}`,
     },
+    searchHeaderNoResults: {
+      borderBottomWidth: 0.5,
+      paddingBottom: 7,
+      paddingTop: 8,
+      borderBottomColor: `${Colors[colorScheme || "light"].border}`,
+      width: "100%",
+      marginTop: 24,
+    },
     searchHeaderText: {
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterSemiBold",
@@ -361,7 +378,7 @@ export default function Explore() {
     },
     noResultsWrapper: {
       width: "100%",
-      alignItems: "center",
+      alignItems: "flex-start",
       marginBottom: 19,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       borderBottomWidth: 1,
@@ -490,51 +507,33 @@ export default function Explore() {
     },
 
     searchPreviewTextWrapperContainer: {
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "flex-start",
       paddingHorizontal: 0,
       display: "flex",
-      paddingHorizontal: 16,
     },
     searchPreviewHeader: {
-      color: Colors[colorScheme || "light"].textHigh,
+      color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-      width: "100%",
-      textAlign: "left",
-      marginBottom: 3,
-
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     searchPreviewTextWrapper: {
       color: Colors[colorScheme || "light"].textHigh,
       textAlign: "left",
       fontFamily: "InterRegular",
       fontWeight: "400",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
-      maxWidth: 450,
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      flex: 1,
-      flexWrap: "wrap",
-      width: "100%",
+      fontSize: 14,
+      lineHeight: 19,
+      letterSpacing: -0.14,
     },
     searchPreviewText: {
       color: Colors[colorScheme || "light"].textMedium,
-      textAlign: "center",
-      fontFamily: "InterMedium",
-      fontWeight: "500",
+      textAlign: "left",
+      fontFamily: "InterRegular",
+      fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
@@ -544,6 +543,7 @@ export default function Explore() {
       marginVertical: -5,
       alignItems: "center",
       justifyContent: "center",
+      width: "auto",
     },
     searchPreviewTextPressable: {
       color: Colors[colorScheme || "light"].textMedium,
@@ -604,7 +604,7 @@ export default function Explore() {
                     : searchResults.length === 0 && channelData.wait
                     ? "Searching..."
                     : "No Feeds Found"
-                  : "Search Results"}
+                  : "Search Results (0)"}
               </Text>
             </View>
           )}
@@ -679,6 +679,11 @@ export default function Explore() {
                   channelImageUrl={channelData.imageUrl}
                 />
               )}
+
+            <View style={styles.searchHeaderNoResults}>
+              <Text style={styles.searchHeaderText}>Need help?</Text>
+            </View>
+
             <View style={styles.searchPreviewTextContainer}>
               <Text style={styles.searchPreviewHeader}>
                 Subscribing to RSS Feeds
