@@ -275,7 +275,7 @@ export default function FeedCardToolTip({ item }) {
       justifyContent: "center",
       flexDirection: "row",
       gap: 5,
-      backgroundColor: Colors[colorScheme || "light"].surfaceOne,
+      
       borderRadius: 100,
     },
   };

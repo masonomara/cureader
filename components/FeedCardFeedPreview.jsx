@@ -92,11 +92,11 @@ export default function FeedCardFeedPreview({ item }) {
       width: "100%",
       padding: 16,
       paddingTop: 13,
-      paddingBottom: 11,
+      paddingBottom: 7,
       flex: 1,
       borderTopWidth: 0.5,
 
-      borderBottomWidth: 3,
+      borderBottomWidth: 2,
       borderColor: `${Colors[colorScheme || "light"].border}`,
     },
 
