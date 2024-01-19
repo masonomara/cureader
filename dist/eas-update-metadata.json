@@ -1,0 +1,28 @@
+{
+  "updates": [
+    {
+      "id": "3559e84d-927e-4a2a-a415-700afcfbb1df",
+      "createdAt": "2024-01-19T01:10:38.178Z",
+      "group": "2a11f83a-3906-4139-9650-9b008fb56c71",
+      "branch": "master",
+      "message": "Merge pull request #16 from masonomara/loginBug\n\nupdated version and supabase behaivior",
+      "runtimeVersion": "2.0.11",
+      "platform": "android",
+      "manifestPermalink": "https://u.expo.dev/update/3559e84d-927e-4a2a-a415-700afcfbb1df",
+      "isRollBackToEmbedded": false,
+      "gitCommitHash": "d0076f964c6320a16d13464c4b2e174036ece32e"
+    },
+    {
+      "id": "da019922-c78f-449d-81bd-6a17c71facd6",
+      "createdAt": "2024-01-19T01:10:38.178Z",
+      "group": "2a11f83a-3906-4139-9650-9b008fb56c71",
+      "branch": "master",
+      "message": "Merge pull request #16 from masonomara/loginBug\n\nupdated version and supabase behaivior",
+      "runtimeVersion": "2.0.11",
+      "platform": "ios",
+      "manifestPermalink": "https://u.expo.dev/update/da019922-c78f-449d-81bd-6a17c71facd6",
+      "isRollBackToEmbedded": false,
+      "gitCommitHash": "d0076f964c6320a16d13464c4b2e174036ece32e"
+    }
+  ]
+}
