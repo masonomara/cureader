@@ -1,19 +1,11 @@
-import "react-native-url-polyfill/auto";
+// import "react-native-url-polyfill/auto";
+import { setupURLPolyfill } from "react-native-url-polyfill";
 import { createClient } from "@supabase/supabase-js";
-import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// const ExpoSecureStoreAdapter = {
-//   getItem: (key) => {
-//     return SecureStore.getItemAsync(key);
-//   },
-//   setItem: (key, value) => {
-//     SecureStore.setItemAsync(key, value);
-//   },
-//   removeItem: (key) => {
-//     SecureStore.deleteItemAsync(key);
-//   },
-// };
+setupURLPolyfill();
+
+console.log("connected!");
 
 export const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
