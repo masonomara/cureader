@@ -111,40 +111,33 @@ function RootLayoutNav() {
       const sortedFeeds = sortFeedsBySubscribers(feeds);
       const popularFeeds = sortedFeeds.slice(0, 24);
       setPopularFeeds(popularFeeds);
-
       const remainingFeeds = sortedFeeds.slice(24);
       const remainingFeedsExcludingPopular = remainingFeeds.filter(
         (feed) =>
           !popularFeeds.some((popularFeed) => popularFeed.id === feed.id)
       );
-
       const shuffleArray = (array) => {
         let currentIndex = array.length,
           randomIndex,
           temporaryValue;
-
         while (currentIndex !== 0) {
           randomIndex = Math.floor(Math.random() * currentIndex);
           currentIndex--;
-
           temporaryValue = array[currentIndex];
           array[currentIndex] = array[randomIndex];
           array[randomIndex] = temporaryValue;
         }
-
         return array;
       };
-
       const randomFeeds = shuffleArray(remainingFeedsExcludingPopular).slice(
         0,
         25
       );
-
       setRandomFeeds(randomFeeds);
     }
   }, [feeds]);
 
-  const handleAuthStateChange = async (event, session) => {
+  const handleAuthStateChange = async (session) => {
     if (session) {
       setSession(session);
       const {
@@ -153,17 +146,13 @@ function RootLayoutNav() {
       if (user) {
         SplashScreen.hideAsync();
         setUser(user);
-
         setUserFetched(true);
-
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
-
         setUserBookmarks(bookmarks);
-
         async function fetchFeeds() {
           try {
             const { data: categoriesData, error } = await supabase
@@ -173,7 +162,6 @@ function RootLayoutNav() {
               console.error("Error fetching feeds:", error);
               return;
             }
-
             setFeedCategories(categoriesData);
             try {
               const { data: feedsData, error } = await supabase
@@ -183,7 +171,6 @@ function RootLayoutNav() {
                 console.error("Error fetching feeds:", error);
                 return;
               }
-
               setFeeds(feedsData);
               setFeedsFetched(true);
             } catch (error) {
@@ -216,35 +203,25 @@ function RootLayoutNav() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       setSession(session);
-
       if (session) {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         setUser(user);
-
         setUserFetched(true);
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
-
         setUserBookmarks(bookmarks);
-
-        if (feedsFetched) {
-          //router.replace("(home)");
-        }
       } else {
         router.replace("(login)");
       }
     };
-
     supabase.auth.onAuthStateChange(handleAuthStateChange);
     fetchUserAndSubscriptions();
-
     return () => {
       if (supabase.auth.removeAuthStateListener) {
         supabase.auth.removeAuthStateListener(handleAuthStateChange);
@@ -258,7 +235,6 @@ function RootLayoutNav() {
         .from("profiles")
         .select()
         .eq("id", user.id);
-
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
         return { channelIds: [], channelUrls: [], bookmarks: [] };
@@ -266,9 +242,7 @@ function RootLayoutNav() {
       setUserAdmin(userProfileData[0].admin);
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
-
       const articleBookmarks = userProfileData[0]?.bookmarks || [];
-
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
           acc.channelIds.push(subscription.channelId);
@@ -277,9 +251,7 @@ function RootLayoutNav() {
         },
         { channelIds: [], channelUrls: [] }
       );
-
       const bookmarks = articleBookmarks;
-
       return { channelIds, channelUrls, bookmarks };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
