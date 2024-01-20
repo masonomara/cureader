@@ -93,6 +93,7 @@ function RootLayoutNav() {
   const [session, setSession] = useState(null);
   const colorScheme = useColorScheme();
 
+  // sorting feda
   const sortFeedsBySubscribers = (feeds) => {
     return feeds.slice().sort((a, b) => {
       const subscribersA = a.channel_subscribers
@@ -105,7 +106,7 @@ function RootLayoutNav() {
       return subscribersB - subscribersA;
     });
   };
-
+  // setting popular and random feedsa
   useEffect(() => {
     if (feeds) {
       const sortedFeeds = sortFeedsBySubscribers(feeds);
@@ -137,6 +138,34 @@ function RootLayoutNav() {
     }
   }, [feeds]);
 
+  const fetchFeeds = async () => {
+    try {
+      const { data: categoriesData, error } = await supabase
+        .from("categories")
+        .select("*");
+      if (error) {
+        console.error("Error fetching feeds:", error);
+        return;
+      }
+      setFeedCategories(categoriesData);
+      try {
+        const { data: feedsData, error } = await supabase
+          .from("channels")
+          .select("*");
+        if (error) {
+          console.error("Error fetching feeds:", error);
+          return;
+        }
+        setFeeds(feedsData);
+        setFeedsFetched(true);
+      } catch (error) {
+        console.error("Error fetching feeds:", error);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   const handleAuthStateChange = async (session) => {
     if (session) {
       setSession(session);
@@ -153,33 +182,6 @@ function RootLayoutNav() {
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
-        async function fetchFeeds() {
-          try {
-            const { data: categoriesData, error } = await supabase
-              .from("categories")
-              .select("*");
-            if (error) {
-              console.error("Error fetching feeds:", error);
-              return;
-            }
-            setFeedCategories(categoriesData);
-            try {
-              const { data: feedsData, error } = await supabase
-                .from("channels")
-                .select("*");
-              if (error) {
-                console.error("Error fetching feeds:", error);
-                return;
-              }
-              setFeeds(feedsData);
-              setFeedsFetched(true);
-            } catch (error) {
-              console.error("Error fetching feeds:", error);
-            }
-          } catch (error) {
-            console.error("Error fetching categories:", error);
-          }
-        }
         fetchFeeds();
         router.replace("(home)");
       } else {
