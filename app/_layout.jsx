@@ -40,7 +40,6 @@ export const AuthContext = createContext({
 });
 
 export const unstable_settings = {
-  // NOTE: initial route fake splash screen?
   initialRouteName: "(home)",
 };
 
@@ -61,7 +60,9 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (error) throw error;
+    if (error) {
+      console.error("Font loading error:", error);
+    }
   }, [error]);
 
   if (!loaded) {
@@ -137,6 +138,30 @@ function RootLayoutNav() {
     }
   }, [feeds]);
 
+  useEffect(() => {
+    const fetchUserAndSubscriptions = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      handleAuthStateChange(null, session); // Call handleAuthStateChange with the initial session
+    };
+
+    // Fetch user and subscriptions once when component mounts
+    fetchUserAndSubscriptions();
+
+    // Set up Supabase auth state change listener
+    const authStateChangeHandler = (event, session) => {
+      handleAuthStateChange(event, session);
+    };
+
+    supabase.auth.onAuthStateChange(authStateChangeHandler);
+
+    // Cleanup: Remove auth state change listener when the component unmounts
+    return () => {
+      supabase.auth.removeAuthStateListener(authStateChangeHandler);
+    };
+  }, []);
+
   const handleAuthStateChange = async (event, session) => {
     if (session) {
       setSession(session);
@@ -147,45 +172,22 @@ function RootLayoutNav() {
         SplashScreen.hideAsync();
         setUser(user);
         setUserFetched(true);
+
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
+
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
-        async function fetchFeeds() {
-          try {
-            const { data: categoriesData, error } = await supabase
-              .from("categories")
-              .select("*");
-            if (error) {
-              console.error("Error fetching feeds:", error);
-              return;
-            }
-            setFeedCategories(categoriesData);
-            try {
-              const { data: feedsData, error } = await supabase
-                .from("channels")
-                .select("*");
-              if (error) {
-                console.error("Error fetching feeds:", error);
-                return;
-              }
-              setFeeds(feedsData);
-              setFeedsFetched(true);
-            } catch (error) {
-              console.error("Error fetching feeds:", error);
-            }
-          } catch (error) {
-            console.error("Error fetching categories:", error);
-          }
-        }
+
+        // Fetch feeds only if user data is available
         fetchFeeds();
+
         router.replace("(home)");
       } else {
         router.replace("(login)");
         SplashScreen.hideAsync();
-        return null;
       }
     } else {
       router.replace("(login)");
@@ -198,36 +200,38 @@ function RootLayoutNav() {
     }
   };
 
-  useEffect(() => {
-    const fetchUserAndSubscriptions = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setSession(session);
-      if (session) {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUser(user);
-        setUserFetched(true);
-        const { channelIds, channelUrls, bookmarks } =
-          await fetchUserSubscriptions(user);
-        setUserSubscriptionIds(channelIds);
-        setUserSubscriptionUrls(channelUrls);
-        setUserSubscriptionUrlsFetched(true);
-        setUserBookmarks(bookmarks);
-      } else {
-        router.replace("(login)");
+  const fetchFeeds = async () => {
+    try {
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from("categories")
+        .select("*");
+
+      if (categoriesError) {
+        console.error("Error fetching categories:", categoriesError);
+        return;
       }
-    };
-    supabase.auth.onAuthStateChange(handleAuthStateChange);
-    fetchUserAndSubscriptions();
-    return () => {
-      if (supabase.auth.removeAuthStateListener) {
-        supabase.auth.removeAuthStateListener(handleAuthStateChange);
+
+      setFeedCategories(categoriesData);
+
+      try {
+        const { data: feedsData, error: feedsError } = await supabase
+          .from("channels")
+          .select("*");
+
+        if (feedsError) {
+          console.error("Error fetching feeds:", feedsError);
+          return;
+        }
+
+        setFeeds(feedsData);
+        setFeedsFetched(true);
+      } catch (error) {
+        console.error("Error fetching feeds:", error);
       }
-    };
-  }, [feedsFetched]);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const fetchUserSubscriptions = async (user) => {
     try {
