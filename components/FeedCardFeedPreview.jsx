@@ -19,7 +19,6 @@ import Dots20 from "./icons/20/Dots20";
 import { router } from "expo-router";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 
-const CARD_WIDTH = Dimensions.get("window").width - 32;
 
 export default function FeedCardFeedPreview({ item }) {
   const itemId = parseInt(item.id, 10);
@@ -196,9 +195,9 @@ export default function FeedCardFeedPreview({ item }) {
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
       fontWeight: "500",
-      fontSize: 80,
-      lineHeight: 80,
-      letterSpacing: -0.6,
+      fontSize: 120,
+      lineHeight: 120,
+      letterSpacing: -.8,
 
       color: getTextColorForLetter(item.title[0]),
       textAlignVertical: "center",

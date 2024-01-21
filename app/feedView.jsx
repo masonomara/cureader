@@ -41,9 +41,6 @@ export default function TabOneScreen() {
           const responseData = await response.text();
           const parsedRss = await rssParser.parse(responseData);
 
-          const channelImage = fallbackImages.find(
-            (image) => image.channel_url === params.url
-          );
           const feed = feeds.find((feed) => feed.channel_url === params.url);
 
           const allItems = parsedRss.items.map((item) => ({
@@ -51,7 +48,7 @@ export default function TabOneScreen() {
             publicationDate: new Date(item.published),
             feed: feed,
             image: parsedRss.image,
-            fallbackImage: channelImage ? channelImage.channel_image_url : null,
+            fallbackImage: params.image ? params.image : null,
             channelUrl: parsedRss.links[0].url,
           }));
 

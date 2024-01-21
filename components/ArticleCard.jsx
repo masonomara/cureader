@@ -194,8 +194,8 @@ export default function ArticleCard({
       display: "flex",
       flexDirection: "column",
       width: "66%",
-      borderWidth: 1,
-      borderColor: "blue",
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     publicationWrapperNoImage: {
       display: "flex",
@@ -351,6 +351,7 @@ export default function ArticleCard({
               overflow: "hidden",
               borderWidth: 0.5,
               borderColor: `${Colors[colorScheme || "light"].border}`,
+              borderColor: `blue`,
               marginBottom: 12,
               backgroundColor: `white`,
             }}
