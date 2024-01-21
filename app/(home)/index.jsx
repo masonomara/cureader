@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -276,8 +277,7 @@ export default function Index() {
               .filter(Boolean)
           );
         } catch (error) {
-          console.error(error);
-          showErrorAlert("Error refreshing RSS feeds. Please try again.");
+          console.error("Error refreshing RSS feeds. Please try again.", error);
         }
       };
 
@@ -503,6 +503,28 @@ export default function Index() {
                     refreshing={isRefreshing}
                     onRefresh={onRefresh}
                     estimatedItemSize={200}
+                    ListHeaderComponent={() => (
+                      <ScrollView horizontal>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                        <View>
+                          <Text>Nut</Text>
+                        </View>
+                      </ScrollView>
+                    )}
                     renderItem={({ item }) => (
                       <ArticleCard
                         fallbackImage={item.fallbackImage}
