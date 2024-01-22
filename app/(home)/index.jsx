@@ -530,173 +530,140 @@ export default function Index() {
                         horizontal
                         showsVerticalScrollIndicator={false}
                         showsHorizontalScrollIndicator={false}
-                        style={{
-                          display: "flex",
-                          paddingBottom: 8,
-                        }}
                       >
-                        {userCategories.map((category) =>
-                          selectedCategories.includes(category.title) ? (
-                            <TouchableOpacity
-                              key={category.id}
-                              onPress={() =>
-                                handleCategoryFilter(category.title)
-                              }
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                                height: 44,
-                                alignSelf: "center",
-                              }}
-                            >
-                              <View
+                        <View
+                          style={{
+                            marginHorizontal: 16,
+marginRight: 8,
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          {userCategories.map((category) =>
+                            selectedCategories.includes(category.title) ? (
+                              <TouchableOpacity
+                                key={category.id}
+                                onPress={() =>
+                                  handleCategoryFilter(category.title)
+                                }
                                 style={{
                                   flexDirection: "row",
                                   alignItems: "center",
-                                  height: 40,
+                                  height: 44,
                                   alignSelf: "center",
-                                  padding: 8,
-                                  gap: 3,
-                                  paddingLeft: 14,
-                                  paddingRight: 12,
-                                  borderRadius: 100,
-                                  marginLeft: 16,
-                                  marginRight: -8,
-                                  borderWidth: 1,
-                                  borderColor: `${
-                                    Colors[colorScheme || "light"].border
-                                  }`,
-                                  backgroundColor: `${
-                                    Colors[colorScheme || "light"].border
-                                  }`,
                                 }}
                               >
-                                <Text
-                                  style={{
-                                    color: `${
-                                      Colors[colorScheme || "light"].textMedium
-                                    }`,
-                                    fontFamily: "InterMedium",
-                                    fontWeight: "500",
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                    letterSpacing: -0.15,
-                                  }}
-                                >
-                                  {category.title}
-                                </Text>
                                 <View
                                   style={{
-                                    backgroundColor: "transparent",
-                                    display: "flex",
+                                    flexDirection: "row",
                                     alignItems: "center",
-                                    justifyContent: "center",
+                                    height: 40,
+                                    alignSelf: "center",
+                                    padding: 8,
+                                    gap: 3,
+                                    paddingLeft: 14,
+                                    paddingRight: 12,
+                                    borderRadius: 100,
+                                    marginRight: 8,
+                                    borderWidth: 1,
+                                    borderColor: `${
+                                      Colors[colorScheme || "light"].border
+                                    }`,
+                                    backgroundColor: `${
+                                      Colors[colorScheme || "light"].border
+                                    }`,
                                   }}
                                 >
-                                  <X20
-                                    color={
-                                      Colors[colorScheme || "light"].textMedium
-                                    }
-                                  />
+                                  <Text
+                                    style={{
+                                      color: `${
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }`,
+                                      fontFamily: "InterMedium",
+                                      fontWeight: "500",
+                                      fontSize: 15,
+                                      lineHeight: 20,
+                                      letterSpacing: -0.15,
+                                    }}
+                                  >
+                                    {category.title}
+                                  </Text>
+                                  <View
+                                    style={{
+                                      backgroundColor: "transparent",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <X20
+                                      color={
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }
+                                    />
+                                  </View>
                                 </View>
-                              </View>
-                            </TouchableOpacity>
-                          ) : (
-                            <></>
-                          )
-                        )}
-                        {userCategories.map((category) =>
-                          selectedCategories.includes(category.title) ? (
-                            <></>
-                          ) : (
-                            <TouchableOpacity
-                              key={category.id}
-                              onPress={() =>
-                                handleCategoryFilter(category.title)
-                              }
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                                height: 44,
-                                alignSelf: "center",
-                              }}
-                            >
-                              <View
+                              </TouchableOpacity>
+                            ) : (
+                              <></>
+                            )
+                          )}
+                          {userCategories.map((category) =>
+                            selectedCategories.includes(category.title) ? (
+                              <></>
+                            ) : (
+                              <TouchableOpacity
+                                key={category.id}
+                                onPress={() =>
+                                  handleCategoryFilter(category.title)
+                                }
                                 style={{
                                   flexDirection: "row",
                                   alignItems: "center",
-                                  height: 40,
+                                  height: 44,
                                   alignSelf: "center",
-                                  padding: 8,
-                                  gap: 3,
-                                  paddingLeft: 14,
-                                  paddingRight: 12,
-                                  borderRadius: 100,
-                                  marginLeft: 16,
-                                  marginRight: -8,
-                                  borderWidth: 1,
-                                  borderColor: `${
-                                    Colors[colorScheme || "light"].border
-                                  }`,
                                 }}
                               >
-                                <Text
+                                <View
                                   style={{
-                                    color: `${
-                                      Colors[colorScheme || "light"].textMedium
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    height: 40,
+                                    alignSelf: "center",
+                                    padding: 8,
+                                    gap: 3,
+                                    paddingLeft: 14,
+                                    paddingRight: 12,
+                                    borderRadius: 100,
+marginRight: 8,
+                                    borderWidth: 1,
+                                    borderColor: `${
+                                      Colors[colorScheme || "light"].border
                                     }`,
-                                    fontFamily: "InterMedium",
-                                    fontWeight: "500",
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                    letterSpacing: -0.15,
                                   }}
                                 >
-                                  {category.title}
-                                </Text>
-                              </View>
-                            </TouchableOpacity>
-                          )
-                        )}
-
-                        {/* <TouchableOpacity
-                          key={index}
-                          style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            height: 44,
-                            alignSelf: "center",
-                            padding: 8,
-                            gap: 3,
-                            paddingLeft: 14,
-                            paddingRight: 12,
-                            borderRadius: 100,
-                            backgroundColor: `${
-                              Colors[colorScheme || "light"].surfaceOne
-                            }`,
-                          }}
-                          onPress={() => handleDeleteCategory(category)}
-                        >
-                          <Text
-                            style={{
-                              color: `${
-                                Colors[colorScheme || "light"].textMedium
-                              }`,
-                              fontFamily: "InterMedium",
-                              fontWeight: "500",
-                              fontSize: 15,
-                              lineHeight: 20,
-                              letterSpacing: -0.15,
-                            }}
-                          >
-                            {category.title}
-                          </Text>
-                          <View>
-                            <X20
-                              color={Colors[colorScheme || "light"].textMedium}
-                            />
-                          </View>
-                        </TouchableOpacity> */}
+                                  <Text
+                                    style={{
+                                      color: `${
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }`,
+                                      fontFamily: "InterMedium",
+                                      fontWeight: "500",
+                                      fontSize: 15,
+                                      lineHeight: 20,
+                                      letterSpacing: -0.15,
+                                    }}
+                                  >
+                                    {category.title}
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                            )
+                          )}
+                        </View>
                       </ScrollView>
                     )}
                     renderItem={({ item }) => (
