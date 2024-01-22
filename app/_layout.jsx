@@ -33,8 +33,10 @@ export const AuthContext = createContext({
   userSubscriptionIds: null,
   userSubscriptionUrls: null,
   userSubscriptionUrlsFetched: false,
+  userCategories: [],
   userBookmarks: [],
   setUserSubscriptionIds: () => {},
+  setUserCategories: () => {},
   setUserSubscriptionUrls: () => {},
   setUserBookmarks: () => {},
 });
@@ -84,6 +86,7 @@ function RootLayoutNav() {
   const [userAdmin, setUserAdmin] = useState(null);
   const [userSubscriptionIds, setUserSubscriptionIds] = useState(null);
   const [userSubscriptionUrls, setUserSubscriptionUrls] = useState(null);
+  const [userCategories, setUserCategories] = useState(null);
   const [userSubscriptionUrlsFetched, setUserSubscriptionUrlsFetched] =
     useState(false);
   const [feedCategories, setFeedCategories] = useState(null);
@@ -143,24 +146,54 @@ function RootLayoutNav() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      handleAuthStateChange(null, session); // Call handleAuthStateChange with the initial session
+      handleAuthStateChange(null, session);
     };
 
-    // Fetch user and subscriptions once when component mounts
     fetchUserAndSubscriptions();
 
-    // Set up Supabase auth state change listener
     const authStateChangeHandler = (event, session) => {
       handleAuthStateChange(event, session);
     };
 
     supabase.auth.onAuthStateChange(authStateChangeHandler);
 
-    // Cleanup: Remove auth state change listener when the component unmounts
     return () => {
       supabase.auth.removeAuthStateListener(authStateChangeHandler);
     };
   }, []);
+
+  useEffect(() => {
+    if (userSubscriptionIds != null && feedCategories != null) {
+      const filteredCategories = feedCategories
+        .filter((category) =>
+          category.channels
+            .flat()
+            .some((channel) => userSubscriptionIds.includes(parseInt(channel)))
+        )
+        .sort((a, b) => {
+          const aMatchingChannels = a.channels
+            .flat()
+            .filter((channel) =>
+              userSubscriptionIds.includes(parseInt(channel))
+            ).length;
+
+          const bMatchingChannels = b.channels
+            .flat()
+            .filter((channel) =>
+              userSubscriptionIds.includes(parseInt(channel))
+            ).length;
+
+          return bMatchingChannels - aMatchingChannels;
+        });
+
+      {
+        if (filteredCategories != null) {
+          setUserCategories(filteredCategories);
+
+        }
+      }
+    }
+  }, [userSubscriptionIds, feedCategories]);
 
   const handleAuthStateChange = async (event, session) => {
     if (session) {
@@ -181,7 +214,6 @@ function RootLayoutNav() {
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
 
-        // Fetch feeds only if user data is available
         fetchFeeds();
 
         router.replace("(home)");
@@ -316,6 +348,8 @@ function RootLayoutNav() {
               setUserSubscriptionIds,
               setUserSubscriptionUrls,
               userSubscriptionUrlsFetched,
+              userCategories,
+              setUserCategories,
               setUserBookmarks,
             }}
           >

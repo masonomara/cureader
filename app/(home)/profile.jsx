@@ -24,8 +24,8 @@ import CategoriesContainer from "../../components/CategoriesContainer";
 
 export default function Profile() {
   const colorScheme = useColorScheme();
-  const { feeds, feedCategories, popularFeeds } = useContext(FeedContext);
-  const { user, userSubscriptionUrls, userSubscriptionIds } =
+  const { feeds, popularFeeds } = useContext(FeedContext);
+  const { user, userSubscriptionUrls, userSubscriptionIds, userCategories } =
     useContext(AuthContext);
   const [userInitialFeeds, setUserInitialFeeds] = useState([]);
 
@@ -33,29 +33,7 @@ export default function Profile() {
 
   const ref = useRef(null);
 
-  const filteredCategories = feedCategories
-    .filter((category) =>
-      category.channels
-        .flat()
-        .some((channel) => userSubscriptionIds.includes(parseInt(channel)))
-    )
-    .sort((a, b) => {
-      const aMatchingChannels = a.channels
-        .flat()
-        .filter((channel) =>
-          userSubscriptionIds.includes(parseInt(channel))
-        ).length;
-
-      const bMatchingChannels = b.channels
-        .flat()
-        .filter((channel) =>
-          userSubscriptionIds.includes(parseInt(channel))
-        ).length;
-
-      return bMatchingChannels - aMatchingChannels;
-    });
-
-  const chunkedCategories = chunkArray(filteredCategories, 2);
+  const chunkedCategories = chunkArray(userCategories, 2);
 
   const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -102,9 +80,7 @@ export default function Profile() {
           </View>
           <View style={styles.userInfoDivider} />
           <View style={styles.userInfoWrapper}>
-            <Text style={styles.userInfoTitle}>
-              {filteredCategories.length}
-            </Text>
+            <Text style={styles.userInfoTitle}>{userCategories.length}</Text>
             <Text style={styles.userInfoSubtitle}>Categories</Text>
           </View>
           <View style={styles.userInfoDivider} />
