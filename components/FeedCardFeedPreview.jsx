@@ -3,8 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Dimensions,
-  Pressable,
+
 } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";

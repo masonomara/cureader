@@ -140,7 +140,7 @@ export default function ArticleCard({
           </View>
         </TouchableOpacity>
       </View>
-      <FeedCardToolTip item={feed} />
+      {feed && <FeedCardToolTip item={feed} />}
     </View>
   );
 
