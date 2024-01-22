@@ -28,6 +28,17 @@ export default function TabOneScreen() {
 
   const categoryInputRef = useRef(null);
 
+  const isValidImageUrl = (url) => {
+    // Define the supported image formats
+    const supportedFormats = ["webp", "jpeg", "jpg", "png"];
+
+    // Extract the file extension from the URL
+    const fileExtension = url.split(".").pop().toLowerCase();
+
+    // Check if the file extension is in the list of supported formats
+    return supportedFormats.includes(fileExtension);
+  };
+
   useEffect(() => {
     setDummyTitle(params.title || "");
     setDummyDescription(params.description || "");
@@ -64,6 +75,16 @@ export default function TabOneScreen() {
 
   const updateFeedInfo = async () => {
     setLoading(true);
+    // Validate the new feed image URL before updating
+    if (dummyImageUrl && !isValidImageUrl(dummyImageUrl)) {
+      Alert.alert(
+        "Invalid Image URL",
+        "Please enter a an image that ends with .webp, .jpeg, .jpg, or .png."
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const timestamp = new Date().toISOString();
 
