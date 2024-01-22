@@ -351,7 +351,6 @@ export default function ArticleCard({
               overflow: "hidden",
               borderWidth: 0.5,
               borderColor: `${Colors[colorScheme || "light"].border}`,
-              borderColor: `blue`,
               marginBottom: 12,
               backgroundColor: `white`,
             }}

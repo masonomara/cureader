@@ -11,7 +11,6 @@ export default function ArticleCardSkeleton() {
       ? require("../../assets/images/splashSkeletonDark.png")
       : require("../../assets/images/splashSkeletonLight.png");
 
-
   const styles = {
     cardSkeleton: {
       borderBottomWidth: 1,
@@ -65,7 +64,6 @@ export default function ArticleCardSkeleton() {
       flexDirection: "column",
       width: "66%",
       borderWidth: 1,
-      borderColor: "blue",
     },
     publicationWrapperNoImage: {
       display: "flex",
