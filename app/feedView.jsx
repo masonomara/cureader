@@ -215,7 +215,7 @@ export default function TabOneScreen() {
               user={user}
             />
           )}
-          ListHeaderComponent={() => <FeedCardFeedPreview item={params} />}
+          ListHeaderComponent={<FeedCardFeedPreview item={params} />}
         />
       </View>
     </>
