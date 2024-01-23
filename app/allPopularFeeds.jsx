@@ -61,31 +61,23 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      {(popularFeeds != null) &
-        (user !=
-          null(
-            <View style={styles.feedList}>
-              <FlashList
-                data={popularFeeds}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                estimatedItemSize={200}
-                ListHeaderComponent={
-                  <View style={styles.headerWrapper}>
-                    <Text style={styles.title}>Popular Feeds</Text>
-                  </View>
-                }
-                ListFooterComponent={() => (
-                  <View style={styles.flashListFooter} />
-                )}
-                renderItem={({ item }) => {
-                  return (
-                    <FeedCardListItem key={item.id} item={item} user={user} />
-                  );
-                }}
-              />
+      <View style={styles.feedList}>
+        <FlashList
+          data={popularFeeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          ListHeaderComponent={
+            <View style={styles.headerWrapper}>
+              <Text style={styles.title}>Popular Feeds</Text>
             </View>
-          ))}
+          }
+          ListFooterComponent={() => <View style={styles.flashListFooter} />}
+          renderItem={({ item }) => {
+            return <FeedCardListItem key={item.id} item={item} user={user} />;
+          }}
+        />
+      </View>
     </View>
   );
 }

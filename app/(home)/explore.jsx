@@ -735,7 +735,7 @@ export default function Explore() {
             snapToInterval={CARD_WIDTH + 8}
             snapToAlignment={"left"}
           >
-            {randomFeeds.slice(0, 5).map((item) => (
+            {randomFeeds.slice(0, 12).map((item) => (
               <FeedCardFeatured key={item.id} item={item} user={user} />
             ))}
           </ScrollView>

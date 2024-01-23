@@ -71,31 +71,23 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      {randomFeeds != null &&
-        user !=
-          null(
-            <View style={styles.feedList}>
-              <FlashList
-                data={randomFeeds}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
-                estimatedItemSize={200}
-                ListHeaderComponent={
-                  <View style={styles.headerWrapper}>
-                    <Text style={styles.title}>Random Feeds</Text>
-                  </View>
-                }
-                renderItem={({ item }) => {
-                  return (
-                    <FeedCardListItem key={item.id} item={item} user={user} />
-                  );
-                }}
-                ListFooterComponent={() => (
-                  <View style={styles.flashListFooter} />
-                )}
-              />
+      <View style={styles.feedList}>
+        <FlashList
+          data={randomFeeds}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={200}
+          ListHeaderComponent={
+            <View style={styles.headerWrapper}>
+              <Text style={styles.title}>Random Feeds</Text>
             </View>
-          )}
+          }
+          renderItem={({ item }) => {
+            return <FeedCardListItem key={item.id} item={item} user={user} />;
+          }}
+          ListFooterComponent={() => <View style={styles.flashListFooter} />}
+        />
+      </View>
     </View>
   );
 }

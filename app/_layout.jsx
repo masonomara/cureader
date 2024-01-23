@@ -113,7 +113,7 @@ function RootLayoutNav() {
   useEffect(() => {
     if (feeds) {
       const sortedFeeds = sortFeedsBySubscribers(feeds);
-      const popularFeeds = sortedFeeds.slice(0, 24);
+      const popularFeeds = sortedFeeds.slice(0, 48);
       setPopularFeeds(popularFeeds);
       const remainingFeeds = sortedFeeds.slice(24);
       const remainingFeedsExcludingPopular = remainingFeeds.filter(
@@ -189,7 +189,6 @@ function RootLayoutNav() {
       {
         if (filteredCategories != null) {
           setUserCategories(filteredCategories);
-
         }
       }
     }
