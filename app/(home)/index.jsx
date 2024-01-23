@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
@@ -16,6 +17,7 @@ import ArticleCard from "../../components/ArticleCard";
 import Colors from "../../constants/Colors";
 import { useScrollToTop } from "@react-navigation/native";
 import FeedCardListItem from "../../components/FeedCardListItem";
+import X20 from "../../components/icons/20/X20";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -29,11 +31,16 @@ export default function Index() {
     feedsParsed,
     setFeedsParsed,
   } = useContext(FeedContext);
-  const { user, userSubscriptionUrls, userSubscriptionUrlsFetched } =
-    useContext(AuthContext);
+  const {
+    user,
+    userSubscriptionUrls,
+    userSubscriptionUrlsFetched,
+    userCategories,
+  } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
   const [rssChannels, setRssChannels] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [rssItems, setRssItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [promisedAll, setPromisedAll] = useState(false);
@@ -46,10 +53,6 @@ export default function Index() {
         ref.current?.scrollToOffset({ animated: true, offset: 0 }),
     })
   );
-
-  const showErrorAlert = (message) => {
-    Alert.alert("Error", message);
-  };
 
   const [initialParsingComplete, setInitialParsingComplete] = useState(false);
 
@@ -151,6 +154,12 @@ export default function Index() {
 
     setFeedsParsed(true);
   };
+
+  const filteredItems = rssItems.filter((item) =>
+    item.feed.channel_categories.some((category) =>
+      selectedCategories.includes(category)
+    )
+  );
 
   const fetchAndParseFeeds = async (urls) => {
     const userFeeds = feeds.filter((feed) =>
@@ -276,8 +285,7 @@ export default function Index() {
               .filter(Boolean)
           );
         } catch (error) {
-          console.error(error);
-          showErrorAlert("Error refreshing RSS feeds. Please try again.");
+          console.error("Error refreshing RSS feeds. Please try again.", error);
         }
       };
 
@@ -296,6 +304,18 @@ export default function Index() {
     fetchAndParseFeedsRefresh().finally(() => {
       setIsRefreshing(false);
     });
+  };
+
+  const handleCategoryFilter = (categoryTitle) => {
+    const isSelected = selectedCategories.includes(categoryTitle);
+
+    if (isSelected) {
+      setSelectedCategories((prevSelected) =>
+        prevSelected.filter((title) => title !== categoryTitle)
+      );
+    } else {
+      setSelectedCategories((prevSelected) => [...prevSelected, categoryTitle]);
+    }
   };
 
   const styles = {
@@ -496,13 +516,156 @@ export default function Index() {
               rssItems.length > 0 ? (
                 <View style={styles.articleList}>
                   <FlashList
-                    data={rssItems}
+                    data={
+                      selectedCategories.length !== 0 ? filteredItems : rssItems
+                    }
                     ref={ref}
                     showsVerticalScrollIndicator={false}
                     showsHorizontalScrollIndicator={false}
                     refreshing={isRefreshing}
                     onRefresh={onRefresh}
                     estimatedItemSize={200}
+                    ListHeaderComponent={() => (
+                      <ScrollView
+                        horizontal
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                      >
+                        <View
+                          style={{
+                            marginHorizontal: 16,
+marginRight: 8,
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          {userCategories.map((category) =>
+                            selectedCategories.includes(category.title) ? (
+                              <TouchableOpacity
+                                key={category.id}
+                                onPress={() =>
+                                  handleCategoryFilter(category.title)
+                                }
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  height: 44,
+                                  alignSelf: "center",
+                                }}
+                              >
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    height: 40,
+                                    alignSelf: "center",
+                                    padding: 8,
+                                    gap: 3,
+                                    paddingLeft: 14,
+                                    paddingRight: 12,
+                                    borderRadius: 100,
+                                    marginRight: 8,
+                                    borderWidth: 1,
+                                    borderColor: `${
+                                      Colors[colorScheme || "light"].border
+                                    }`,
+                                    backgroundColor: `${
+                                      Colors[colorScheme || "light"].border
+                                    }`,
+                                  }}
+                                >
+                                  <Text
+                                    style={{
+                                      color: `${
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }`,
+                                      fontFamily: "InterMedium",
+                                      fontWeight: "500",
+                                      fontSize: 15,
+                                      lineHeight: 20,
+                                      letterSpacing: -0.15,
+                                    }}
+                                  >
+                                    {category.title}
+                                  </Text>
+                                  <View
+                                    style={{
+                                      backgroundColor: "transparent",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <X20
+                                      color={
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }
+                                    />
+                                  </View>
+                                </View>
+                              </TouchableOpacity>
+                            ) : (
+                              <></>
+                            )
+                          )}
+                          {userCategories.map((category) =>
+                            selectedCategories.includes(category.title) ? (
+                              <></>
+                            ) : (
+                              <TouchableOpacity
+                                key={category.id}
+                                onPress={() =>
+                                  handleCategoryFilter(category.title)
+                                }
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  height: 44,
+                                  alignSelf: "center",
+                                }}
+                              >
+                                <View
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    height: 40,
+                                    alignSelf: "center",
+                                    padding: 8,
+                                    gap: 3,
+                                    paddingLeft: 14,
+                                    paddingRight: 12,
+                                    borderRadius: 100,
+marginRight: 8,
+                                    borderWidth: 1,
+                                    borderColor: `${
+                                      Colors[colorScheme || "light"].border
+                                    }`,
+                                  }}
+                                >
+                                  <Text
+                                    style={{
+                                      color: `${
+                                        Colors[colorScheme || "light"]
+                                          .textMedium
+                                      }`,
+                                      fontFamily: "InterMedium",
+                                      fontWeight: "500",
+                                      fontSize: 15,
+                                      lineHeight: 20,
+                                      letterSpacing: -0.15,
+                                    }}
+                                  >
+                                    {category.title}
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                            )
+                          )}
+                        </View>
+                      </ScrollView>
+                    )}
                     renderItem={({ item }) => (
                       <ArticleCard
                         fallbackImage={item.fallbackImage}

@@ -28,6 +28,14 @@ export default function TabOneScreen() {
 
   const categoryInputRef = useRef(null);
 
+  const isValidImageUrl = (url) => {
+    const supportedFormats = ["webp", "jpeg", "jpg", "png"];
+
+    const fileExtension = url.split(".").pop().toLowerCase();
+
+    return supportedFormats.includes(fileExtension);
+  };
+
   useEffect(() => {
     setDummyTitle(params.title || "");
     setDummyDescription(params.description || "");
@@ -64,6 +72,15 @@ export default function TabOneScreen() {
 
   const updateFeedInfo = async () => {
     setLoading(true);
+    if (dummyImageUrl && !isValidImageUrl(dummyImageUrl)) {
+      Alert.alert(
+        "Invalid Image URL",
+        "Please enter a an image that ends with .webp, .jpeg, .jpg, or .png."
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const timestamp = new Date().toISOString();
 
@@ -411,7 +428,7 @@ export default function TabOneScreen() {
         ]}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Edit Public Feed</Text>
+          <Text style={styles.title}>Edit Public Information</Text>
           <Text style={styles.subtitle}>
             As a feed admin, any changes you make to this feed will be visible
             to the entire Cureader community.

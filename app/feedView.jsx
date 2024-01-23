@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext, FeedContext } from "./_layout";
-import { Alert, useColorScheme } from "react-native";
+import { Alert, Text, useColorScheme } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "../components/Themed";
 import * as rssParser from "react-native-rss-parser";
@@ -19,7 +19,6 @@ export default function TabOneScreen() {
   const colorScheme = useColorScheme();
   const [rssItems, setRssItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedsEmpty, setFeedsEmpty] = useState(false);
 
   const showErrorAlert = (message) => {
     Alert.alert("Error", message);
@@ -41,9 +40,6 @@ export default function TabOneScreen() {
           const responseData = await response.text();
           const parsedRss = await rssParser.parse(responseData);
 
-          const channelImage = fallbackImages.find(
-            (image) => image.channel_url === params.url
-          );
           const feed = feeds.find((feed) => feed.channel_url === params.url);
 
           const allItems = parsedRss.items.map((item) => ({
@@ -51,7 +47,7 @@ export default function TabOneScreen() {
             publicationDate: new Date(item.published),
             feed: feed,
             image: parsedRss.image,
-            fallbackImage: channelImage ? channelImage.channel_image_url : null,
+            fallbackImage: params.image ? params.image : null,
             channelUrl: parsedRss.links[0].url,
           }));
 
@@ -215,7 +211,7 @@ export default function TabOneScreen() {
               fallbackImage={item.fallbackImage}
               item={item}
               feed={item.feed}
-              publication={item.feed.channel_title}
+              publication={item?.feed?.channel_title || params.title}
               user={user}
             />
           )}

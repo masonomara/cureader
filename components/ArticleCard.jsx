@@ -140,7 +140,7 @@ export default function ArticleCard({
           </View>
         </TouchableOpacity>
       </View>
-      <FeedCardToolTip item={feed} />
+      {feed && <FeedCardToolTip item={feed} />}
     </View>
   );
 
@@ -194,8 +194,8 @@ export default function ArticleCard({
       display: "flex",
       flexDirection: "column",
       width: "66%",
-      borderWidth: 1,
-      borderColor: "blue",
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     publicationWrapperNoImage: {
       display: "flex",

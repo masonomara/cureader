@@ -1,5 +1,11 @@
 import { useContext, useState } from "react";
-import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Pressable,
+} from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { supabase } from "../config/supabase";
@@ -7,6 +13,7 @@ import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
+import { router } from "expo-router";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -256,7 +263,25 @@ export default function FeedCardSearchPreview({
   };
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={styles.card}
+      onPress={() =>
+        router.push({
+          pathname: "/feedView",
+          params: {
+            title: channelTitle,
+            description: channelDescription,
+            image: channelImageUrl,
+            subscribers: 0,
+            url: channelUrl,
+            user: user,
+            userId: user.id,
+            subscribed: false,
+            userSubscriptionIds: userSubscriptionIds,
+          },
+        })
+      }
+    >
       {!channelImageUrl ? (
         <View style={styles.noImageContainer}>
           <Text style={styles.noImageContainerText}>
@@ -325,6 +350,6 @@ export default function FeedCardSearchPreview({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
