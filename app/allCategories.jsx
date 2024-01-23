@@ -61,34 +61,33 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      {feedCategories !=
-        null(
-          <View style={styles.feedList}>
-            <ScrollView
-              contentContainerStyle={styles.flashList}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-            >
-              <View style={styles.headerWrapper}>
-                <Text style={styles.title}>Categories</Text>
-              </View>
+      {feedCategories.length !== 0 && (
+        <View style={styles.feedList}>
+          <ScrollView
+            contentContainerStyle={styles.flashList}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+          >
+            <View style={styles.headerWrapper}>
+              <Text style={styles.title}>Categories</Text>
+            </View>
 
-              <View style={styles.categoriesContainer}>
-                {feedCategories
-                  .filter((category) => category.channels.length > 0)
-                  .sort((a, b) => b.channels.length - a.channels.length)
-                  .map((category) => {
-                    return (
-                      <CategoriesContainer
-                        key={category.id}
-                        category={category}
-                      />
-                    );
-                  })}
-              </View>
-            </ScrollView>
-          </View>
-        )}
+            <View style={styles.categoriesContainer}>
+              {feedCategories
+                .filter((category) => category.channels.length != 0)
+                .sort((a, b) => b.channels.length - a.channels.length)
+                .map((category) => {
+                  return (
+                    <CategoriesContainer
+                      key={category.id}
+                      category={category}
+                    />
+                  );
+                })}
+            </View>
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }

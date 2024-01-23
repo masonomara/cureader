@@ -156,7 +156,7 @@ export default function Index() {
   };
 
   const filteredItems = rssItems.filter((item) =>
-    item.feed.channel_categories.some((category) =>
+    item.feed?.channel_categories?.some((category) =>
       selectedCategories.includes(category)
     )
   );
@@ -534,7 +534,7 @@ export default function Index() {
                         <View
                           style={{
                             marginHorizontal: 16,
-marginRight: 8,
+                            marginRight: 8,
                             display: "flex",
                             flexDirection: "row",
                           }}
@@ -607,12 +607,18 @@ marginRight: 8,
                                 </View>
                               </TouchableOpacity>
                             ) : (
-                              <></>
+                              <View
+                                style={{ display: "none" }}
+                                key={category.id}
+                              ></View>
                             )
                           )}
                           {userCategories.map((category) =>
                             selectedCategories.includes(category.title) ? (
-                              <></>
+                              <View
+                                style={{ display: "none" }}
+                                key={category.id}
+                              ></View>
                             ) : (
                               <TouchableOpacity
                                 key={category.id}
@@ -637,7 +643,7 @@ marginRight: 8,
                                     paddingLeft: 14,
                                     paddingRight: 12,
                                     borderRadius: 100,
-marginRight: 8,
+                                    marginRight: 8,
                                     borderWidth: 1,
                                     borderColor: `${
                                       Colors[colorScheme || "light"].border
