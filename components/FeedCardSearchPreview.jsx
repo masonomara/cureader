@@ -231,7 +231,7 @@ export default function FeedCardSearchPreview({
       letterSpacing: -0.15,
     },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonMuted}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -330,24 +330,44 @@ export default function FeedCardSearchPreview({
           )}
         </View>
         <View style={styles.cardControls}>
-          <TouchableOpacity
-            style={
-              isOptimisticSubscribed
-                ? styles.subscribedButton
-                : styles.subscribeButton
-            }
-            onPress={handleSubmitUrl}
-          >
-            <Text
+          {isOptimisticSubscribed ? (
+            <View
               style={
                 isOptimisticSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
+                  ? styles.subscribedButton
+                  : styles.subscribeButton
               }
             >
-              {isOptimisticSubscribed ? "Following" : "Follow"}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={
+                  isOptimisticSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isOptimisticSubscribed ? "Following" : "Follow"}
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={
+                isOptimisticSubscribed
+                  ? styles.subscribedButton
+                  : styles.subscribeButton
+              }
+              onPress={handleSubmitUrl}
+            >
+              <Text
+                style={
+                  isOptimisticSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isOptimisticSubscribed ? "Following" : "Follow"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Pressable>
