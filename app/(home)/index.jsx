@@ -534,13 +534,16 @@ export default function Index() {
                         <View
                           style={{
                             marginHorizontal: 16,
-marginRight: 8,
+                            marginRight: 8,
                             display: "flex",
                             flexDirection: "row",
                           }}
                         >
-                          {userCategories.map((category) =>
-                            selectedCategories.includes(category.title) ? (
+                          {userCategories
+                            .filter((category) =>
+                              selectedCategories.includes(category.title)
+                            )
+                            .map((category) => (
                               <TouchableOpacity
                                 key={category.id}
                                 onPress={() =>
@@ -606,14 +609,13 @@ marginRight: 8,
                                   </View>
                                 </View>
                               </TouchableOpacity>
-                            ) : (
-                              <></>
+                            ))}
+                          {userCategories
+                            .filter(
+                              (category) =>
+                                !selectedCategories.includes(category.title)
                             )
-                          )}
-                          {userCategories.map((category) =>
-                            selectedCategories.includes(category.title) ? (
-                              <></>
-                            ) : (
+                            .map((category) => (
                               <TouchableOpacity
                                 key={category.id}
                                 onPress={() =>
@@ -637,7 +639,7 @@ marginRight: 8,
                                     paddingLeft: 14,
                                     paddingRight: 12,
                                     borderRadius: 100,
-marginRight: 8,
+                                    marginRight: 8,
                                     borderWidth: 1,
                                     borderColor: `${
                                       Colors[colorScheme || "light"].border
@@ -661,8 +663,7 @@ marginRight: 8,
                                   </Text>
                                 </View>
                               </TouchableOpacity>
-                            )
-                          )}
+                            ))}
                         </View>
                       </ScrollView>
                     )}
