@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Pressable,
   useColorScheme,
+  ActivityIndicator,
 } from "react-native";
 import { supabase } from "../../config/supabase";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -28,6 +29,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
+  const [loadingState, setLoadingState] = useState(false);
 
   const handleFocus = () => {
     setIsSearchInputSelected(true);
@@ -60,20 +62,29 @@ export default function Auth() {
 
   async function signUpWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          displayName: displayName,
-        },
-      },
-    });
+    setLoadingState(true);
 
-    if (error) {
-      Alert.alert("Sign Up Error", error.message);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            displayName: displayName,
+          },
+        },
+      });
+
+      if (error) {
+        setLoadingState(false);
+        Alert.alert("Sign Up Error", error.message);
+      }
+    } catch (error) {
+      setLoadingState(false);
+      console.error("Unexpected error during sign up:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   const styles = {
@@ -319,7 +330,13 @@ export default function Auth() {
             style={styles.button}
             onPress={() => signUpWithEmail()}
           >
-            <Text style={styles.buttonText}>Sign up</Text>
+            {loadingState ? (
+              <ActivityIndicator
+                color={`${Colors[colorScheme || "light"].colorOn}`}
+              />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>

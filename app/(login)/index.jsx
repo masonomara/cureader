@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Pressable,
   useColorScheme,
+  ActivityIndicator,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -19,6 +20,7 @@ import { supabase } from "../../config/supabase";
 export default function Auth() {
   const colorScheme = useColorScheme();
   const [loading, setLoading] = useState(false);
+  const [loadingState, setLoadingState] = useState(false);
   const [securePasswordEntry, setSecurePasswordEntry] = useState(true);
 
   const [inputs, setInputs] = useState({
@@ -62,13 +64,23 @@ export default function Auth() {
 
   const signInWithEmail = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: inputs.email,
-      password: inputs.password,
-    });
+    setLoadingState(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: inputs.email,
+        password: inputs.password,
+      });
 
-    if (error) Alert.alert("Log In Error", error.message);
-    setLoading(false);
+      if (error) {
+        setLoadingState(false);
+        Alert.alert("Log In Error", error.message);
+      }
+    } catch (error) {
+      setLoadingState(false);
+      console.error("Unexpected error during sign-in:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -271,7 +283,28 @@ export default function Auth() {
             <Text style={styles.optionTextCredit}>to have it reset.</Text>
           </View>
         </View>
-        {renderButton("Log In", signInWithEmail)}
+
+        <View
+          style={[
+            styles.buttonWrapper,
+            !inputStates.scrollView && styles.buttonWrapperScrollView,
+          ]}
+        >
+          <TouchableOpacity
+            title="Log In"
+            disabled={loading}
+            style={styles.button}
+            onPress={signInWithEmail}
+          >
+            {loadingState ? (
+              <ActivityIndicator
+                color={`${Colors[colorScheme || "light"].colorOn}`}
+              />
+            ) : (
+              <Text style={styles.buttonText}>Log In</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
@@ -321,26 +354,6 @@ export default function Auth() {
           )}
         </View>
       </>
-    );
-  }
-
-  function renderButton(title, onPress) {
-    return (
-      <View
-        style={[
-          styles.buttonWrapper,
-          !inputStates.scrollView && styles.buttonWrapperScrollView,
-        ]}
-      >
-        <TouchableOpacity
-          title={title}
-          disabled={loading}
-          style={styles.button}
-          onPress={onPress}
-        >
-          <Text style={styles.buttonText}>{title}</Text>
-        </TouchableOpacity>
-      </View>
     );
   }
 }
