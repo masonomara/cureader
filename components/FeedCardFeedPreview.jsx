@@ -30,7 +30,9 @@ export default function FeedCardFeedPreview({ item }) {
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(itemId)
   );
-
+  const [newChannelDataId, setNewChannelDataId] = useState(null);
+  const [newChannelSubmitted, setNewChannelSubmitted] = useState(false);
+  console.log(newChannelDataId);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
   const shouldRenderEditButton =
@@ -71,7 +73,9 @@ export default function FeedCardFeedPreview({ item }) {
 
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(true);
+    setNewChannelSubmitted(true);
     setIsSubscribed(!isSubscribed);
+    console.log("subscribeChange 1");
 
     try {
       const { data: channelData, error: channelError } = await supabase
@@ -92,6 +96,7 @@ export default function FeedCardFeedPreview({ item }) {
       if (channelError) {
         console.error("Error creating channel:", channelError);
         setIsSubscribed(!isSubscribed);
+        console.log("subscribeChange 2");
         return;
       }
 
@@ -103,6 +108,7 @@ export default function FeedCardFeedPreview({ item }) {
         if (feedsError) {
           console.error("Error fetching feeds:", feedsError);
           setIsSubscribed(!isSubscribed);
+          console.log("subscribeChange 3");
           return;
         }
 
@@ -119,8 +125,11 @@ export default function FeedCardFeedPreview({ item }) {
           if (newChannelError) {
             console.error("Error fetching new channel data:", newChannelError);
             setIsSubscribed(!isSubscribed);
+            console.log("subscribeChange 4");
             return;
           }
+
+          setNewChannelDataId(newChannelData.id);
 
           const updatedUserSubscriptionIds = [
             ...userSubscriptionIds,
@@ -156,11 +165,13 @@ export default function FeedCardFeedPreview({ item }) {
             fetchNewChannelError
           );
           setIsSubscribed(!isSubscribed);
+          console.log("subscribeChange 5");
           throw fetchNewChannelError;
         }
       } catch (fetchFeedsError) {
         console.error("Error fetching feeds:", fetchFeedsError);
         setIsSubscribed(!isSubscribed);
+        console.log("subscribeChange 6");
         throw fetchFeedsError;
       }
     } catch (fetchOrUploadError) {
@@ -169,6 +180,7 @@ export default function FeedCardFeedPreview({ item }) {
         fetchOrUploadError
       );
       setIsSubscribed(!isSubscribed);
+      console.log("subscribeChange 7");
     }
   };
 
@@ -281,6 +293,14 @@ export default function FeedCardFeedPreview({ item }) {
       lineHeight: 20,
       letterSpacing: -0.15,
     },
+    subscribedMutedButtonText: {
+      color: `${Colors[colorScheme || "light"].buttonMuted}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
     noImageContainer: {
       aspectRatio: "5/3",
       width: "100%",
@@ -371,22 +391,31 @@ export default function FeedCardFeedPreview({ item }) {
             >
               <View
                 style={
-                  isSubscribed
+                  isSubscribed || newChannelDataId
                     ? styles.subscribedButton
                     : styles.subscribeButton
                 }
               >
                 <Text
                   style={
-                    isSubscribed
+                    isSubscribed || newChannelDataId
                       ? styles.subscribedButtonText
                       : styles.subscribeButtonText
                   }
                 >
-                  {isSubscribed ? "Following" : "Follow"}
+                  {isSubscribed || newChannelDataId ? "Following" : "Follow"}
                 </Text>
               </View>
             </TouchableOpacity>
+          ) : newChannelDataId || newChannelSubmitted ? (
+            <View
+              style={styles.subscribeButtonWrapper}
+              onPress={handleSubscribe}
+            >
+              <View style={styles.subscribedButton}>
+                <Text style={styles.subscribedMutedButtonText}>Following</Text>
+              </View>
+            </View>
           ) : (
             <TouchableOpacity
               style={styles.subscribeButtonWrapper}

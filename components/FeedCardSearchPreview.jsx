@@ -32,12 +32,15 @@ export default function FeedCardSearchPreview({
   } = useContext(AuthContext);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
+  const [newChannelDataId, setNewChannelDataId] = useState(null);
+  const [newChannelSubmitted, setNewChannelSubmitted] = useState(false);
 
   const colorScheme = useColorScheme();
   const { setFeeds } = useContext(FeedContext);
 
   const handleSubmitUrl = async () => {
     setIsOptimisticSubscribed(true);
+    setNewChannelSubmitted(true);
     setIsSubscribed(!isSubscribed);
 
     try {
@@ -88,6 +91,8 @@ export default function FeedCardSearchPreview({
             setIsSubscribed(!isSubscribed);
             return;
           }
+
+          setNewChannelDataId(newChannelData.id);
 
           const updatedUserSubscriptionIds = [
             ...userSubscriptionIds,
@@ -160,18 +165,14 @@ export default function FeedCardSearchPreview({
       alignItems: "center",
       flexDirection: "row",
       flex: 1,
-      paddingLeft: 12,
-      paddingRight: 0,
       gap: 8,
+      marginLeft: 8,
     },
     cardInfo: {
       flex: 1,
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      justifyContent: "center",
       overflow: "hidden",
-      height: 64,
-      marginTop: -2,
-      arginBottom: -2,
     },
     title: {
       display: "flex",
@@ -185,23 +186,41 @@ export default function FeedCardSearchPreview({
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0.17,
-      marginBottom: 2,
     },
     cardControls: {
       flexDirection: "row",
-      gap: 12,
-      alignItems: "flex-end",
+      gap: 3,
+      alignItems: "center",
     },
     description: {
-      flex: 1,
-      maxHeight: 38,
       color: `${Colors[colorScheme || "light"].textMedium}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
       lineHeight: 19,
       letterSpacing: -0.14,
-      height: "100%",
+    },
+    editButtonWrapper: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    editButton: {
+      height: 44,
+      width: 40,
+      display: "flex",
+      alignItems: "center",
+      borderRadius: 8,
+      justifyContent: "center",
+    },
+    subscribeButtonWrapper: {
+      width: 88,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 44,
     },
     subscribeButton: {
       backgroundColor: `${Colors[colorScheme || "light"].colorPrimary}`,
@@ -220,7 +239,6 @@ export default function FeedCardSearchPreview({
       alignItems: "center",
       justifyContent: "center",
       height: 34,
-      opacity: 0.87,
     },
     subscribeButtonText: {
       color: `${Colors[colorScheme || "light"].colorOn}`,
@@ -230,8 +248,16 @@ export default function FeedCardSearchPreview({
       lineHeight: 20,
       letterSpacing: -0.15,
     },
+    subscribedMutedButtonText: {
+      color: `${Colors[colorScheme || "light"].buttonMuted}`,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 15,
+      lineHeight: 20,
+      letterSpacing: -0.15,
+    },
     subscribedButtonText: {
-      color: `${Colors[colorScheme || "light"].colorPrimary}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterSemiBold",
       fontWeight: "600",
       fontSize: 15,
@@ -241,12 +267,14 @@ export default function FeedCardSearchPreview({
     noImageContainer: {
       height: 68,
       width: 68,
-      borderRadius: 10,
+      borderRadius: 12,
       backgroundColor: getColorForLetter(channelTitle[0]),
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
+      borderWidth: 0.5,
+      borderColor: `${Colors[colorScheme || "light"].border}`,
     },
     noImageContainerText: {
       fontFamily: "NotoSerifMedium",
@@ -254,7 +282,6 @@ export default function FeedCardSearchPreview({
       fontSize: 23,
       lineHeight: 23,
       letterSpacing: -0.172,
-
       color: getTextColorForLetter(channelTitle[0]),
       textAlignVertical: "center",
       textAlign: "center",
@@ -274,6 +301,7 @@ export default function FeedCardSearchPreview({
             image: channelImageUrl,
             subscribers: 0,
             url: channelUrl,
+            ...(newChannelDataId && { id: newChannelDataId }),
             user: user,
             userId: user.id,
             subscribed: false,
@@ -318,7 +346,7 @@ export default function FeedCardSearchPreview({
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={1}>
             {channelTitle}
           </Text>
           {channelDescription ? (
@@ -330,24 +358,30 @@ export default function FeedCardSearchPreview({
           )}
         </View>
         <View style={styles.cardControls}>
-          <TouchableOpacity
-            style={
-              isOptimisticSubscribed
-                ? styles.subscribedButton
-                : styles.subscribeButton
-            }
-            onPress={handleSubmitUrl}
-          >
-            <Text
+          {newChannelDataId || newChannelSubmitted ? (
+            <View style={styles.subscribedButton}>
+              <Text style={styles.subscribedMutedButtonText}>Following</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
               style={
                 isOptimisticSubscribed
-                  ? styles.subscribedButtonText
-                  : styles.subscribeButtonText
+                  ? styles.subscribedButton
+                  : styles.subscribeButton
               }
+              onPress={handleSubmitUrl}
             >
-              {isOptimisticSubscribed ? "Following" : "Follow"}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={
+                  isOptimisticSubscribed
+                    ? styles.subscribedButtonText
+                    : styles.subscribeButtonText
+                }
+              >
+                {isOptimisticSubscribed ? "Following" : "Follow"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Pressable>
