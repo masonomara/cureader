@@ -155,10 +155,12 @@ export default function Index() {
     setFeedsParsed(true);
   };
 
-  const filteredItems = rssItems.filter((item) =>
-    item.feed.channel_categories.some((category) =>
-      selectedCategories.includes(category)
-    )
+  const filteredItems = rssItems.filter(
+    (item) =>
+      item.feed.channel_categories &&
+      item.feed.channel_categories.some((category) =>
+        selectedCategories.includes(category)
+      )
   );
 
   const fetchAndParseFeeds = async (urls) => {
@@ -562,6 +564,7 @@ export default function Index() {
                                     alignItems: "center",
                                     height: 40,
                                     alignSelf: "center",
+                                    justifyContent: "center",
                                     padding: 8,
                                     gap: 3,
                                     paddingLeft: 14,
@@ -634,6 +637,7 @@ export default function Index() {
                                     alignItems: "center",
                                     height: 40,
                                     alignSelf: "center",
+                                    justifyContent: "center",
                                     padding: 8,
                                     gap: 3,
                                     paddingLeft: 14,
