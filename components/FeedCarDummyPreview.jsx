@@ -162,7 +162,7 @@ export default function FeedCardDummyPreview({ title, description, imageUrl }) {
       )}
       <View style={styles.cardContent}>
         <View style={styles.cardInfo}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
           {description ? (
