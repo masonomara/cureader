@@ -155,7 +155,7 @@ export default function Bookmarks() {
                 fallbackImage={item.fallbackImage}
                 item={item}
                 feed={item.feed}
-                publication={item.feed.channel_title}
+                publication={item?.feed?.channel_title}
                 user={user}
               />
             )}
