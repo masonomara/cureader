@@ -577,8 +577,8 @@ export default function TabOneScreen() {
                 : dummyImageUrl
             }
             placeholder={placeholder}
-            autoCapitalize="none"
-            autoCorrect={false}
+            autoCapitalize={inputName === "dummyTitle" ? "words" : "none"}
+            autoCorrect={inputName === "dummyImageUrl" ? false : true}
             onFocus={() =>
               handleInputFocus(`isSearchInputSelected${inputName}`)
             }
