@@ -384,7 +384,7 @@ export default function Explore() {
     textButton: {
       width: 88,
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-end",
       justifyContent: "center",
       marginVertical: -8,
       height: 44,

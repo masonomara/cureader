@@ -270,7 +270,7 @@ export default function TabLayout() {
                     shadowOpacity: 0,
                     overflow: "hidden",
                     paddingTop: 8,
-                    paddingBottom: 16,
+                    paddingBottom: 64,
                   },
                   optionsWrapper: {
                     borderTopLeftRadius: 20,
