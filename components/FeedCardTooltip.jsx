@@ -174,7 +174,7 @@ export default function FeedCardToolTip({ item }) {
       letterSpacing: -0.17,
     },
     tooltipDescription: {
-      color: `${Colors[colorScheme || "light"].textMedium}`,
+      color: `${Colors[colorScheme || "light"].buttonActive}`,
       fontFamily: "InterRegular",
       fontWeight: "400",
       fontSize: 14,
@@ -254,7 +254,7 @@ export default function FeedCardToolTip({ item }) {
             shadowOpacity: 0,
             overflow: "hidden",
             paddingTop: 8,
-            paddingBottom: 16,
+            paddingBottom: 64,
           },
           optionsWrapper: {
             borderTopLeftRadius: 20,
