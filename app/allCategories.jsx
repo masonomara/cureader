@@ -286,8 +286,6 @@ export default function TabOneScreen() {
                     }
               )
               .map((category) => {
-                console.log(category.t);
-
                 return (
                   <CategoriesContainer key={category.id} category={category} />
                 );

@@ -32,7 +32,6 @@ export default function FeedCardFeedPreview({ item }) {
   );
   const [newChannelDataId, setNewChannelDataId] = useState(null);
   const [newChannelSubmitted, setNewChannelSubmitted] = useState(false);
-  console.log(newChannelDataId);
   const [isOptimisticSubscribed, setIsOptimisticSubscribed] = useState(false);
 
   const shouldRenderEditButton =
@@ -75,7 +74,6 @@ export default function FeedCardFeedPreview({ item }) {
     setIsOptimisticSubscribed(true);
     setNewChannelSubmitted(true);
     setIsSubscribed(!isSubscribed);
-    console.log("subscribeChange 1");
 
     try {
       const { data: channelData, error: channelError } = await supabase
@@ -96,7 +94,6 @@ export default function FeedCardFeedPreview({ item }) {
       if (channelError) {
         console.error("Error creating channel:", channelError);
         setIsSubscribed(!isSubscribed);
-        console.log("subscribeChange 2");
         return;
       }
 
@@ -108,7 +105,6 @@ export default function FeedCardFeedPreview({ item }) {
         if (feedsError) {
           console.error("Error fetching feeds:", feedsError);
           setIsSubscribed(!isSubscribed);
-          console.log("subscribeChange 3");
           return;
         }
 
@@ -125,7 +121,6 @@ export default function FeedCardFeedPreview({ item }) {
           if (newChannelError) {
             console.error("Error fetching new channel data:", newChannelError);
             setIsSubscribed(!isSubscribed);
-            console.log("subscribeChange 4");
             return;
           }
 
@@ -165,13 +160,11 @@ export default function FeedCardFeedPreview({ item }) {
             fetchNewChannelError
           );
           setIsSubscribed(!isSubscribed);
-          console.log("subscribeChange 5");
           throw fetchNewChannelError;
         }
       } catch (fetchFeedsError) {
         console.error("Error fetching feeds:", fetchFeedsError);
         setIsSubscribed(!isSubscribed);
-        console.log("subscribeChange 6");
         throw fetchFeedsError;
       }
     } catch (fetchOrUploadError) {
@@ -180,7 +173,6 @@ export default function FeedCardFeedPreview({ item }) {
         fetchOrUploadError
       );
       setIsSubscribed(!isSubscribed);
-      console.log("subscribeChange 7");
     }
   };
 
