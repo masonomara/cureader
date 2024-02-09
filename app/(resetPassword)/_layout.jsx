@@ -28,11 +28,11 @@ export default function AuthLayout() {
       flexDirection: "row",
       flexWrap: "nowrap",
       color: `${Colors[colorScheme || "light"].buttonActive}`,
-      fontFamily: "InterMedium",
-      fontWeight: "500",
-      fontSize: 15,
-      lineHeight: 20,
-      letterSpacing: -0.15,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 16,
+      lineHeight: 21,
+      letterSpacing: -0.16,
     },
   };
 
@@ -65,10 +65,10 @@ export default function AuthLayout() {
               contentFit="contain"
             />
           ),
-          headerLeft: () => (
+          headerRight: () => (
             <TouchableOpacity
               style={styles.headerButton}
-              onPress={() => router.replace("(home)/profile")}
+              onPress={() => router.replace("(login)")}
             >
               <Text style={styles.headerButtonText}>Back</Text>
             </TouchableOpacity>
