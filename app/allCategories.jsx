@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { FeedContext } from "./_layout";
-import { Text, useColorScheme, ScrollView } from "react-native";
+import { Text, useColorScheme, ScrollView, Dimensions } from "react-native";
 import { View } from "../components/Themed";
 import Colors from "../constants/Colors";
 import {
@@ -12,6 +12,8 @@ import {
 } from "react-native-popup-menu";
 import CategoriesContainer from "../components/CategoriesContainer";
 import Sort20 from "../components/icons/20/Sort20";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function TabOneScreen() {
   const { feedCategories } = useContext(FeedContext);
@@ -86,6 +88,7 @@ export default function TabOneScreen() {
       gap: 2,
       marginVertical: -8,
       marginBottom: -12,
+      backgroundColor: "transparent",
     },
     textButtonText: {
       fontFamily: "InterMedium",
@@ -142,6 +145,26 @@ export default function TabOneScreen() {
       width: "100%",
       backgroundColor: `${Colors[colorScheme || "light"].border}`,
     },
+    closeButton: {
+      bottom: -72,
+      width: SCREEN_WIDTH,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      height: 72,
+      position: "absolute",
+      zIndex: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 28,
+    },
+    closeButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      color: `${Colors[colorScheme || "light"].textPlaceholder}`,
+    },
   };
 
   return (
@@ -154,7 +177,6 @@ export default function TabOneScreen() {
         >
           <View style={styles.headerWrapper}>
             <Text style={styles.title}>Categories</Text>
-
             <Menu renderer={renderers.SlideInMenu}>
               <MenuTrigger
                 customStyles={{
@@ -172,10 +194,7 @@ export default function TabOneScreen() {
                 }}
               >
                 <View style={styles.textButton}>
-                  <Text style={styles.textButtonText}>
-                    {/* <Text style={styles.filterText}>By:&nbsp;</Text> */}
-                    {categoriesSort}
-                  </Text>
+                  <Text style={styles.textButtonText}>{categoriesSort}</Text>
                   <Sort20 color={Colors[colorScheme || "light"].buttonActive} />
                 </View>
               </MenuTrigger>
@@ -189,9 +208,9 @@ export default function TabOneScreen() {
                     borderTopRightRadius: 20,
                     shadowColor: "none",
                     shadowOpacity: 0,
-                    overflow: "hidden",
+                    overflow: "visible",
                     paddingTop: 8,
-                    paddingBottom: 64,
+                    marginTop: -72,
                   },
                   optionsWrapper: {
                     borderTopLeftRadius: 20,
@@ -231,14 +250,25 @@ export default function TabOneScreen() {
 
                 <MenuOption
                   onSelect={() => handleSortChange("Popularity")}
-                  text="Popularity"
+                  text={
+                    categoriesSort === "Popularity"
+                      ? "Popularity (Selected)"
+                      : "Popularity"
+                  }
                 />
                 <View style={styles.tooltipDivider}></View>
                 <MenuOption
                   onSelect={() => handleSortChange("Alphabetical")}
-                  text="Alphabetical"
+                  text={
+                    categoriesSort === "Popularity"
+                      ? "Alphabetical"
+                      : "Alphabetical (Selected)"
+                  }
                 />
                 <View style={styles.tooltipDivider}></View>
+                <View style={styles.closeButton} pointerEvents="none">
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </View>
               </MenuOptions>
             </Menu>
           </View>

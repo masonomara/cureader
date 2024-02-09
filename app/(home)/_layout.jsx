@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import {
   Alert,
+  Dimensions,
   Image,
   Pressable,
   Text,
@@ -24,6 +25,8 @@ import SearchOutline28 from "../../components/icons/28/SearchOutline28";
 import HomeOutline28 from "../../components/icons/28/HomeOutline28";
 import { useContext } from "react";
 import { FeedContext } from "../_layout";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -158,6 +161,26 @@ export default function TabLayout() {
       lineHeight: 18,
       letterSpacing: -0.13,
     },
+    closeButton: {
+      bottom: -72,
+      width: SCREEN_WIDTH,
+      backgroundColor: `${Colors[colorScheme || "light"].background}`,
+      height: 72,
+      position: "absolute",
+      zIndex: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 28,
+    },
+    closeButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      color: `${Colors[colorScheme || "light"].textPlaceholder}`,
+    },
   };
 
   return (
@@ -261,16 +284,16 @@ export default function TabLayout() {
               <MenuOptions
                 customStyles={{
                   optionsContainer: {
-                    backgroundColor: Colors[colorScheme || "light"].surfaceOne,
+                    backgroundColor: Colors[colorScheme || "light"].background,
                     borderWidth: 0.5,
                     borderColor: Colors[colorScheme || "light"].border,
                     borderTopLeftRadius: 20,
                     borderTopRightRadius: 20,
                     shadowColor: "none",
                     shadowOpacity: 0,
-                    overflow: "hidden",
+                    overflow: "visible",
                     paddingTop: 8,
-                    paddingBottom: 64,
+                    marginTop: -72,
                   },
                   optionsWrapper: {
                     borderTopLeftRadius: 20,
@@ -379,6 +402,9 @@ export default function TabLayout() {
                     </Pressable>
                     <Text style={styles.optionTextCredit}>.</Text>
                   </View>
+                </View>
+                <View style={styles.closeButton} pointerEvents="none">
+                  <Text style={styles.closeButtonText}>Close</Text>
                 </View>
               </MenuOptions>
             </Menu>

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useColorScheme } from "react-native";
@@ -17,6 +17,8 @@ import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
 import { updateChannelSubscribers } from "../hooks/FeedCardFunctions";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function FeedCardToolTip({ item }) {
   const { feeds } = useContext(FeedContext);
@@ -216,6 +218,26 @@ export default function FeedCardToolTip({ item }) {
       gap: 5,
       borderRadius: 100,
     },
+    closeButton: {
+      bottom: -72,
+      width: SCREEN_WIDTH,
+      backgroundColor: "white",
+      height: 72,
+      position: "absolute",
+      zIndex: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 28,
+    },
+    closeButtonText: {
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 17,
+      lineHeight: 22,
+      letterSpacing: -0.17,
+      color: `${Colors[colorScheme || "light"].textPlaceholder}`,
+    },
   };
 
   return (
@@ -252,9 +274,9 @@ export default function FeedCardToolTip({ item }) {
             borderTopRightRadius: 20,
             shadowColor: "none",
             shadowOpacity: 0,
-            overflow: "hidden",
+            overflow: "visible",
             paddingTop: 8,
-            paddingBottom: 64,
+            marginTop: -72,
           },
           optionsWrapper: {
             borderTopLeftRadius: 20,
@@ -355,6 +377,9 @@ export default function FeedCardToolTip({ item }) {
         <View style={styles.tooltipDivider}></View>
         <MenuOption onSelect={() => handleSubscribe()} text="Unsubscribe" />
         <View style={styles.tooltipDivider}></View>
+        <View style={styles.closeButton} pointerEvents="none">
+          <Text style={styles.closeButtonText}>Close</Text>
+        </View>
       </MenuOptions>
     </Menu>
   );
