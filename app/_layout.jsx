@@ -356,6 +356,10 @@ function RootLayoutNav() {
               <Stack.Screen name="(home)" options={{ headerShown: false }} />
               <Stack.Screen name="(login)" options={{ headerShown: false }} />
               <Stack.Screen
+                name="(resetPassword)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
                 name="(removeAccount)"
                 options={{ headerShown: false }}
               />
