@@ -38,7 +38,9 @@ export default function Auth() {
 
   async function resetPassword() {
     try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://example.com/update-password",
+      });
     } catch (error) {
       console.error("An error occurred during account deletion:", error);
     }
@@ -69,26 +71,25 @@ export default function Auth() {
       width: "100%",
       alignItems: "center",
     },
-
     title: {
-      marginBottom: 4,
-      marginTop: 4,
+      marginBottom: 3,
+      marginTop: 3,
       color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "NotoSerifMedium",
-      fontWeight: "500",
-      fontSize: 29,
-      lineHeight: 35,
-      letterSpacing: -0.217,
+      fontFamily: "InterSemiBold",
+      fontWeight: "600",
+      fontSize: 28,
+      lineHeight: 28,
+      letterSpacing: -0.28,
     },
     subtitle: {
       marginBottom: 35,
       color: `${Colors[colorScheme || "light"].textHigh}`,
       fontFamily: "InterMedium",
+      fontWeight: "500",
+      fontSize: 17,
       textAlign: "center",
-      fontWeight: "400",
-      fontSize: 19,
-      lineHeight: 24,
-      letterSpacing: -0.19,
+      lineHeight: 22,
+      letterSpacing: -0.17,
     },
     label: {
       width: "100%",
@@ -124,25 +125,7 @@ export default function Auth() {
       letterSpacing: -0,
     },
     inputSelected: {
-      width: "100%",
-      borderRadius: 20,
-      height: 56,
-      minHeight: 56,
-      marginBottom: 16,
-      paddingLeft: 16,
-      paddingRight: 6,
-      borderWidth: 1,
-      flexDirection: "row",
       borderColor: `${Colors[colorScheme || "light"].buttonMuted}`,
-      backgroundColor: `${Colors[colorScheme || "light"].surfaceOne}`,
-      alignContent: "center",
-      justifyContent: "space-between",
-      color: `${Colors[colorScheme || "light"].textHigh}`,
-      fontFamily: "InterRegular",
-      fontWeight: "500",
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0,
     },
     inputText: {
       flex: 1,
@@ -152,6 +135,7 @@ export default function Auth() {
       fontSize: 17,
       lineHeight: 22,
       letterSpacing: -0,
+      flexWrap: "nowrap",
     },
     inputButton: {
       width: 44,
@@ -221,8 +205,10 @@ export default function Auth() {
         showsHorizontalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Reset your password</Text>
-          <Text style={styles.subtitle}>Enter your email to get started.</Text>
+          <Text style={styles.title}>Reset Your Password</Text>
+          <Text style={styles.subtitle}>
+            Enter your email for a recovery link.
+          </Text>
           <Text style={styles.label}>Account email address</Text>
           <TextInput
             style={[

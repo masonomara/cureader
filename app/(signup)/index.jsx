@@ -101,6 +101,7 @@ export default function Auth() {
       alignItems: "center",
       justifyContent: "space-between",
       padding: 24,
+
       overflow: "hidden",
       paddingBottom: 88,
     },
@@ -132,6 +133,7 @@ export default function Auth() {
       textAlign: "center",
       lineHeight: 22,
       letterSpacing: -0.17,
+      paddingHorizontal: 0,
     },
     label: {
       width: "100%",
@@ -254,10 +256,8 @@ export default function Auth() {
         showsHorizontalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Create an account</Text>
-          <Text style={styles.subtitle}>
-            Please enter the following information.
-          </Text>
+          <Text style={styles.title}>Sign Up</Text>
+          <Text style={styles.subtitle}>Enter the following information.</Text>
           <Text style={styles.label}>Your display name</Text>
           <TextInput
             style={[

@@ -16,6 +16,7 @@ import Colors from "../../constants/Colors";
 import * as WebBrowser from "expo-web-browser";
 
 import { supabase } from "../../config/supabase";
+import { router } from "expo-router";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
@@ -267,20 +268,22 @@ export default function Auth() {
       >
         <View style={styles.content}>
           <Text style={styles.title}>Welcome!</Text>
-          <Text style={styles.subtitle}>Please log in to continue.</Text>
+          <Text style={styles.subtitle}>Enter your information to continue.</Text>
           {renderInput("Email", "email")}
           {renderInput("Password", "password", true)}
           <View style={styles.optionTextCreditWrapper}>
-            <Text style={styles.optionTextCredit}>Forgot your password?</Text>
             <Pressable
               style={styles.optionTextCreditPressableWrapper}
-              onPress={() =>
-                _handlePressButtonAsync("https://cureader.app/contact/")
-              }
+              onPress={() => {
+                router.push({
+                  pathname: "/(resetPassword)",
+                });
+              }}
             >
-              <Text style={styles.optionTextCreditPressable}> Email us </Text>
+              <Text style={styles.optionTextCreditPressable}>
+                Forgot your password?
+              </Text>
             </Pressable>
-            <Text style={styles.optionTextCredit}>to have it reset.</Text>
           </View>
         </View>
 
