@@ -204,17 +204,13 @@ function RootLayoutNav() {
         SplashScreen.hideAsync();
         setUser(user);
         setUserFetched(true);
-
         const { channelIds, channelUrls, bookmarks } =
           await fetchUserSubscriptions(user);
-
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
-
         fetchFeeds();
-
         router.replace("(home)");
       } else {
         router.replace("(login)");
@@ -357,6 +353,10 @@ function RootLayoutNav() {
               <Stack.Screen name="(login)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="(resetPassword)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="(waitingPassword)"
                 options={{ headerShown: false }}
               />
               <Stack.Screen
