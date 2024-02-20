@@ -369,40 +369,7 @@ export default function TabLayout() {
                   text="Delete Account"
                 />
                 <View style={styles.tooltipDivider}></View>
-                <View style={styles.optionWrapperCredit}>
-                  <View style={styles.optionTextCreditWrapper}>
-                    <Text style={styles.optionTextCredit}>
-                      Cureader is designed, developed, and produced by{" "}
-                    </Text>
-                    <Pressable
-                      style={styles.optionTextCreditPressableWrapper}
-                      onPress={() =>
-                        _handlePressButtonAsync("https://masonomara.com/")
-                      }
-                    >
-                      <Text style={styles.optionTextCreditPressable}>
-                        Mason O'Mara
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.optionTextCredit}>.</Text>
-                  </View>
-                  <View style={styles.optionTextCreditWrapper}>
-                    <Text style={styles.optionTextCredit}>
-                      Visit out website at{" "}
-                    </Text>
-                    <Pressable
-                      style={styles.optionTextCreditPressableWrapper}
-                      onPress={() =>
-                        _handlePressButtonAsync("https://cureader.app/")
-                      }
-                    >
-                      <Text style={styles.optionTextCreditPressable}>
-                        www.cureader.app
-                      </Text>
-                    </Pressable>
-                    <Text style={styles.optionTextCredit}>.</Text>
-                  </View>
-                </View>
+          
                 <View style={styles.closeButton} pointerEvents="none">
                   <Text style={styles.closeButtonText}>Close</Text>
                 </View>
