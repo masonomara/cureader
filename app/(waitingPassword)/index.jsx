@@ -1,55 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import {
-  Alert,
-  TextInput,
   View,
   Text,
   SafeAreaView,
   TouchableOpacity,
   useColorScheme,
-  ActivityIndicator,
 } from "react-native";
-import { supabase } from "../../config/supabase";
 
 import Colors from "../../constants/Colors";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
 
 export default function Auth() {
   const colorScheme = useColorScheme();
-  const [isSearchInputSelectedTwo, setIsSearchInputSelectedTwo] =
-    useState(false);
-  const [scrollView, setScrollView] = useState(true);
-  const [email, setEmail] = useState("");
-  const [loadingState, setLoadingState] = useState(false);
-  const [removalDisabled, setRemovalDisabled] = useState(true);
-
-  useEffect(() => {
-    setRemovalDisabled(email == "");
-  }, [email]);
-
-  const handleFocusTwo = () => {
-    setIsSearchInputSelectedTwo(true);
-    setScrollView(false);
-  };
-
-  const handleBlurTwo = () => {
-    setIsSearchInputSelectedTwo(false);
-    setScrollView(true);
-  };
-
-  async function resetPassword() {
-    setLoadingState(true);
-    try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://example.com/update-password",
-      });
-      router.replace("(waitingPassword)");
-    } catch (error) {
-      setLoadingState(false);
-      console.error("An error occurred during password reset:", error);
-    }
-  }
 
   const styles = {
     safeAreaView: {
@@ -95,6 +57,7 @@ export default function Auth() {
       textAlign: "center",
       lineHeight: 22,
       letterSpacing: -0.17,
+      paddingHorizontal: 8,
     },
     label: {
       width: "100%",
@@ -197,78 +160,23 @@ export default function Auth() {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <KeyboardAwareScrollView
-        contentContainerStyle={[
-          styles.container,
-          !scrollView && styles.containerScrollView,
-        ]}
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        scrollEnabled={!scrollView}
-        nestedScrollEnabled={!scrollView}
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      >
+      <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.title}>Reset Your Password</Text>
+          <Text style={styles.title}>Email Sent!</Text>
           <Text style={styles.subtitle}>
-            Enter your email for a recovery link.
+            Please check your email for the email from Cureader.
           </Text>
-          <Text style={styles.label}>Account email address</Text>
-          <TextInput
-            style={[
-              styles.input,
-              isSearchInputSelectedTwo && styles.inputSelected,
-            ]}
-            label="Email"
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            placeholder="email"
-            autoCapitalize={"none"}
-            autoCorrect={false}
-            onFocus={handleFocusTwo}
-            onBlur={handleBlurTwo}
-          />
         </View>
-        <View
-          style={[
-            styles.buttonWrapper,
-            !scrollView && styles.buttonWrapperScrollView,
-          ]}
-        >
-          {!removalDisabled ? (
-            <TouchableOpacity
-              title="Sign up"
-              disabled={removalDisabled}
-              style={styles.button}
-              onPress={() => resetPassword()}
-            >
-              {loadingState ? (
-                <ActivityIndicator
-                  color={`${Colors[colorScheme || "light"].colorOn}`}
-                />
-              ) : (
-                <Text style={styles.buttonText}>Reset Password</Text>
-              )}
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              title="Sign Up"
-              disabled={removalDisabled}
-              style={styles.buttonDisabled}
-              onPress={() => resetPassword()}
-            >
-              {loadingState ? (
-                <ActivityIndicator
-                  color={`${Colors[colorScheme || "light"].colorOn}`}
-                />
-              ) : (
-                <Text style={styles.buttonText}>Reset Password</Text>
-              )}
-            </TouchableOpacity>
-          )}
+        <View style={[styles.buttonWrapper]}>
+          <TouchableOpacity
+            title="Sign up"
+            style={styles.button}
+            onPress={() => router.replace("(login)")}
+          >
+            <Text style={styles.buttonText}>Go Back to Login</Text>
+          </TouchableOpacity>
         </View>
-      </KeyboardAwareScrollView>
+      </View>
     </SafeAreaView>
   );
 }
