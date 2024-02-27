@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   TouchableOpacity,
-  Alert,
   useColorScheme,
   ActivityIndicator,
   Dimensions,
