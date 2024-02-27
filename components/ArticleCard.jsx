@@ -7,6 +7,9 @@ import {
   useColorScheme,
   Share,
   Image as RNImage,
+  ScrollView,
+  Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import Colors from "../constants/Colors";
@@ -36,6 +39,8 @@ export default function ArticleCard({
   const [isBookmarked, setIsBookmarked] = useState(
     userBookmarks.some((bookmark) => bookmark.title === item.title)
   );
+
+  const CARD_WIDTH = Dimensions.get("window").width - 32;
 
   useLayoutEffect(() => {
     setIsBookmarked(
@@ -85,6 +90,16 @@ export default function ArticleCard({
     });
   };
 
+  const imageUrls = [];
+  const regex = /<img.*?src=['"](.*?)['"].*?>/g;
+
+  let match;
+  while ((match = regex.exec(item.description)) !== null) {
+    imageUrls.push(match[1]);
+  }
+
+  console.log(imageUrls);
+
   useLayoutEffect(() => {
     if (imageUrl) {
       getImageSize();
@@ -112,7 +127,7 @@ export default function ArticleCard({
   };
 
   const renderCardControls = () => (
-    <View style={styles.cardControls}>
+    <Pressable style={styles.cardControls} onPress={_handlePressButtonAsync}>
       <View style={styles.cardButtons}>
         <TouchableOpacity style={styles.buttonWrapper} onPress={onShare}>
           <View style={styles.button}>
@@ -141,14 +156,12 @@ export default function ArticleCard({
         </TouchableOpacity>
       </View>
       {feed && <FeedCardToolTip item={feed} />}
-    </View>
+    </Pressable>
   );
 
   const styles = {
     card: {
       borderBottomWidth: 1,
-      paddingHorizontal: 16,
-      paddingTop: 16,
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
       borderColor: `${Colors[colorScheme || "light"].border}`,
       alignItems: "flex-start",
@@ -163,6 +176,8 @@ export default function ArticleCard({
       flexDirection: "row",
       width: "100%",
       maxwidth: 550,
+      paddingHorizontal: 16,
+      paddingTop: 12,
     },
     iconWrapper: {
       display: "flex",
@@ -178,7 +193,6 @@ export default function ArticleCard({
     },
     cardContentWrapper: {
       display: "flex",
-
       flexDirection: "column",
       alignItems: "flex-start",
       flex: 1,
@@ -273,8 +287,9 @@ export default function ArticleCard({
       alignSelf: "stretch",
       flexDirection: "row",
       width: "100%",
-      height: 44,
-      marginTop: 16,
+      height: 64,
+      paddingTop: 16,
+      paddingHorizontal: 16,
     },
     cardButtons: {
       display: "flex",
@@ -337,33 +352,81 @@ export default function ArticleCard({
       textAlign: "center",
       width: "1000%",
     },
+    categoriesList: {
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+    },
   };
 
   return (
-    <Pressable style={styles.card} onPress={_handlePressButtonAsync}>
+    <View style={styles.card}>
       {imageUrl && imageWidth > 200 ? (
         <>
-          <View
-            style={{
-              aspectRatio: "4/3",
-              width: "100%",
-              borderRadius: 12,
-              overflow: "hidden",
-              borderWidth: 0.5,
-              borderColor: `${Colors[colorScheme || "light"].border}`,
-              marginBottom: 12,
-              backgroundColor: `white`,
-            }}
-          >
-            <RNImage
+          {imageUrls.length > 1 ? (
+            <ScrollView
+              horizontal
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[styles.categoriesList]}
+              decelerationRate={0}
+              snapToInterval={CARD_WIDTH + 8}
+              snapToAlignment={"left"}
+            >
+              {imageUrls.map((url, index) => (
+                <View
+                  key={index}
+                  style={{
+                    aspectRatio: "4/3",
+                    width: CARD_WIDTH,
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    borderWidth: 0.5,
+                    borderColor: `${Colors[colorScheme || "light"].border}`,
+                    backgroundColor: `white`,
+                  }}
+                >
+                  <RNImage
+                    style={{
+                      flex: 1,
+                    }}
+                    contentFit="cover"
+                    source={{ uri: url }}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <Pressable
               style={{
-                flex: 1,
+                paddingTop: 16,
+                width: CARD_WIDTH,
+                
               }}
-              contentFit="cover"
-              source={{ uri: imageUrl || fallbackImage || item.image?.url }}
-            />
-          </View>
-          <View style={styles.cardContent}>
+              onPress={_handlePressButtonAsync}
+            >
+              <RNImage
+                style={{
+                  flex: 1,
+                  aspectRatio: "4/3",
+                  width: CARD_WIDTH,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  borderWidth: 0.5,
+                  borderColor: `${Colors[colorScheme || "light"].border}`,
+                  backgroundColor: `white`,
+                  marginHorizontal: 16,
+                }}
+                contentFit="cover"
+                source={{ uri: imageUrl || fallbackImage || item.image?.url }}
+              />
+            </Pressable>
+          )}
+
+          <Pressable
+            style={styles.cardContent}
+            onPress={_handlePressButtonAsync}
+          >
             <View style={styles.cardContentWrapper}>
               <Text style={styles.publicationWrapper}>
                 <Text style={styles.publicationText}>{publication}&nbsp;</Text>
@@ -378,16 +441,19 @@ export default function ArticleCard({
                   : ""}
               </Text>
             </View>
-          </View>
+          </Pressable>
           {renderCardControls()}
         </>
       ) : (
         <>
-          <View
+          <Pressable
+            onPress={_handlePressButtonAsync}
             style={{
               width: "100%",
               gap: 16,
               flexDirection: "row",
+              paddingHorizontal: 16,
+              paddingTop: 16,
             }}
           >
             <View
@@ -441,10 +507,10 @@ export default function ArticleCard({
                 </Text>
               </View>
             )}
-          </View>
+          </Pressable>
           {renderCardControls()}
         </>
       )}
-    </Pressable>
+    </View>
   );
 }
