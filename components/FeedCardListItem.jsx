@@ -19,6 +19,7 @@ import {
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
 import Dots20 from "./icons/20/Dots20";
+import StarFilled12 from "./icons/12/StarFilled12";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -34,6 +35,7 @@ export default function FeedCardListItem({
     userSubscriptionIds,
     setUserSubscriptionIds,
     setUserSubscriptionUrls,
+    userFavoriteSubscriptionIds,
   } = useContext(AuthContext);
   const { feeds } = useContext(FeedContext);
   const colorScheme = useColorScheme();
@@ -41,14 +43,17 @@ export default function FeedCardListItem({
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
+  const [isFavorited, setIsFavorited] = useState(
+    userFavoriteSubscriptionIds?.includes(item.id)
+  );
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
+    setIsFavorited(userFavoriteSubscriptionIds?.includes(item.id));
   }, [userSubscriptionIds, item.id]);
 
   const handleSubscribe = async () => {
     setIsSubscribed(!isSubscribed);
-
     try {
       const updatedUserSubscriptionIds = isSubscribed
         ? userSubscriptionIds.filter((id) => id !== item.id)
@@ -89,9 +94,13 @@ export default function FeedCardListItem({
       display: "flex",
       flex: 1,
       width: CARD_WIDTH,
+
       gap: 10,
       paddingVertical: 10,
       ...(extraPadding && { marginHorizontal: 16 }),
+      marginRight: -8,
+      overflow: "visible",
+      zIndex: 20,
     },
     cardContent: {
       display: "flex",
@@ -193,7 +202,12 @@ export default function FeedCardListItem({
       width: 68,
       borderRadius: 12,
       backgroundColor: getColorForLetter(item.channel_title[0]),
+    },
+    noImageWrapper: {
+      borderRadius: 12,
       display: "flex",
+      height: 68,
+      width: 68,
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
@@ -210,6 +224,30 @@ export default function FeedCardListItem({
       textAlignVertical: "center",
       textAlign: "center",
       width: "1000%",
+    },
+    badgeWrapper: {
+      position: "absolute",
+      top: -5,
+      left: -5,
+      display: "flex",
+      flexDirection: "row",
+      zIndex: 5,
+      gap: 5,
+    },
+    favoriteBadgeWrapper: {
+      borderBottomLeftRadius: 100,
+      borderBottomRightRadius: 100,
+      borderTopLeftRadius: 100,
+      borderTopRightRadius: 100,
+      backgroundColor: `#FFC338`,
+      height: 20,
+      width: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingBottom: 0.5,
+      borderWidth: 2,
+      borderColor: `${Colors[colorScheme || "light"].background}`,
     },
   };
 
@@ -236,31 +274,48 @@ export default function FeedCardListItem({
     >
       {!item.channel_image_url ? (
         <View style={styles.noImageContainer}>
-          <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
-          </Text>
-          <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title} {item.channel_title}
-          </Text>
-          <Text style={styles.noImageContainerText}>
-            {item.channel_title} {item.channel_title}
-          </Text>
+          <View style={styles.badgeWrapper}>
+            {isFavorited && (
+              <View style={styles.favoriteBadgeWrapper}>
+                <StarFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            )}
+          </View>
+
+          <View style={styles.noImageWrapper}>
+            <Text style={styles.noImageContainerText}>
+              {item.channel_title} {item.channel_title}
+            </Text>
+            <Text style={styles.noImageContainerText}>
+              {item.channel_title} {item.channel_title} {item.channel_title}
+            </Text>
+            <Text style={styles.noImageContainerText}>
+              {item.channel_title} {item.channel_title}
+            </Text>
+          </View>
         </View>
       ) : (
         <View
           style={{
             aspectRatio: "1/1",
             width: 68,
-            overflow: "hidden",
-            borderRadius: 12,
-            borderWidth: 0.5,
-            backgroundColor: `white`,
-            borderColor: `${Colors[colorScheme || "light"].border}`,
           }}
         >
+          <View style={styles.badgeWrapper}>
+            {isFavorited && (
+              <View style={styles.favoriteBadgeWrapper}>
+                <StarFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            )}
+          </View>
           <Image
             style={{
               flex: 1,
+              overflow: "hidden",
+              borderRadius: 12,
+              borderWidth: 0.5,
+              backgroundColor: `white`,
+              borderColor: `${Colors[colorScheme || "light"].border}`,
             }}
             contentFit="cover"
             source={{ uri: item.channel_image_url }}
