@@ -9,9 +9,7 @@ import {
   Image as RNImage,
   ScrollView,
   Dimensions,
-  TouchableWithoutFeedback,
 } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 import Colors from "../constants/Colors";
 import FeedCardToolTip from "./FeedCardTooltip";
 import { AuthContext } from "../app/_layout";
@@ -24,7 +22,7 @@ import {
   formatDescription,
 } from "../app/utils/Formatting";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
-
+import * as WebBrowser from "expo-web-browser";
 export default function ArticleCard({
   fallbackImage,
   feed,
@@ -108,7 +106,14 @@ export default function ArticleCard({
 
   const _handlePressButtonAsync = async () => {
     try {
-      await WebBrowser.openBrowserAsync(item.links[0].url);
+      await WebBrowser.openBrowserAsync(item.links[0].url, {
+        controlsColor: `${Colors[colorScheme || "light"].colorPrimary}`,
+        dismissButtonStyle: "close",
+        enableBarCollapsing: true,
+        presentationStyle: "fullScreen",
+        readerMode: false,
+        toolbarColor: `${Colors[colorScheme || "light"].background}`,
+      });
     } catch (error) {
       console.error("Error opening browser:", error);
     }
@@ -401,7 +406,6 @@ export default function ArticleCard({
               style={{
                 paddingTop: 16,
                 width: CARD_WIDTH,
-                
               }}
               onPress={_handlePressButtonAsync}
             >
