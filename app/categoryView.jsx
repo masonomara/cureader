@@ -87,6 +87,7 @@ export default function TabOneScreen() {
       width: "100%",
       maxWidth: "100%",
       justifyContent: "center",
+
       backgroundColor: `${Colors[colorScheme || "light"].background}`,
     },
     feedList: {
@@ -94,10 +95,10 @@ export default function TabOneScreen() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-      paddingHorizontal: 16,
+      justifyContent: "center",
     },
     headerWrapper: {
-      paddingHorizontal: 0,
+      paddingHorizontal: 16,
       paddingBottom: 10,
       gap: 3,
       width: "100%",
@@ -128,7 +129,14 @@ export default function TabOneScreen() {
           estimatedItemSize={200}
           ListFooterComponent={() => <View style={styles.flashListFooter} />}
           renderItem={({ item }) => {
-            return <FeedCardListItem key={item.id} item={item} user={user} />;
+            return (
+              <FeedCardListItem
+                key={item.id}
+                item={item}
+                user={user}
+                extraPadding={true}
+              />
+            );
           }}
           ListHeaderComponent={
             <View style={styles.headerWrapper}>

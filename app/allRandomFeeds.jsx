@@ -36,7 +36,6 @@ export default function TabOneScreen() {
       maxWidth: "100%",
       minWidth: "100%",
       flex: 1,
-      paddingHorizontal: 16,
     },
     button: {
       height: 48,
@@ -49,7 +48,7 @@ export default function TabOneScreen() {
       paddingVertical: 8,
     },
     headerWrapper: {
-      paddingHorizontal: 0,
+      paddingHorizontal: 16,
       paddingBottom: 10,
       gap: 3,
       paddingTop: 41,
@@ -83,7 +82,14 @@ export default function TabOneScreen() {
             </View>
           }
           renderItem={({ item }) => {
-            return <FeedCardListItem key={item.id} item={item} user={user} />;
+            return (
+              <FeedCardListItem
+                key={item.id}
+                item={item}
+                user={user}
+                extraPadding={true}
+              />
+            );
           }}
           ListFooterComponent={() => <View style={styles.flashListFooter} />}
         />
