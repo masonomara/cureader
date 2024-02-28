@@ -96,8 +96,6 @@ export default function ArticleCard({
     imageUrls.push(match[1]);
   }
 
-  console.log(imageUrls);
-
   useLayoutEffect(() => {
     if (imageUrl) {
       getImageSize();
