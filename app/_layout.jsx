@@ -35,10 +35,16 @@ export const AuthContext = createContext({
   userSubscriptionUrlsFetched: false,
   userCategories: [],
   userBookmarks: [],
+  userFavoriteSubscriptionIds: [],
+  userWarningSubscriptionUrls: [],
+  userErrorSubscriptionUrls: [],
   setUserSubscriptionIds: () => {},
   setUserCategories: () => {},
   setUserSubscriptionUrls: () => {},
   setUserBookmarks: () => {},
+  setUserFavoriteSubscriptionIds: () => {},
+  setUserWarningSubscriptionUrls: () => {},
+  setUserErrorSubscriptionUrls: () => {},
 });
 
 export const unstable_settings = {
@@ -91,6 +97,12 @@ function RootLayoutNav() {
     useState(false);
   const [feedCategories, setFeedCategories] = useState(null);
   const [userBookmarks, setUserBookmarks] = useState(null);
+  const [userFavoriteSubscriptionIds, setUserFavoriteSubscriptionIds] =
+    useState(null);
+  const [userWarningSubscriptionUrls, setUserWarningSubscriptionUrls] =
+    useState(null);
+  const [userErrorSubscriptionUrls, setUserErrorSubscriptionUrls] =
+    useState(null);
   const [userFetched, setUserFetched] = useState(false);
   const [feedsFetched, setFeedsFetched] = useState(false);
   const [feedsParsed, setFeedsParsed] = useState(false);
@@ -204,12 +216,21 @@ function RootLayoutNav() {
         SplashScreen.hideAsync();
         setUser(user);
         setUserFetched(true);
-        const { channelIds, channelUrls, bookmarks } =
-          await fetchUserSubscriptions(user);
+        const {
+          channelIds,
+          channelUrls,
+          bookmarks,
+          favoriteChannelIds,
+          warningChannelIds,
+          errorChannelIds,
+        } = await fetchUserSubscriptions(user);
         setUserSubscriptionIds(channelIds);
         setUserSubscriptionUrls(channelUrls);
         setUserSubscriptionUrlsFetched(true);
         setUserBookmarks(bookmarks);
+        setUserFavoriteSubscriptionIds(favoriteChannelIds);
+        setUserWarningSubscriptionUrls(null);
+        setUserErrorSubscriptionUrls(null);
         fetchFeeds();
         router.replace("(home)");
       } else {
@@ -224,6 +245,9 @@ function RootLayoutNav() {
       setUserSubscriptionIds(null);
       setUserSubscriptionUrls(null);
       setUserBookmarks(null);
+      setUserFavoriteSubscriptionIds(null);
+      setUserWarningSubscriptionUrls(null);
+      setUserErrorSubscriptionUrls(null);
     }
   };
 
@@ -268,12 +292,32 @@ function RootLayoutNav() {
         .eq("id", user.id);
       if (userProfileError) {
         console.error("Error fetching user profile data:", userProfileError);
-        return { channelIds: [], channelUrls: [], bookmarks: [] };
+        return {
+          channelIds: [],
+          channelUrls: [],
+          bookmarks: [],
+          favoriteChannelIds: [],
+          warningChannelIds: [],
+          errorChannelIds: [],
+        };
       }
       setUserAdmin(userProfileData[0].admin);
       const channelSubscriptions =
         userProfileData[0]?.channel_subscriptions || [];
       const articleBookmarks = userProfileData[0]?.bookmarks || [];
+
+      const favoriteChannelIds = userProfileData[0]?.channel_favorites || [];
+      const favoriteChannelIdList = favoriteChannelIds.map(
+        (channel) => channel.channelId
+      );
+      const warningChannelIds = favoriteChannelIds.map(
+        (channel) => channel.channelId
+      );
+      const errorChannelIds = favoriteChannelIds.map(
+        (channel) => channel.channelId
+      );
+      // console.log("favoriteChannelIds", favoriteChannelIdList);
+
       const { channelIds, channelUrls } = channelSubscriptions.reduce(
         (acc, subscription) => {
           acc.channelIds.push(subscription.channelId);
@@ -283,10 +327,24 @@ function RootLayoutNav() {
         { channelIds: [], channelUrls: [] }
       );
       const bookmarks = articleBookmarks;
-      return { channelIds, channelUrls, bookmarks };
+      return {
+        channelIds,
+        channelUrls,
+        bookmarks,
+        favoriteChannelIds: favoriteChannelIdList,
+        warningChannelIds,
+        errorChannelIds,
+      };
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return { channelIds: [], channelUrls: [], bookmarks: [] };
+      return {
+        channelIds: [],
+        channelUrls: [],
+        bookmarks: [],
+        favoriteChannelIds: [],
+        warningChannelIds: [],
+        errorChannelIds: [],
+      };
     }
   };
 
@@ -307,6 +365,7 @@ function RootLayoutNav() {
       letterSpacing: -0.16,
     },
   };
+
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -340,12 +399,18 @@ function RootLayoutNav() {
               userSubscriptionIds,
               userSubscriptionUrls,
               userBookmarks,
+              userFavoriteSubscriptionIds,
+              userErrorSubscriptionUrls,
+              userWarningSubscriptionUrls,
               setUserSubscriptionIds,
               setUserSubscriptionUrls,
               userSubscriptionUrlsFetched,
               userCategories,
               setUserCategories,
               setUserBookmarks,
+              setUserFavoriteSubscriptionIds,
+              setUserErrorSubscriptionUrls,
+              setUserWarningSubscriptionUrls,
             }}
           >
             <Stack>
