@@ -13,13 +13,14 @@ import Colors from "../constants/Colors";
 import { AuthContext, FeedContext } from "../app/_layout";
 import { getColorForLetter, getTextColorForLetter } from "../app/utils/Styling";
 import { formatDescription } from "../app/utils/Formatting";
-
 import {
   updateChannelSubscribers,
   updateUserSubscriptions,
 } from "../hooks/FeedCardFunctions";
 import Dots20 from "./icons/20/Dots20";
 import StarFilled12 from "./icons/12/StarFilled12";
+import StopFilled12 from "./icons/12/StopFilled12";
+import WarningFilled12 from "./icons/12/WarningFilled12";
 
 const CARD_WIDTH = Dimensions.get("window").width - 32;
 
@@ -36,21 +37,35 @@ export default function FeedCardListItem({
     setUserSubscriptionIds,
     setUserSubscriptionUrls,
     userFavoriteSubscriptionIds,
+    userWarningSubscriptionUrls,
+    userErrorSubscriptionUrls,
   } = useContext(AuthContext);
   const { feeds } = useContext(FeedContext);
   const colorScheme = useColorScheme();
-
   const [isSubscribed, setIsSubscribed] = useState(
     userSubscriptionIds.includes(item.id)
   );
   const [isFavorited, setIsFavorited] = useState(
     userFavoriteSubscriptionIds?.includes(item.id)
   );
+  const [isWarning, setIsWarning] = useState(
+    userWarningSubscriptionUrls?.includes(item.channel_url)
+  );
+  const [isError, setIsError] = useState(
+    userErrorSubscriptionUrls?.includes(item.id)
+  );
 
   useLayoutEffect(() => {
     setIsSubscribed(userSubscriptionIds.includes(item.id));
     setIsFavorited(userFavoriteSubscriptionIds?.includes(item.id));
-  }, [userSubscriptionIds, item.id]);
+    setIsWarning(userWarningSubscriptionUrls?.includes(item.channel_url));
+    setIsError(userErrorSubscriptionUrls?.includes(item.channel_url));
+  }, [
+    userSubscriptionIds,
+    userWarningSubscriptionUrls,
+    userErrorSubscriptionUrls,
+    item.id,
+  ]);
 
   const handleSubscribe = async () => {
     setIsSubscribed(!isSubscribed);
@@ -94,11 +109,9 @@ export default function FeedCardListItem({
       display: "flex",
       flex: 1,
       width: CARD_WIDTH,
-
       gap: 10,
       paddingVertical: 10,
       ...(extraPadding && { marginHorizontal: 16 }),
-      marginRight: -8,
       overflow: "visible",
       zIndex: 20,
     },
@@ -232,7 +245,7 @@ export default function FeedCardListItem({
       display: "flex",
       flexDirection: "row",
       zIndex: 5,
-      gap: 5,
+      gap: 3,
     },
     favoriteBadgeWrapper: {
       borderBottomLeftRadius: 100,
@@ -246,6 +259,34 @@ export default function FeedCardListItem({
       alignItems: "center",
       justifyContent: "center",
       paddingBottom: 0.5,
+      borderWidth: 2,
+      borderColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    stopBadgeWrapper: {
+      borderBottomLeftRadius: 100,
+      borderBottomRightRadius: 100,
+      borderTopLeftRadius: 100,
+      borderTopRightRadius: 100,
+      backgroundColor: `#FF4D29`,
+      height: 20,
+      width: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 2,
+      borderColor: `${Colors[colorScheme || "light"].background}`,
+    },
+    warningBadgeWrapper: {
+      borderBottomLeftRadius: 100,
+      borderBottomRightRadius: 100,
+      borderTopLeftRadius: 100,
+      borderTopRightRadius: 100,
+      backgroundColor: `#A3A3A3`,
+      height: 20,
+      width: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       borderWidth: 2,
       borderColor: `${Colors[colorScheme || "light"].background}`,
     },
@@ -280,6 +321,17 @@ export default function FeedCardListItem({
                 <StarFilled12 style={styles.buttonImage} color="#FFFFFF" />
               </View>
             )}
+            {isError ? (
+              <View style={styles.stopBadgeWrapper}>
+                <StopFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            ) : isWarning ? (
+              <View style={styles.warningBadgeWrapper}>
+                <WarningFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            ) : (
+              <></>
+            )}
           </View>
 
           <View style={styles.noImageWrapper}>
@@ -306,6 +358,17 @@ export default function FeedCardListItem({
               <View style={styles.favoriteBadgeWrapper}>
                 <StarFilled12 style={styles.buttonImage} color="#FFFFFF" />
               </View>
+            )}
+            {isError ? (
+              <View style={styles.stopBadgeWrapper}>
+                <StopFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            ) : isWarning ? (
+              <View style={styles.warningBadgeWrapper}>
+                <WarningFilled12 style={styles.buttonImage} color="#FFFFFF" />
+              </View>
+            ) : (
+              <></>
             )}
           </View>
           <Image
