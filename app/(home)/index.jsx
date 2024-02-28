@@ -35,6 +35,8 @@ export default function Index() {
     userSubscriptionUrls,
     userSubscriptionUrlsFetched,
     userCategories,
+    setUserErrorSubscriptionUrls,
+    setUserWarningSubscriptionUrls,
   } = useContext(AuthContext);
 
   const colorScheme = useColorScheme();
@@ -140,6 +142,22 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
+
+        const feedWithError = feeds.find((feed) => feed.channel_url === url);
+
+        if (error.message && error.message.includes("404")) {
+          // It's an error
+          setUserErrorSubscriptionUrls((prevUrls) => [
+            ...(prevUrls || []),
+            feedWithError.channel_url,
+          ]);
+        } else {
+          // It's a warning
+          setUserWarningSubscriptionUrls((prevUrls) => [
+            ...(prevUrls || []),
+            feedWithError.channel_url,
+          ]);
+        }
       }
     };
 
@@ -222,6 +240,22 @@ export default function Index() {
         );
       } catch (error) {
         console.error(`Error parsing URL: ${url}`, error);
+
+        const feedWithError = feeds.find((feed) => feed.channel_url === url);
+
+        if (error.message && error.message.includes("404")) {
+          // It's an error
+          setUserErrorSubscriptionUrls((prevUrls) => [
+            ...(prevUrls || []),
+            feedWithError.channel_url,
+          ]);
+        } else {
+          // It's a warning
+          setUserWarningSubscriptionUrls((prevUrls) => [
+            ...(prevUrls || []),
+            feedWithError.channel_url,
+          ]);
+        }
       }
     };
 
